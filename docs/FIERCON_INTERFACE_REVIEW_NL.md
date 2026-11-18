@@ -39,3 +39,11 @@ De browsertests gebruiken de echte gedeelde componenten met expliciete testcontr
 De bestaande verbindingscontrole, DISARMED-bewijsvoering, schrijfverificatie, motor-stopbeveiliging en behoud van gemonteerde tabpanelen blijven in de bestaande eigenaars. Er zijn geen protocolwaarden, firmwarecommando's of sessie-eigenaars gewijzigd.
 
 De meetresultaten staan in [de layoutaudit](verification/fiercon-layout-audit.json) en [het controleoverzicht](verification/fiercon-verification-summary.json).
+
+## Openbare publicatie
+
+Broncommit `3a1e45da6625c1cf508a9791f06878cedcadbeca` is gebouwd met de publieke basis `/FPV-ARBCON-NL/`. De publicatie staat op `gh-pages` in commit `22f56d37beb935ad50137c4b8da4980efc6fafc4`; Pages-run `44394459240` is succesvol afgerond. De publicatieboom is byte voor byte met de lokale Git-boom vergeleken.
+
+Op het openbare adres zijn de naam **fiercon**, alle 17 onderdelen, het openen van firmware, de vijf gidskaarten en zeven geladen afbeeldingen in de geopende gids gecontroleerd. De app in de browser bevat geen testfixtures, donatielink of sourcemaps. Het websiteveld in GitHub About wijst naar hetzelfde publieke adres.
+
+![Gecontroleerde openbare homepage](verification/fiercon-public-home.jpg)
