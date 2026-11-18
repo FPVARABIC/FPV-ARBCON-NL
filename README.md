@@ -33,7 +33,7 @@ De webpublicatie staat op de `gh-pages`-branch, met de gebouwde bestanden in de 
 FPV_ARBCON_WEB_BASE=/FPV-ARBCON-NL/ FPV_ARBCON_WEB_SOURCEMAP=false npm run build:web
 ```
 
-Publiceer de inhoud van `dist/` in de hoofdmap van `gh-pages`, met een leeg `.nojekyll`-bestand. Kopieer `index.html` ook naar `404.html`. De broncode blijft op `main`. Deze repository bevat geen overgenomen Android-workflows.
+Publiceer de inhoud van `dist-web/` in de hoofdmap van `gh-pages`, met een leeg `.nojekyll`-bestand. Kopieer `index.html` ook naar `404.html`. De broncode blijft op `main`. Deze repository bevat geen overgenomen Android-workflows.
 
 ## Android
 
