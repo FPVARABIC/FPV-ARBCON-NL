@@ -1,0 +1,208 @@
+{
+  "id": "cinematic",
+  "kind": "FLIGHT_STYLE",
+  "title_ar": "Cinematisch vliegen",
+  "title_en": "Cinematic",
+  "description_ar": "Vliegen is rustig en verbindend, met als doel dat het beeld eruit ziet als een camera op een arm.",
+  "description_en": "Smooth, continuous flying where the shot should look like a camera on a gimbal, not on a drone.",
+  "difficulty": "beginner",
+  "difficulty_ar": "Beginner",
+  "intended_aircraft": [
+    "Cinewhoop",
+    "Cinelog",
+    "5 inch met HD-camera",
+    "7 inch voor weidse opnamen"
+  ],
+  "required_screens": [
+    "PidTuningScreen",
+    "ReceiverScreen",
+    "FailsafeScreen"
+  ],
+  "optional_screens": [
+    "MotorsScreen",
+    "OsdScreen",
+    "ModesScreen"
+  ],
+  "hardware_requirements": [
+    "Een camera of videorecorder.",
+    "ESC Hij steunt. DShot Twee-richtingsfilter. RPM )"
+  ],
+  "hardware_verification_status": "NOT VERIFIED — DEFERRED",
+  "verification_level": "SOFTWARE / REFERENCE VERIFIED",
+  "image": "_shared/images/pid-rates-and-feel.png",
+  "sources": [
+    "S1.1",
+    "S1.2",
+    "S1.10b",
+    "S1.11a",
+    "S1.11b",
+    "S1.13"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title_ar": "Ontvanger",
+      "screen": "Ontvanger · Signaalfiltering",
+      "screenshot": "images/1-receiver-smoothing.png",
+      "targets": [
+        {
+          "control": "receiver-setpoint-factor",
+          "kind": "stepper",
+          "expected": "90",
+          "source": "S1.1"
+        },
+        {
+          "control": "receiver-throttle-factor",
+          "kind": "stepper",
+          "expected": "50",
+          "source": "S1.1"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "title_ar": "Stickrespons",
+      "screen": "PID-afstelling · Stickrespons",
+      "screenshot": "images/2-pid-feel.png",
+      "targets": [
+        {
+          "control": "pid-ff-jitter",
+          "kind": "stepper",
+          "expected": "12",
+          "source": "S1.1"
+        },
+        {
+          "control": "pid-ff-boost",
+          "kind": "stepper",
+          "expected": "15",
+          "source": "S1.13"
+        },
+        {
+          "control": "pid-ff-averaging-0",
+          "kind": "option",
+          "expected": "selected",
+          "source": "S1.1"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "title_ar": "Motoren",
+      "screen": "Motoren · ESC-instellingen",
+      "screenshot": "images/3-motors.png",
+      "targets": [
+        {
+          "control": "motor-config-protocol-7",
+          "kind": "option",
+          "expected": "selected",
+          "source": "S1.11a"
+        },
+        {
+          "control": "motor-config-bidirectional-dshot",
+          "kind": "switch",
+          "expected": "on",
+          "source": "S1.10b"
+        },
+        {
+          "control": "motor-config-poles",
+          "kind": "input",
+          "expected": "14",
+          "source": "C"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "title_ar": "Dynamic Idle",
+      "screen": "PID-afstelling · Dynamic Idle",
+      "screenshot": "images/4-dynamic-idle.png",
+      "targets": [
+        {
+          "control": "pid-idle-min-rpm",
+          "kind": "stepper",
+          "expected": "35",
+          "source": "S1.11a"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "title_ar": "Failsafe",
+      "screen": "Failsafe · Actie in fase 2",
+      "screenshot": "images/5-failsafe.png",
+      "targets": [
+        {
+          "control": "failsafe-procedure-0",
+          "kind": "option",
+          "expected": "selected",
+          "source": "C"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "title_ar": "OSD",
+      "screen": "OSD · Waarschuwingen",
+      "screenshot": "images/6-osd-alarms.png",
+      "targets": [
+        {
+          "control": "osd-rssi-dbm",
+          "kind": "stepper",
+          "expected": "-102 dBm",
+          "source": "S1.1"
+        }
+      ]
+    }
+  ],
+  "step_count": 6,
+  "decisions": [
+    {
+      "requirement": "Afkapfrequenties (setpoint · gas)",
+      "decision": "KEEP_DEFAULT",
+      "detail": "Laat ze 0  —  geen  —  Automatisch  —. De officiële filmopstelling regelt de automatische processors zonder de frequentie van de stukken aan te raken.",
+      "source": "S1.13"
+    },
+    {
+      "requirement": "Rates",
+      "decision": "PILOT_PREFERENCE",
+      "detail": "Er is geen officiële Rates voor de bioscoop. Kies een langzamer bestand dan je gewone en verhoog de expo een beetje om het midden te verlichten.",
+      "source": null
+    },
+    {
+      "requirement": "PID-waarden (P · I · D)",
+      "decision": "KEEP_DEFAULT",
+      "detail": "De twee officiële bioscopen hebben helemaal geen P, I of D. De flexibiliteit komt van de stickrespons en de verlichting, niet van de PID..",
+      "source": "S1.1"
+    },
+    {
+      "requirement": "Gyro LPF · D-term LPF · Dynamic Notch",
+      "decision": "KEEP_DEFAULT",
+      "detail": "Volg je platform. De filmreferentiewaarden (750Hz dak voor Cinelog, minimum 125Hz voor schone bouw) zijn in de sectie  — optie —, en de toepassing wijzigt ze alleen als de leeswijze bewijst dat de functie actief is.",
+      "source": "S1.11a"
+    },
+    {
+      "requirement": "Vliegmodi (Modes)",
+      "decision": "PILOT_PREFERENCE",
+      "detail": "De ARM-sleutel is verplicht en wordt één keer per vliegtuig ingesteld. Vervolgens  —  Angle of Beeper of Turtle  —  uw voorkeur.",
+      "source": null
+    },
+    {
+      "requirement": "Voeding en accu",
+      "decision": "PILOT_PREFERENCE",
+      "detail": "Er zijn geen grenzen aan accu. Pas ze aan op je pakket: aantal cellen, cel waarschuwing, capaciteit.",
+      "source": null
+    },
+    {
+      "requirement": "Videozender (VTX)",
+      "decision": "NOT_APPLICABLE",
+      "detail": "Dat stijl verandert niet. Pas het kanaal en de stroom één keer aan volgens je locatie en de regels.",
+      "source": null
+    },
+    {
+      "requirement": "`thrust_linear`",
+      "decision": "NOT_APPLICABLE",
+      "detail": "Het is geregeld door de officiële opstelling volgens de frequentie ESC (0 bij 24k · 20 bij 48k · 40 bij 96k), en wordt niet weergegeven door deze toepassing. Het wordt ingesteld vanaf de opdrachtlijn of via de pakkettoepassing.",
+      "source": "S1.11a"
+    }
+  ]
+}

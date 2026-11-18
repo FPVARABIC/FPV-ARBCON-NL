@@ -1,0 +1,494 @@
+jest.mock('../../platforms/react-native/transport/native/NativeUsbSerialTransport');
+
+import React from 'react';
+import {Text} from 'react-native';
+import ReactTestRenderer, {act} from 'react-test-renderer';
+import '../../i18n';
+import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
+
+import type {BetaflightTarget} from '../../core/firmware-flasher';
+import {bytesToBase64} from '../../platforms/react-native/protocol/base64';
+import {FirmwareBootloaderController} from '../../platforms/react-native/protocol/FirmwareBootloaderController';
+import type {UsbSerialTransportClient} from '../../platforms/react-native/transport';
+import type {DfuDeviceDescriptor} from '../../platforms/react-native/transport/native/NativeUsbSerialTransport';
+import FirmwareFlasherScreen, {
+  resolveDfuSelection,
+  resolveSerialSelection,
+} from './FirmwareFlasherScreen';
+
+const VALID_HEX = ':020000040800F2\n:0400000001020304F2\n:00000001FF\n';
+
+function fakeClient() {
+  return {
+    listDevices: jest.fn(async () => []),
+    listDfuDevices: jest.fn(async (): Promise<DfuDeviceDescriptor[]> => []),
+    pickFirmwareFile: jest.fn(async () => ({
+      name: 'verified.hex',
+      sizeBytes: VALID_HEX.length,
+      dataBase64: bytesToBase64(Uint8Array.from(VALID_HEX, character => character.charCodeAt(0))),
+    })),
+    saveFirmwareFile: jest.fn(async () => true),
+    onDeviceAttached: jest.fn(() => jest.fn()),
+    onDeviceDetached: jest.fn(() => jest.fn()),
+    onDfuFlashProgress: jest.fn(() => jest.fn()),
+    cancelDfuFlash: jest.fn(async () => undefined),
+    unprotectDfuDevice: jest.fn(async () => undefined),
+  };
+}
+
+function fakeApi(targets: readonly BetaflightTarget[] = []) {
+  return {
+    loadTargets: jest.fn(async () => targets),
+    loadTargetReleases: jest.fn(),
+    loadBuild: jest.fn(),
+    loadOptions: jest.fn(),
+    loadCommits: jest.fn(),
+    requestBuild: jest.fn(),
+    requestBuildStatus: jest.fn(),
+    loadBuildLog: jest.fn(async () => 'Build complete'),
+    loadFirmware: jest.fn(),
+  };
+}
+
+function press(renderer: ReactTestRenderer.ReactTestRenderer, testID: string): Promise<void> {
+  const node = renderer.root.findAllByProps({testID}).find(item => typeof item.props.onPress === 'function');
+  if (!node) throw new Error(`Missing pressable ${testID}`);
+  return act(async () => {
+    await node.props.onPress();
+    await Promise.resolve();
+  });
+}
+
+function allText(renderer: ReactTestRenderer.ReactTestRenderer): string {
+  return renderer.root.findAllByType(Text).map(node => {
+    const value = node.props.children;
+    return Array.isArray(value) ? value.join('') : String(value ?? '');
+  }).join('\n');
+}
+
+async function renderScreen(client = fakeClient(), api = fakeApi()) {
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  await act(async () => {
+    renderer = ReactTestRenderer.create(
+      <FirmwareFlasherScreen
+        client={client as unknown as UsbSerialTransportClient}
+        buildApi={api as never}
+      />,
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+  return {renderer, client, api};
+}
+
+async function flushAsyncEffects(rounds = 8): Promise<void> {
+  await act(async () => {
+    for (let index = 0; index < rounds; index += 1) {
+      await Promise.resolve();
+    }
+  });
+}
+
+describe('FirmwareFlasherScreen', () => {
+  /**
+   * "استخدم الملف المحلي أو أعد المحاولة" - with, until now, nothing to
+   * press. The boards download lived inline in the mount effect, whose
+   * dependencies never changed, so the only way to run it again was to
+   * unmount the screen. The sentence promised an action the screen did
+   * not have.
+   *
+   * The retry repeats THAT DOWNLOAD AND NOTHING ELSE: USB discovery and
+   * the attach/detach subscriptions have no part in an HTTP failure and
+   * must not be torn down and rebuilt by a press on it.
+   */
+  describe('the boards download can actually be retried', () => {
+    const TARGETS = [
+      {target: 'KAKUTEH7', group: 'supported', manufacturer: 'HBRO', mcu: 'STM32H743'},
+      {target: 'SPEEDYBEEF405V3', group: 'supported', manufacturer: 'SPBE', mcu: 'STM32F405'},
+    ] as unknown as readonly BetaflightTarget[];
+
+    /** Fails the first `failures` calls, then serves the catalogue. */
+    function flakyApi(failures: number) {
+      const api = fakeApi();
+      let calls = 0;
+      api.loadTargets = jest.fn(async () => {
+        calls += 1;
+        if (calls <= failures) throw new Error('Failed to fetch');
+        return TARGETS;
+      }) as never;
+      return {api, calls: () => calls};
+    }
+
+    it('failure -> retry -> success, with no stuck spinner and no stale error', async () => {
+      const {api, calls} = flakyApi(1);
+      const client = fakeClient();
+      const {renderer} = await renderScreen(client, api);
+      await flushAsyncEffects();
+
+      // The defect state, and the control the sentence implies.
+      expect(allText(renderer)).toContain("De lijst is niet beschikbaar.");
+      expect(calls()).toBe(1);
+      const attachSubscriptions = client.onDeviceAttached.mock.calls.length;
+
+      await press(renderer, 'retry-targets');
+      await flushAsyncEffects(16);
+
+      expect(calls()).toBe(2);
+      // The error is gone, and so is the loading row - not one replaced
+      // by the other and left there.
+      const text = allText(renderer);
+      expect(text).not.toContain("De lijst is niet beschikbaar.");
+      expect(text).not.toContain("wordt nu geladen");
+      expect(renderer.root.findAllByProps({testID: 'retry-targets'})).toHaveLength(0);
+
+      // The catalogue really arrived: the boards are selectable.
+      await press(renderer, 'target-selector');
+      expect(renderer.root.findAllByProps({testID: 'target-KAKUTEH7'}).length).toBeGreaterThan(0);
+
+      // And the retry touched nothing but the download.
+      expect(client.onDeviceAttached.mock.calls).toHaveLength(attachSubscriptions);
+      act(() => renderer.unmount());
+    });
+
+    it('failure -> retry -> failure leaves a retryable error, never a spinner', async () => {
+      const {api, calls} = flakyApi(5);
+      const {renderer} = await renderScreen(fakeClient(), api);
+      await flushAsyncEffects();
+      expect(allText(renderer)).toContain("De lijst is niet beschikbaar.");
+
+      await press(renderer, 'retry-targets');
+      await flushAsyncEffects(16);
+
+      expect(calls()).toBe(2);
+      const text = allText(renderer);
+      // Still an error, still recoverable, and NOT still loading.
+      expect(text).toContain("De lijst is niet beschikbaar.");
+      expect(text).not.toContain("wordt nu geladen");
+      expect(renderer.root.findAllByProps({testID: 'retry-targets'}).length).toBeGreaterThan(0);
+
+      // A third press still works - the control does not consume itself.
+      await press(renderer, 'retry-targets');
+      await flushAsyncEffects(16);
+      expect(calls()).toBe(3);
+      act(() => renderer.unmount());
+    });
+
+    it('abandons an in-flight retry when the operator leaves the screen', async () => {
+      /*
+       * The reason each attempt carries its own AbortController and the
+       * cleanup aborts it.
+       *
+       * Two attempts cannot overlap through the interface - the retry
+       * only exists in the error state, and pressing it moves the screen
+       * to loading, where it is not rendered - so the honest thing to
+       * test is the overlap that IS reachable: an operator who presses
+       * retry and then goes back while the request is still open.
+       */
+      const api = fakeApi();
+      const signals: AbortSignal[] = [];
+      let releaseSecond: (() => void) | undefined;
+      let calls = 0;
+      api.loadTargets = jest.fn(async (signal: AbortSignal) => {
+        calls += 1;
+        signals.push(signal);
+        if (calls === 1) throw new Error('Failed to fetch');
+        await new Promise<void>(resolve => {
+          releaseSecond = resolve;
+        });
+        return TARGETS;
+      }) as never;
+
+      const {renderer} = await renderScreen(fakeClient(), api);
+      await flushAsyncEffects();
+      expect(allText(renderer)).toContain("De lijst is niet beschikbaar.");
+
+      await press(renderer, 'retry-targets');
+      await flushAsyncEffects();
+      expect(calls).toBe(2);
+      expect(signals[1]?.aborted).toBe(false);
+
+      act(() => renderer.unmount());
+      expect(signals[1]?.aborted).toBe(true);
+
+      // The abandoned request settling afterwards must go nowhere and
+      // must not throw.
+      releaseSecond?.();
+      await act(async () => {
+        for (let index = 0; index < 8; index += 1) await Promise.resolve();
+      });
+      expect(signals).toHaveLength(2);
+    });
+  });
+
+  it('recovers a stale Android USB id only when one serial device is unambiguous', () => {
+    const only = {
+      deviceId: 41,
+      vendorId: 0x0483,
+      productId: 0x5740,
+      productName: 'Flight Controller',
+      manufacturerName: 'FPV',
+      driverType: 'CDC_ACM',
+      portCount: 1,
+    } as const;
+    expect(resolveSerialSelection([only], 12)).toBe(only);
+    expect(resolveSerialSelection([only, {...only, deviceId: 42}], 12)).toBeUndefined();
+  });
+
+  it('recovers a stale DFU id only when one bootloader is unambiguous', () => {
+    const only = {
+      deviceId: 77,
+      vendorId: 0x0483,
+      productId: 0xdf11,
+      productName: 'STM32 BOOTLOADER',
+      manufacturerName: 'STMicroelectronics',
+      interfaceNumber: 0,
+      alternateSetting: 0,
+    } as DfuDeviceDescriptor;
+    expect(resolveDfuSelection([only], 10)).toBe(only);
+    expect(resolveDfuSelection([only, {...only, deviceId: 78}], 10)).toBeUndefined();
+  });
+
+  it('shows the build-configuration contract before a board is selected', async () => {
+    const {renderer} = await renderScreen();
+    expect(renderer.root.findAllByProps({testID: 'build-configuration'}).length).toBeGreaterThan(0);
+    expect(allText(renderer)).toContain("Selecteer Flight Controller en versie Firmware hierboven; Hier worden de opties Core/Cloud, Radio, Telemetry, OSD, Motor en andere opties direct weergegeven.");
+    expect(renderer.root.findByProps({testID: 'build-firmware'}).props.disabled).toBe(true);
+    act(() => renderer.unmount());
+  });
+
+  it('loads a local HEX after active interactions, validates it and selects the DFU path', async () => {
+    const {renderer, client} = await renderScreen();
+    await press(renderer, 'firmware-source-local');
+    await press(renderer, 'pick-local-firmware');
+    expect(client.pickFirmwareFile).toHaveBeenCalledTimes(1);
+    expect(allText(renderer)).toContain('HEX • verified.hex');
+    expect(allText(renderer)).toContain('STM32 DFU (DfuSe)');
+    expect(allText(renderer)).toContain("Veiligheidscontrole");
+    expect(allText(renderer)).toContain("De aanbevolen beveiligingsinstelling");
+    expect(allText(renderer)).toContain("De eenvoudige baan is klaar.");
+    expect(renderer.root.findAllByProps({testID: 'unprotect-dfu-device'})).toHaveLength(0);
+    act(() => renderer.unmount());
+  });
+
+  it('virtualizes a very large target catalogue instead of mounting every row', async () => {
+    const targets = Array.from({length: 2000}, (_, index) => ({
+      target: `TARGET_${String(index).padStart(4, '0')}`,
+      group: index % 3 === 0 ? 'supported' : 'unsupported',
+      manufacturer: 'FPV',
+      mcu: 'STM32',
+    }));
+    const {renderer} = await renderScreen(fakeClient(), fakeApi(targets));
+    await press(renderer, 'target-selector');
+    const mountedTargetRows = renderer.root.findAll(node =>
+      typeof node.props.testID === 'string' && node.props.testID.startsWith('target-TARGET_'),
+    );
+    expect(mountedTargetRows.length).toBeGreaterThan(0);
+    expect(mountedTargetRows.length).toBeLessThan(2000);
+    act(() => renderer.unmount());
+  });
+
+  it('shows the complete online board, release and Cloud Build configuration with the official empty None option', async () => {
+    const api = fakeApi([{target: 'S405', group: 'supported', manufacturer: 'FPV', mcu: 'STM32F405'}]);
+    api.loadTargetReleases.mockResolvedValue({releases: [
+      {release: '4.6.0', label: '2026-06-01', type: 'Stable'},
+      {release: '4.7.0-RC1', label: '2026-07-01', type: 'ReleaseCandidate'},
+    ]});
+    api.loadBuild.mockResolvedValue({
+      target: 'S405',
+      release: '4.6.0',
+      releaseType: 'Stable',
+      cloudBuild: true,
+      manufacturer: 'FPV',
+      mcu: 'STM32F405',
+      date: '2026-06-01',
+    });
+    api.loadOptions.mockResolvedValue({
+      radioProtocols: [{name: 'CRSF', value: 'RX_CRSF', default: true}],
+      telemetryProtocols: [
+        {name: '[None]', value: '', default: true},
+        {name: 'SmartPort', value: 'TELEMETRY_SMARTPORT'},
+      ],
+      motorProtocols: [{name: 'DShot', value: 'DSHOT', default: true}],
+      generalOptions: [
+        {name: 'GPS', value: 'GPS'},
+        {name: 'OSD', groupedName: 'MSP DisplayPort', value: 'OSD_HD', group: 'OSD', default: true},
+      ],
+    });
+
+    const {renderer} = await renderScreen(fakeClient(), api);
+    await press(renderer, 'target-selector');
+    await press(renderer, 'target-S405');
+    await flushAsyncEffects();
+
+    expect(renderer.root.findAllByProps({testID: 'build-configuration'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'release-channel-stable'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'build-mode-cloud'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'radio-protocol-selector'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'telemetry-protocol-selector'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'osd-protocol-selector'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'motor-protocol-selector'}).length).toBeGreaterThan(0);
+    expect(allText(renderer)).toContain('[None]');
+    expect(allText(renderer)).toContain("Informatie binnen FPV-ARBCON");
+    expect(api.loadBuild).toHaveBeenCalledWith('S405', '4.6.0', expect.any(AbortSignal));
+    act(() => renderer.unmount());
+  });
+
+  it('keeps local flashing available when the online target service fails', async () => {
+    const api = fakeApi();
+    api.loadTargets.mockRejectedValueOnce(new Error('offline'));
+    const {renderer} = await renderScreen(fakeClient(), api);
+    expect(allText(renderer)).toContain("De lokale werkwijze blijft beschikbaar");
+    await press(renderer, 'firmware-source-local');
+    expect(renderer.root.findAllByProps({testID: 'pick-local-firmware'}).length).toBeGreaterThan(0);
+    act(() => renderer.unmount());
+  });
+
+  it('honours the manually selected USB device and port during auto detection', async () => {
+    const client = fakeClient();
+    const serialDevice = {
+      deviceId: 41,
+      vendorId: 0x0483,
+      productId: 0x5740,
+      productName: 'Flight Controller',
+      manufacturerName: 'FPV',
+      driverType: 'CDC',
+      portCount: 2,
+    };
+    client.listDevices.mockResolvedValue([serialDevice] as never);
+    const release = jest.fn(async () => undefined);
+    const detect = jest.spyOn(FirmwareBootloaderController.prototype, 'detectFlightController')
+      .mockResolvedValue({
+        device: serialDevice,
+        identity: {
+          firmware: {knownFamily: 'Betaflight'},
+          board: {targetName: 'S405', boardName: 'S405', boardIdentifier: 'S405'},
+        },
+        release,
+      } as never);
+
+    const api = fakeApi([{target: 'S405'}]);
+    api.loadTargetReleases.mockResolvedValue({releases: []});
+    const {renderer} = await renderScreen(client, api);
+    await press(renderer, 'detect-port-1');
+    await press(renderer, 'auto-detect-fc');
+
+    expect(detect).toHaveBeenCalledWith(expect.any(AbortSignal), {deviceId: 41, portIndex: 1});
+    expect(release).toHaveBeenCalledTimes(1);
+    expect(allText(renderer)).toContain("S405 herkend en geselecteerd");
+    detect.mockRestore();
+    act(() => renderer.unmount());
+  });
+
+  it('re-enumerates and safely recovers a changed Android USB id before auto detection', async () => {
+    const client = fakeClient();
+    const previous = {
+      deviceId: 12,
+      vendorId: 0x0483,
+      productId: 0x5740,
+      productName: 'Flight Controller',
+      manufacturerName: 'FPV',
+      driverType: 'CDC',
+      portCount: 1,
+    };
+    const current = {...previous, deviceId: 41};
+    client.listDevices.mockResolvedValue([previous] as never);
+    const release = jest.fn(async () => undefined);
+    const detect = jest
+      .spyOn(FirmwareBootloaderController.prototype, 'detectFlightController')
+      .mockResolvedValue({
+        device: current,
+        identity: {
+          firmware: {knownFamily: 'BETAFLIGHT'},
+          board: {
+            targetName: 'SPEEDYBEEF405V5',
+            boardName: 'SPEEDYBEEF405V5',
+            boardIdentifier: 'S405',
+          },
+        },
+        release,
+      } as never);
+
+    const {renderer} = await renderScreen(client);
+    client.listDevices.mockResolvedValue([current] as never);
+    await press(renderer, 'auto-detect-fc');
+
+    expect(detect).toHaveBeenCalledWith(expect.any(AbortSignal), {
+      deviceId: 41,
+      portIndex: 0,
+    });
+    expect(allText(renderer)).toContain("De USB-identificatie is veranderd. De enige controller is opnieuw aangesloten voor automatische identificatie.");
+    expect(release).toHaveBeenCalledTimes(1);
+    detect.mockRestore();
+    act(() => renderer.unmount());
+  });
+
+  it('loads and labels a local Unified Config independently of the firmware file', async () => {
+    const client = fakeClient();
+    const config = '# target defaults\nset motor_pwm_protocol = DSHOT300\n';
+    client.pickFirmwareFile.mockResolvedValueOnce({
+      name: 'S405.config',
+      sizeBytes: config.length,
+      dataBase64: bytesToBase64(Uint8Array.from(config, character => character.charCodeAt(0))),
+    });
+    const {renderer} = await renderScreen(client);
+    await press(renderer, 'pick-unified-config');
+    expect(allText(renderer)).toContain('S405.config');
+    expect(allText(renderer)).toContain("Begin- en eindmarkeringen en overlappende gebieden worden vóór het wissen gecontroleerd");
+    expect(renderer.root.findByProps({testID: 'clear-unified-config'}).props.disabled).toBe(false);
+    act(() => renderer.unmount());
+  });
+
+  it('rejects a bridge payload whose decoded size does not match the native file size', async () => {
+    const client = fakeClient();
+    client.pickFirmwareFile.mockResolvedValueOnce({
+      name: 'truncated.hex',
+      sizeBytes: VALID_HEX.length + 1,
+      dataBase64: bytesToBase64(Uint8Array.from(VALID_HEX, character => character.charCodeAt(0))),
+    });
+    const {renderer} = await renderScreen(client);
+    await press(renderer, 'firmware-source-local');
+    await press(renderer, 'pick-local-firmware');
+    expect(allText(renderer)).toContain("De grootte van het firmwarebestand wijkt af van de ontvangen gegevens.");
+    expect(allText(renderer)).not.toContain('HEX • truncated.hex');
+    act(() => renderer.unmount());
+  });
+
+  it('keeps read-unprotect disabled until explicit erase consent, then uses the selected DFU device once', async () => {
+    const client = fakeClient();
+    client.listDfuDevices.mockResolvedValue([{
+      deviceId: 17,
+      vendorId: 0x0483,
+      productId: 0xdf11,
+      interfaceNumber: 0,
+      alternateSetting: 0,
+      productName: 'STM32 BOOTLOADER',
+    }]);
+    const {renderer} = await renderScreen(client);
+    await press(renderer, 'firmware-source-local');
+    await press(renderer, 'pick-local-firmware');
+    await press(renderer, 'toggle-advanced-usb-recovery');
+
+    expect(renderer.root.findByProps({testID: 'unprotect-dfu-device'}).props.disabled).toBe(true);
+    await act(async () => {
+      renderer.root.findByProps({testID: 'confirm-dfu-read-unprotect'}).props.onValueChange(true);
+      await Promise.resolve();
+    });
+    expect(renderer.root.findByProps({testID: 'unprotect-dfu-device'}).props.disabled).toBe(false);
+    await press(renderer, 'unprotect-dfu-device');
+    expect(client.unprotectDfuDevice).toHaveBeenCalledTimes(1);
+    expect(client.unprotectDfuDevice).toHaveBeenCalledWith(17);
+    expect(allText(renderer)).toContain("Read Protection. is verwijderd. Snijd het bord af, voer DFU opnieuw in en voer flashen opnieuw uit.");
+    act(() => renderer.unmount());
+  });
+
+  it('keeps every help and build-log action inside FPV-ARBCON and lazy-loads the flasher outside the Motors startup graph', () => {
+    const screenSource = readFileSync(join(__dirname, 'FirmwareFlasherScreen.tsx'), 'utf8');
+    const appSource = readFileSync(join(__dirname, '../../../App.tsx'), 'utf8');
+    expect(screenSource).not.toMatch(/\bLinking\b|openURL|betaflight\.com\/docs|github\.com\/betaflight/);
+    expect(screenSource).toContain("navigation?.addListener('beforeRemove'");
+    expect(screenSource).toContain('client.cancelDfuFlash().catch');
+    expect(appSource).not.toMatch(/import\s*\{[^}]*FirmwareFlasherScreen/s);
+    expect(appSource).toContain('<Stack.Screen name="FirmwareFlasher" getComponent={getFirmwareFlasherScreen} />');
+  });
+});

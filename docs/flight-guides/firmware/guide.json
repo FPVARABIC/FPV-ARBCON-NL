@@ -1,0 +1,126 @@
+{
+  "id": "firmware",
+  "kind": "PREREQUISITE",
+  "title_ar": "Firmware",
+  "title_en": "Firmware",
+  "description_ar": "Wat in je vluchtbeheer moet waar zijn voordat een patroon aanwijzingen iets betekenen.",
+  "description_en": "What must be right on the flight controller before any style guide means anything.",
+  "difficulty": "intermediate",
+  "difficulty_ar": "Gemiddeld",
+  "intended_aircraft": [
+    "Een toestel met compatibele firmware"
+  ],
+  "required_screens": [
+    "FirmwareFlasherScreen",
+    "PortsScreen",
+    "SetupScreen"
+  ],
+  "optional_screens": [
+    "PresetsScreen",
+    "ConfigurationsScreen",
+    "CliScreen"
+  ],
+  "hardware_requirements": [
+    "Betaflight vliegbeheerder met MSP API 1.47 boven.",
+    "USB kabel is betrouwbaar.",
+    "propellers ontkoppeld."
+  ],
+  "hardware_verification_status": "NOT VERIFIED — DEFERRED",
+  "verification_level": "SOFTWARE VERIFIED",
+  "sources": [
+    "S1.12",
+    "S1.13",
+    "S2.1",
+    "S2.2"
+  ],
+  "image": "_shared/images/firmware-flasher.png",
+  "steps": [
+    {
+      "n": 1,
+      "title_ar": "Printplaat, versie en bouwopties",
+      "screen": "firmware update · fase 1: printplaat en bouw",
+      "screenshot": "images/1-flasher-board.png",
+      "targets": [
+        {
+          "control": "target-selector",
+          "kind": "contains",
+          "expected": "SPEEDYBEEF405V3",
+          "source": "C"
+        },
+        {
+          "control": "release-selector",
+          "kind": "contains",
+          "expected": "4.6.0",
+          "source": "C"
+        },
+        {
+          "control": "build-configuration",
+          "kind": "contains",
+          "expected": "Radioprotocol",
+          "source": "C"
+        },
+        {
+          "control": "radio-protocol-selector",
+          "kind": "contains",
+          "expected": "CRSF",
+          "source": "C"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "title_ar": "Veiligheidscontrole vóór het flashen",
+      "screen": "firmware update · fase 2 · beveiligingspoortkaart",
+      "screenshot": "images/2-flasher-safety.png",
+      "targets": [
+        {
+          "control": "confirm-props-removed",
+          "kind": "switch",
+          "expected": "on",
+          "source": "C"
+        },
+        {
+          "control": "confirm-usb-power-only",
+          "kind": "switch",
+          "expected": "on",
+          "source": "C"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "title_ar": "Presets",
+      "screen": "Presets · Officiële bibliotheek",
+      "screenshot": "images/3-presets.png",
+      "targets": [
+        {
+          "control": "presets-screen",
+          "kind": "contains",
+          "expected": "Compatibele presets (5)",
+          "source": "S1"
+        }
+      ]
+    }
+  ],
+  "step_count": 3,
+  "decisions": [
+    {
+      "requirement": "Vlieginstellingen",
+      "decision": "NOT_APPLICABLE",
+      "detail": "Dit is geen vluchtkaart. Na het updaten, maak een hoek van je patroon open en volg hem bij zijn eerste stappen.",
+      "source": null
+    },
+    {
+      "requirement": "Back-up vóór het bijwerken",
+      "decision": "ACTION",
+      "detail": "Zet de back-up optie in voordat flashen wordt gestart. De update verwijdert al uw instellingen, inclusief Failsafe, GPS, Rescue en standaard.",
+      "source": null
+    },
+    {
+      "requirement": "Stappen na het bijwerken",
+      "decision": "ACTION",
+      "detail": "poorten ← ontvanger ← motoren ← Mode (ARM sleutel eerst) ← Failsafe ← dan uw stijl handleiding.",
+      "source": null
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "FPV Configurator NL",
+  "short_name": "FPV Config NL",
+  "description": "Nederlandstalige configuratie en kalibratie van FPV-vluchtcontrollers via MSP.",
+  "lang": "nl",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FAF8F3",
+  "theme_color": "#5EEAD4",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

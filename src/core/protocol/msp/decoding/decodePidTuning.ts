@@ -1,0 +1,297 @@
+import {MspPayloadReadError, MspPayloadReader} from './MspPayloadReader';
+import {filterConfigBytesFor, type PidApiContract} from './pidWireContracts';
+
+export const PID_ITEM_COUNT = 5;
+export const PID_AXIS_COUNT = 3;
+export const PID_ADVANCED_API147_MIN_BYTES = 61;
+
+/** MSP_PID_ADVANCED byte carrying idle_min_rpm. See MspPidTuningSnapshot. */
+export const IDLE_MIN_RPM_OFFSET = 49;
+
+/**
+ * FEEL, not gains - the three bytes that separate cinematic from racing.
+ *
+ * Betaflight's OWN official presets change exactly these to define a
+ * flight style (firmware-presets, authored by a Betaflight maintainer):
+ *
+ *   Generic 150Hz Cinematic   averaging OFF      jitter 12
+ *   Generic 150Hz Ultra Cine  averaging OFF      jitter 16
+ *   Generic 250Hz Freestyle   averaging 2_POINT  jitter 8
+ *   Generic 500Hz Race        averaging 2_POINT  jitter 3   boost 18
+ *
+ * OFFSETS ANCHORED, NOT GUESSED. MSPHelper.js reads, in order,
+ * motorOutputLimit, autoProfileCellCount (a SIGNED byte, and the one an
+ * eyeball count drops), then idleMinRpm. This file already proves
+ * idleMinRpm is at 49 against feedforwardRoll at 32, so averaging is 50,
+ * boost 52 and jitter 54 - each verified by that same anchored sum
+ * rather than by counting fields.
+ *
+ * Introduced at API 1.44, below this app's 1.47 floor, so every board it
+ * admits carries them. They are still read length-guarded, because a
+ * short payload is a decode question and never an assumption.
+ */
+export const FEEDFORWARD_AVERAGING_OFFSET = 50;
+export const FEEDFORWARD_BOOST_OFFSET = 52;
+export const FEEDFORWARD_JITTER_FACTOR_OFFSET = 54;
+
+/**
+ * Betaflight's own input bound: max 100, raised to 200 for API >= 1.45
+ * (src/js/tabs/pid_tuning.js). We speak 1.47, so 200.
+ */
+export const IDLE_MIN_RPM_MAX = 200;
+export const RC_TUNING_API147_BYTES = 24;
+export const FILTER_CONFIG_API147_BYTES = 49;
+
+export interface MspPidTerm { readonly p: number; readonly i: number; readonly d: number }
+export interface MspRcTuning {
+  readonly ratesType: number;
+  readonly rcRate: readonly [number, number, number];
+  readonly expo: readonly [number, number, number];
+  readonly superRate: readonly [number, number, number];
+  readonly throttleMid: number;
+  readonly throttleExpo: number;
+  readonly throttleHover: number;
+  readonly throttleLimitType: number;
+  readonly throttleLimitPercent: number;
+  readonly rateLimit: readonly [number, number, number];
+}
+export interface MspFilterConfiguration {
+  readonly gyroLpf1StaticHz: number;
+  readonly gyroLpf1DynamicMinHz: number;
+  readonly gyroLpf1DynamicMaxHz: number;
+  readonly dtermLpf1StaticHz: number;
+  readonly dtermLpf1DynamicMinHz: number;
+  readonly dtermLpf1DynamicMaxHz: number;
+  readonly dynamicNotchQ: number;
+  readonly dynamicNotchMinHz: number;
+  readonly dynamicNotchMaxHz: number;
+  readonly dynamicNotchCount: number;
+}
+export interface MspPidTuningSnapshot {
+  /**
+   * WHICH WIRE CONTRACT PRODUCED THESE BYTES. Not a hint - the identity of
+   * the payloads themselves.
+   *
+   * It is carried here so that everything downstream - the draft, the
+   * encoder, the readback classifier and the screen - answers "does this
+   * board's MSP_FILTER_CONFIG define the 1.48 RPM tail?" from the SAME
+   * source-verified API resolution the controller already used to decide
+   * whether it may write at all. Without it each layer would have to form
+   * its own opinion, and the only material available to a layer that far
+   * from the identification is the payload's length or the fact that a
+   * field reads zero. Neither is evidence:
+   *
+   *   - length is a property of one response, not of the firmware's
+   *     capability set, and
+   *   - the firmware appends the tail unconditionally from 1.48, so zero
+   *     is what a board WITHOUT the RPM filter compiled in also reports.
+   *
+   * One version truth, resolved once, passed down.
+   */
+  readonly contract: PidApiContract;
+  readonly terms: readonly MspPidTerm[];
+  readonly feedforward: readonly [number, number, number];
+  readonly rcTuning: MspRcTuning;
+  readonly filterConfig: MspFilterConfiguration;
+  readonly gyroSampleRateHz?: number;
+  readonly pidProcessDenom?: number;
+  /**
+   * The two MSP_ADVANCED_CONFIG fields a FILTER write can move that belong
+   * to another screen. Carried here so a save can prove whether the
+   * firmware's gyro validation disturbed them, without Motors being
+   * involved in the transaction at all.
+   */
+  readonly motorProtocolRaw?: number;
+  readonly motorPwmRate?: number;
+  /**
+   * `dev.useContinuousUpdate`, raw. It decides WHICH of the gyro
+   * validation's two corrections can fire - the PWM-rate clamp or the
+   * denominator floor - so a filter save cannot predict its own side
+   * effects without it.
+   */
+  readonly useContinuousUpdate?: number;
+  /** Zero-based active profiles from the same MSP_STATUS_EX snapshot. */
+  readonly pidProfileIndex: number;
+  readonly pidProfileCount: number;
+  readonly controlRateProfileIndex: number;
+  /** How many RATE profiles the board reports. Absent below API 1.47,
+   * where MSP_STATUS_EX does not carry it - a selector must then offer
+   * nothing rather than guess a count. */
+  readonly rateProfileCount?: number;
+  readonly pidRaw: Uint8Array;
+  /**
+   * Dynamic Idle floor, in units of 100 rpm. MSP_PID_ADVANCED offset 49.
+   *
+   * OFFSET DERIVATION, not a guess: summing Betaflight's own read order in
+   * MSPHelper.js puts it at 49, and the same sum puts feedforwardRoll at 32 -
+   * which is exactly where this file already reads it. The two agree, so the
+   * offset model is confirmed against working code rather than asserted.
+   *
+   * Introduced in API 1.43. Only meaningful when bidirectional DShot is on:
+   * without RPM telemetry the firmware has no rpm to hold a floor against,
+   * which is why Betaflight disables the input in that case.
+   */
+  readonly idleMinRpm: number;
+  /** 0 OFF, 1 2_POINT, 2 3_POINT, 3 4_POINT (settings.c
+   * lookupTableFeedforwardAveraging). Smooths feedforward across samples. */
+  readonly feedforwardAveraging: number;
+  /** 0-50. Extra feedforward on stick acceleration. */
+  readonly feedforwardBoost: number;
+  /** 0-20. How much stick jitter is ignored before feedforward reacts. */
+  readonly feedforwardJitterFactor: number;
+  readonly advancedRaw: Uint8Array;
+  readonly ratesRaw: Uint8Array;
+  readonly filtersRaw: Uint8Array;
+}
+
+function u16At(bytes: Uint8Array, offset: number): number {
+  return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint16(offset, true);
+}
+
+export function decodeRcTuning(payload: Uint8Array): MspRcTuning {
+  // TOLERANT BY DESIGN, like Betaflight: it reads these fields
+  // positionally with no length assertion, so a firmware that appends or
+  // omits a trailing field still opens its PID tab. An exact-length gate
+  // here meant a future Betaflight release would make PID tuning
+  // unreachable rather than merely showing one unfamiliar value.
+  return Object.freeze({
+    ratesType: payload[22],
+    rcRate: Object.freeze([payload[0], payload[12], payload[11]]) as readonly [number, number, number],
+    expo: Object.freeze([payload[1], payload[13], payload[10]]) as readonly [number, number, number],
+    superRate: Object.freeze([payload[2], payload[3], payload[4]]) as readonly [number, number, number],
+    throttleMid: payload[6],
+    throttleExpo: payload[7],
+    throttleHover: payload[23],
+    throttleLimitType: payload[14],
+    throttleLimitPercent: payload[15],
+    rateLimit: Object.freeze([u16At(payload, 16), u16At(payload, 18), u16At(payload, 20)]) as readonly [number, number, number],
+  });
+}
+
+export function decodeFilterConfiguration(payload: Uint8Array): MspFilterConfiguration {
+  // TOLERANT BY DESIGN, like Betaflight: it reads these fields
+  // positionally with no length assertion, so a firmware that appends or
+  // omits a trailing field still opens its PID tab. An exact-length gate
+  // here meant a future Betaflight release would make PID tuning
+  // unreachable rather than merely showing one unfamiliar value.
+  return Object.freeze({
+    gyroLpf1StaticHz: u16At(payload, 20),
+    gyroLpf1DynamicMinHz: u16At(payload, 29),
+    gyroLpf1DynamicMaxHz: u16At(payload, 31),
+    dtermLpf1StaticHz: u16At(payload, 1),
+    dtermLpf1DynamicMinHz: u16At(payload, 33),
+    dtermLpf1DynamicMaxHz: u16At(payload, 35),
+    dynamicNotchQ: u16At(payload, 39),
+    dynamicNotchMinHz: u16At(payload, 41),
+    dynamicNotchMaxHz: u16At(payload, 45),
+    dynamicNotchCount: payload[48],
+  });
+}
+
+export function decodePidTerms(payload: Uint8Array): readonly MspPidTerm[] {
+  // TOLERANT BY DESIGN, like Betaflight: it reads these fields
+  // positionally with no length assertion, so a firmware that appends or
+  // omits a trailing field still opens its PID tab. An exact-length gate
+  // here meant a future Betaflight release would make PID tuning
+  // unreachable rather than merely showing one unfamiliar value.
+  const reader = new MspPayloadReader(payload, {lenient: true});
+  const terms: MspPidTerm[] = [];
+  for (let index = 0; index < PID_ITEM_COUNT; index += 1) {
+    terms.push(Object.freeze({p: reader.readU8(), i: reader.readU8(), d: reader.readU8()}));
+  }
+  return Object.freeze(terms);
+}
+
+export function decodePidTuningSnapshot(input: {
+  /**
+   * REQUIRED, and deliberately not defaulted. A default would be this
+   * module quietly deciding a firmware's wire contract on the caller's
+   * behalf - a second version truth, arrived at without evidence. Every
+   * production caller has already resolved the contract from the proven
+   * API version before it asks for a payload.
+   */
+  readonly contract: PidApiContract;
+  readonly pid: Uint8Array;
+  readonly advanced: Uint8Array;
+  readonly rates: Uint8Array;
+  readonly filters: Uint8Array;
+  readonly gyroSampleRateHz?: number;
+  readonly pidProcessDenom?: number;
+  readonly motorProtocolRaw?: number;
+  readonly motorPwmRate?: number;
+  readonly useContinuousUpdate?: number;
+  readonly pidProfileIndex: number;
+  readonly pidProfileCount: number;
+  readonly controlRateProfileIndex: number;
+  /** How many RATE profiles the board reports. Absent below API 1.47,
+   * where MSP_STATUS_EX does not carry it - a selector must then offer
+   * nothing rather than guess a count. */
+  readonly rateProfileCount?: number;
+}): MspPidTuningSnapshot {
+  if (input.advanced.length < PID_ADVANCED_API147_MIN_BYTES) {
+    throw new MspPayloadReadError(`MSP_PID_ADVANCED requires at least ${PID_ADVANCED_API147_MIN_BYTES} bytes for API 1.47; received ${input.advanced.length}.`);
+  }
+  // MINIMUMS, not exact lengths - the same posture MSP_PID_ADVANCED above
+  // already takes. Betaflight reads both of these positionally with version
+  // gates and no length guard at all (MSPHelper.js, cases MSP_RC_TUNING and
+  // MSP_FILTER_CONFIG), and both have grown across API versions - the
+  // semver.lt(API_VERSION_1_45) branches in its own reader are the proof.
+  // Demanding an exact length meant the next firmware to append one field
+  // would have taken the whole PID screen down; enough bytes for the fields
+  // this build reads is the real requirement.
+  if (input.rates.length < RC_TUNING_API147_BYTES) {
+    throw new MspPayloadReadError(`MSP_RC_TUNING requires at least ${RC_TUNING_API147_BYTES} bytes for API 1.47; received ${input.rates.length}.`);
+  }
+  if (input.filters.length < FILTER_CONFIG_API147_BYTES) {
+    throw new MspPayloadReadError(`MSP_FILTER_CONFIG requires at least ${FILTER_CONFIG_API147_BYTES} bytes for API 1.47; received ${input.filters.length}.`);
+  }
+  // THE CONTRACT AND THE BYTES MUST AGREE. From API 1.48 the firmware's own
+  // reply builder appends the RPM tail unconditionally, so a board claiming
+  // 1.48 or newer and sending a 1.47-length payload has contradicted itself.
+  // Reading the tail out of it would run off the end of the buffer; padding
+  // it with zeros would invent five values. Refusing is the only answer that
+  // states what is actually true - that this payload is not the contract it
+  // was announced as.
+  const filterMinimum = filterConfigBytesFor(input.contract);
+  if (input.filters.length < filterMinimum) {
+    throw new MspPayloadReadError(`MSP_FILTER_CONFIG requires at least ${filterMinimum} bytes for ${input.contract}; received ${input.filters.length}.`);
+  }
+  if (!Number.isInteger(input.pidProfileIndex) || input.pidProfileIndex < 0 ||
+    !Number.isInteger(input.pidProfileCount) || input.pidProfileCount < 1 ||
+    input.pidProfileIndex >= input.pidProfileCount ||
+    !Number.isInteger(input.controlRateProfileIndex) || input.controlRateProfileIndex < 0) {
+    throw new MspPayloadReadError('MSP_STATUS_EX did not provide a valid PID/rates profile identity for API 1.47.');
+  }
+  return Object.freeze({
+    contract: input.contract,
+    terms: decodePidTerms(input.pid),
+    feedforward: Object.freeze([u16At(input.advanced, 32), u16At(input.advanced, 34), u16At(input.advanced, 36)]) as readonly [number, number, number],
+    rcTuning: decodeRcTuning(input.rates),
+    filterConfig: decodeFilterConfiguration(input.filters),
+    ...(input.gyroSampleRateHz !== undefined ? {gyroSampleRateHz: input.gyroSampleRateHz} : {}),
+    ...(input.pidProcessDenom !== undefined ? {pidProcessDenom: input.pidProcessDenom} : {}),
+    ...(input.motorProtocolRaw !== undefined ? {motorProtocolRaw: input.motorProtocolRaw} : {}),
+    ...(input.motorPwmRate !== undefined ? {motorPwmRate: input.motorPwmRate} : {}),
+    ...(input.useContinuousUpdate !== undefined ? {useContinuousUpdate: input.useContinuousUpdate} : {}),
+    pidProfileIndex: input.pidProfileIndex,
+    pidProfileCount: input.pidProfileCount,
+    controlRateProfileIndex: input.controlRateProfileIndex,
+    ...(input.rateProfileCount === undefined ? {} : {rateProfileCount: input.rateProfileCount}),
+    pidRaw: input.pid.slice(),
+    feedforwardAveraging: input.advanced.length > FEEDFORWARD_AVERAGING_OFFSET
+      ? input.advanced[FEEDFORWARD_AVERAGING_OFFSET]
+      : 0,
+    feedforwardBoost: input.advanced.length > FEEDFORWARD_BOOST_OFFSET
+      ? input.advanced[FEEDFORWARD_BOOST_OFFSET]
+      : 0,
+    feedforwardJitterFactor: input.advanced.length > FEEDFORWARD_JITTER_FACTOR_OFFSET
+      ? input.advanced[FEEDFORWARD_JITTER_FACTOR_OFFSET]
+      : 0,
+    idleMinRpm: input.advanced.length > IDLE_MIN_RPM_OFFSET
+      ? input.advanced[IDLE_MIN_RPM_OFFSET]
+      : 0,
+    advancedRaw: input.advanced.slice(),
+    ratesRaw: input.rates.slice(),
+    filtersRaw: input.filters.slice(),
+  });
+}
