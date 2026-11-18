@@ -1,5 +1,11 @@
 # FPV Configurator NL
 
+## Webversie proberen
+
+[Open FPV Configurator NL](https://fpvarabic.github.io/FPV-ARBCON-NL/)
+
+Openbare webversie op GitHub Pages. Aanmelden is niet nodig. Hetzelfde adres staat in **About** van deze repository.
+
 Zelfstandige Nederlandse editie van FPV-ARBCON. Deze repository bevat uitsluitend de Nederlandse broncodestatus uit de gecontroleerde commit `a2b1d5661ebe12b1e2292903a0a7b169b764d7bf`. De webversie wordt afzonderlijk via GitHub Pages gepubliceerd; het actieve adres staat in About.
 
 De functies, MSP-protocollen, configuratiewaarden en beveiligingen blijven gelijk aan de brontoepassing. De interface, meldingen, toegankelijkheidslabels en 37 handleidingafbeeldingen zijn Nederlandstalig. De weergaverichting is van links naar rechts, ook op een apparaat met een Arabische systeemtaal.
@@ -18,6 +24,16 @@ npm run scan:web-bundle
 ```
 
 Het Arabische referentiebestand blijft in `src/i18n/locales/ar.json` voor de sleutel- en interpolatiecontrole. Alleen `nl.json` wordt door deze editie geladen.
+
+## GitHub Pages opnieuw bouwen
+
+De webpublicatie staat op de `gh-pages`-branch, met de gebouwde bestanden in de hoofdmap. Bouw met het repositorypad zodat scripts, lettertypen en afbeeldingen ook vanaf GitHub Pages laden:
+
+```sh
+FPV_ARBCON_WEB_BASE=/FPV-ARBCON-NL/ FPV_ARBCON_WEB_SOURCEMAP=false npm run build:web
+```
+
+Publiceer de inhoud van `dist/` in de hoofdmap van `gh-pages`, met een leeg `.nojekyll`-bestand. Kopieer `index.html` ook naar `404.html`. De broncode blijft op `main`. Deze repository bevat geen overgenomen Android-workflows.
 
 ## Android
 
