@@ -12,7 +12,7 @@ De officiële Betaflight-documentatie is gebruikt als functionele referentie voo
 | Telefoon | De knop **Alle functies** opent de volledige, scrollbare lijst met 17 onderdelen. |
 | Instellingen | Compactere panelen, rustigere hoeken, duidelijke scheidingslijnen en naam/waarde-rijen. Op brede schermen staan poortcategorieën naast elkaar. |
 | Setup en PID | Sectiesnelkoppelingen verplaatsen de bestaande scroller; velden blijven gemonteerd en behouden hun toestand. |
-| Tekst | Inleidende paragrafen en herhaalde beschrijvingen zijn uit de werkruimte verwijderd. Veldlimieten, foutredenen, hardware-instructies en veiligheidswaarschuwingen blijven aanwezig. |
+| Tekst | Inleidende paragrafen en herhaalde beschrijvingen zijn uit de werkruimte en het gidsenoverzicht verwijderd. Veldlimieten, foutredenen, hardware-instructies en veiligheidswaarschuwingen blijven aanwezig. |
 | Identiteit | Webtitel, PWA, zichtbare merknaam, Android-appnaam en launcherbeeldmerk zijn bijgewerkt. De installatie-ID blijft `com.fpvarbcon.nl`. |
 | Typografie | Lato blijft lokaal meegeleverd. Compactere hiërarchie, afbreekbare knoplabels en tabulaire cijfers voor de oriëntatie. |
 

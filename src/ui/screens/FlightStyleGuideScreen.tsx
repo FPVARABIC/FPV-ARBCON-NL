@@ -143,8 +143,8 @@ export default function FlightStyleGuideScreen({
   return (
     <View style={styles.root} testID="flight-style-guide-screen">
       <GuideHeader
-        eyebrow={"Kies de stijl die je vliegt."}
-        title={"Vliegpatroon handleiding."}
+        eyebrow={"Vluchtvoorbereiding"}
+        title={"Vliegstijlgidsen"}
         onBack={() => navigation.goBack()}
       />
       <ScrollView
@@ -161,8 +161,6 @@ export default function FlightStyleGuideScreen({
             ),
           },
         ]}>
-        <Text style={styles.intro}>
-          {"Elk hoekpatroon is onafhankelijk. De waarde ervan is, en de schriftelijke beslissing van elke voorbereiding verandert zijn stappen niet. Je hoeft niet. Een ander patroon openen om je patroon aan te vullen."}</Text>
 
         <View style={styles.grid} testID="guide-card-group">
           {FLIGHT_STYLES.map(corner => (

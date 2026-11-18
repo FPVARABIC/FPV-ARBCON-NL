@@ -42,5 +42,15 @@
   "mobile_directory": 17,
   "hardware_tested": false,
   "apk_built": false,
-  "runner_note": "Some existing fixture timers require Jest forceExit after assertions finish."
+  "runner_note": "Some existing fixture timers require Jest forceExit after assertions finish.",
+  "publication": {
+    "application_source_commit": "181590ee8fbffac5b2e7348a3e11072d4479ce57",
+    "pages_commit": "80ad84f545bb15a58005524aa63b0c0c8fd04110",
+    "pages_tree": "b047ef4a1a0e1bace40316bbfddb6b587c0caf94",
+    "workflow_run": 44393494927,
+    "public_bundle_scan": "passed",
+    "public_javascript_chunks": 41,
+    "source_maps": 0,
+    "fixture_code_in_public_app": false
+  }
 }
