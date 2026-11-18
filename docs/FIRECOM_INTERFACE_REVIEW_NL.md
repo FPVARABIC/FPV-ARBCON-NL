@@ -21,13 +21,19 @@ De verbindings- en schrijfbeveiligingen, MSP-encoders en -decoders, transportlag
 
 ## Verificatie
 
-De volledige testsuite is geslaagd: **484 suites, 9.025 tests**. TypeScript-controles voor native en web zijn geslaagd. De browserbundelscan is geslaagd. ESLint meldt **0 fouten**, met de bestaande 469 waarschuwingen.
+De volledige testsuite is geslaagd: **484 suites, 9.025 tests**. TypeScript-controles voor native en web zijn geslaagd. De browserbundelscan is geslaagd. De publieke build is afzonderlijk gecontroleerd met de geëxporteerde bundelanalyzers en de werkelijke entry onder `/FPV-ARBCON-NL/`; de oudere commandoregelwrapper veronderstelt een rootpad. De [uitkomsten](verification/firecom-public-bundle-scan.json) leggen deze controle vast. De laatste 11 gewijzigde suites zijn aanvullend uitgevoerd: 204 tests geslaagd. ESLint meldt **0 fouten**, met de bestaande 469 waarschuwingen.
 
 De [browsermatrix](verification/firecom-layout-audit.json) bevat **84 gecontroleerde combinaties**: 21 schermen/werkstromen op 320, 390, 768 en 1280 CSS-pixels. De echte productiecomponenten zijn lokaal weergegeven via bestaande expliciete testfixtures. Dit zijn geen metingen van een aangesloten vluchtcontroller. In deze gecontroleerde toestanden zijn geen te kleine bedieningselementen, onvoldoende tekstcontrasten, afgekapte labels of onbedoeld afgeknipte knoppen aangetroffen na de correcties. Opzettelijk scrollbare navigatie en de LED-canvas blijven scrollbaar.
 
 De echte Home-route naar de eenvoudige en de geavanceerde firmwaretool is apart geopend. De toetsenbordfocus blijft zichtbaar met een gouden rand. De telefoongids bevat alle 17 bestemmingen en de selecties zijn ook in componenttests gecontroleerd.
 
 Fysieke USB-, motor- en radiotests en een nieuwe Android-APK zijn niet uitgevoerd in deze wijziging. Bestaande gidsafbeeldingen zijn illustratiemateriaal; de schermcomponenten zelf gebruiken het nieuwe thema.
+
+## Gepubliceerde interface
+
+![Publieke Home-interface](verification/firecom-public-home.jpg)
+
+De live GitHub Pages-versie is geopend. Alle 17 onderdelen staan op Home, de donatieknop ontbreekt en de vijf gidsafbeeldingen laden vanaf het repositorypad.
 
 ## Publicatie
 

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "chunks": 41,
+  "sha256": "8b2813985977162335cdf7fc586af332e49339e91d33657c73d9042e66ea7073",
+  "entry": "index-Bz4FZbzU.js",
+  "missingHtml": [],
+  "result": {
+    "forbidden": [],
+    "missingRequired": [],
+    "missingArabic": [],
+    "missingReceiver": [],
+    "missingControls": [],
+    "eagerlyBundled": [],
+    "ok": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "full_suite": {
+    "suites": 484,
+    "tests": 9025,
+    "result": "PASS"
+  },
+  "final_changed_suites": {
+    "suites": 11,
+    "tests": 204,
+    "result": "PASS"
+  },
+  "typescript_native": "PASS",
+  "typescript_web": "PASS",
+  "eslint": {
+    "errors": 0,
+    "warnings": 469
+  },
+  "browser_layout_cases": 84,
+  "browser_layout_findings": 0,
+  "public_source_commit": "d001702ee1217e3450f289af1a457d3b37f809a8",
+  "public_build_commit": "7c190841d7e00345f53c8742fb1bf59eb8493477",
+  "physical_hardware_tests": "NOT_RUN",
+  "apk_build": "NOT_RUN"
+}
