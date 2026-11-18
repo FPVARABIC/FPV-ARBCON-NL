@@ -1,7 +1,9 @@
 {
+  "product": "fiercon",
   "edition": "nl",
-  "application_source_commit": "d001702ee1217e3450f289af1a457d3b37f809a8",
-  "source_repository": "FPVARABIC/FPV-ARBCON-NL",
-  "source_branch": "main",
-  "interface": "navy-gold"
+  "repository": "FPVARABIC/FPV-ARBCON-NL",
+  "application_source_commit": "181590ee8fbffac5b2e7348a3e11072d4479ce57",
+  "public_url": "https://fpvarabic.github.io/FPV-ARBCON-NL/",
+  "interface": "compact-workspaces-and-refined-shared-3d",
+  "sourcemaps": false
 }

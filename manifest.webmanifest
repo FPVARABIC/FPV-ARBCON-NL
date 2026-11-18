@@ -1,6 +1,6 @@
 {
-  "name": "FPV Configurator NL",
-  "short_name": "FPV Config NL",
+  "name": "fiercon",
+  "short_name": "fiercon",
   "description": "Nederlandstalige configuratie en kalibratie van FPV-vluchtcontrollers via MSP.",
   "lang": "nl",
   "dir": "ltr",
