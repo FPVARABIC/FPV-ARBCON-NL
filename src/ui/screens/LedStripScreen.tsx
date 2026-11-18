@@ -1760,8 +1760,10 @@ const styles = StyleSheet.create({
   noticeText: {...typography.body, color: colors.textPrimary},
   workspace: {gap: spacing.md},
   column: {gap: spacing.md},
-  gridPane: {flexGrow: 0, flexShrink: 1},
-  inspectorPane: {flexGrow: 1, flexShrink: 1, flexBasis: 0},
+  // The canvas owns its horizontal scrolling; it must release width to
+  // the inspector instead of squeezing its controls off the tablet.
+  gridPane: {flexGrow: 0, flexShrink: 1, minWidth: 0},
+  inspectorPane: {flexGrow: 1, flexShrink: 0, flexBasis: 280, minWidth: 0},
   actions: {gap: spacing.sm},
   fieldRow: {
     flexDirection: 'row',
@@ -1775,7 +1777,7 @@ const styles = StyleSheet.create({
   outOfRange: {...typography.caption, color: colors.warning},
   badge: {
     ...typography.caption,
-    color: colors.accentText,
+    color: colors.accentStrong,
     backgroundColor: colors.accentSoft,
     borderRadius: radii.pill,
     paddingHorizontal: spacing.sm,

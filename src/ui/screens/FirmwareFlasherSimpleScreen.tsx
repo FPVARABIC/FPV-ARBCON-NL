@@ -118,7 +118,7 @@ import {
 import {bytesToBase64} from '../../platforms/react-native/protocol/base64';
 import {getLastConnectionTrace} from '../../core/protocol/msp/identification/connectionTrace';
 import {FirmwareButton, FirmwareNotice, FirmwareProgress} from '../components/firmware';
-import {PROSE_MEASURE, colors, radii, spacing, typography, useContentEnvelope} from '../theme';
+import {PROSE_MEASURE, colors, fonts, radii, spacing, typography, useContentEnvelope} from '../theme';
 import {Icon} from '../icons';
 
 /**
@@ -2185,7 +2185,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
-    fontFamily: 'Cairo',
+    fontFamily: fonts.family,
     textAlign: 'left',
     writingDirection: 'ltr',
   },
@@ -2204,7 +2204,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
-    fontFamily: 'Cairo',
+    fontFamily: fonts.family,
     textAlign: 'left',
   },
   targetRow: {

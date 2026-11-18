@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
   },
   thumbOn: {
     alignSelf: 'flex-end',
+    backgroundColor: colors.accentText,
   },
   thumbDisabled: {},
 });

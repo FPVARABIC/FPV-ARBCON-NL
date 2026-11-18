@@ -29,6 +29,7 @@ import { createRoot } from 'react-dom/client';
 import { View, useWindowDimensions } from 'react-native';
 
 import '../../src/i18n';
+import '../../src/web/lato.css';
 import { MotorAirframeControls } from '../../src/ui/screens/MotorAirframeControls';
 import { FirmwareChoice } from '../../src/ui/components/firmware';
 import FirmwareFlasherScreen from '../../src/ui/screens/FirmwareFlasherScreen';

@@ -421,8 +421,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(2, 12, 20, 0.18)',
   },
-  guideColumn: {position: 'absolute', top: 0, bottom: 0, backgroundColor: 'rgba(94, 234, 212, 0.22)'},
-  guideRow: {position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(94, 234, 212, 0.22)'},
+  guideColumn: {position: 'absolute', top: 0, bottom: 0, backgroundColor: 'rgba(244, 185, 23, 0.22)'},
+  guideRow: {position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(244, 185, 23, 0.22)'},
   item: {
     position: 'absolute',
     justifyContent: 'center',

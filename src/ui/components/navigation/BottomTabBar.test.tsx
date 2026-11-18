@@ -140,7 +140,7 @@ describe('BottomTabBar - roadmap tabs', () => {
     const rendered = renderBar();
     const strip = rendered.find('main-tab-bar-scroll');
     expect(strip.props.horizontal).toBe(true);
-    expect(strip.props.showsHorizontalScrollIndicator).toBe(false);
+    expect(strip.props.showsHorizontalScrollIndicator).toBe(true);
     rendered.unmount();
   });
 

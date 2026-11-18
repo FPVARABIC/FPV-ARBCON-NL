@@ -552,8 +552,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   statusPillWaiting: { backgroundColor: colors.surfaceAlt },
-  statusPillStale: { backgroundColor: '#FFF4D8' },
-  statusPillError: { backgroundColor: '#FFF0F1' },
+  statusPillStale: { backgroundColor: colors.warningSoft },
+  statusPillError: { backgroundColor: colors.errorSoft },
   statusText: {
     ...typography.caption,
     color: colors.accentStrong,

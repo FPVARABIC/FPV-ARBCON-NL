@@ -18,13 +18,13 @@
  * read what it is they cannot press, and why the label says so).
  */
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import type {StyleProp, ViewStyle} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
-import {Icon} from '../../icons';
-import type {IconName} from '../../icons';
-import {colors, radii, spacing, typography} from '../../theme';
-import {MIN_TOUCH_TARGET, readInteraction} from './interaction';
+import { Icon } from '../../icons';
+import type { IconName } from '../../icons';
+import { colors, radii, spacing, typography } from '../../theme';
+import { MIN_TOUCH_TARGET, readInteraction } from './interaction';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 /**
@@ -91,7 +91,7 @@ const VARIANTS: Record<ButtonVariant, VariantColors> = {
     fg: colors.textPrimary,
   },
   danger: {
-    bg: colors.error,
+    bg: colors.errorFill,
     bgHover: colors.errorHover,
     bgPressed: colors.errorPressed,
     border: 'transparent',
@@ -130,21 +130,22 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{disabled}}
+      accessibilityState={{ disabled }}
       testID={testID}
       style={state => {
-        const {pressed, hovered} = readInteraction(state);
+        const { pressed, hovered } = readInteraction(state);
         return [
           styles.base,
           styles[size],
-          {backgroundColor: palette.bg, borderColor: palette.border},
-          hovered && !disabled && {backgroundColor: palette.bgHover},
-          pressed && !disabled && {backgroundColor: palette.bgPressed},
+          { backgroundColor: palette.bg, borderColor: palette.border },
+          hovered && !disabled && { backgroundColor: palette.bgHover },
+          pressed && !disabled && { backgroundColor: palette.bgPressed },
           disabled && styles.disabled,
           block ? styles.block : styles.intrinsic,
           style,
         ];
-      }}>
+      }}
+    >
       {icon ? (
         <View style={styles.iconSlot}>
           <Icon name={icon} size={iconSize} color={fg} />
@@ -154,10 +155,10 @@ export function Button({
         style={[
           typography.label,
           size === 'lg' && styles.lgText,
-          {color: fg},
+          { color: fg },
           styles.labelText,
         ]}
-        numberOfLines={2}>
+      >
         {label}
       </Text>
     </Pressable>
@@ -166,6 +167,8 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
+    maxWidth: '100%',
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -173,12 +176,13 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
     borderWidth: 1.5,
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   sm: {minHeight: MIN_TOUCH_TARGET, paddingHorizontal: spacing.md},
   md: {minHeight: MIN_TOUCH_TARGET},
   lg: {minHeight: 52, paddingHorizontal: spacing.xl},
-  lgText: {fontSize: 16, lineHeight: 27},
-  labelText: {textAlign: 'center'},
+  lgText: { fontSize: 16, lineHeight: 27 },
+  labelText: { textAlign: 'center', flexShrink: 1 },
   iconSlot: {
     // The icon never dictates row height; the minHeight does.
     alignItems: 'center',

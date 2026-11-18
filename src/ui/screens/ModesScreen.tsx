@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   capacityValue: {...typography.heading, color: colors.accentStrong, textAlign: 'left', fontVariant: ['tabular-nums']},
   hardwareNotice: {borderRadius: radii.lg, borderWidth: 1, borderColor: colors.accentStrong, backgroundColor: colors.accentSoft, padding: spacing.md, gap: 3},
   hardwareTitle: {...typography.eyebrow, color: colors.accentStrong},
-  hardwareText: {...typography.caption, color: colors.accentText, textAlign: 'left', writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+  hardwareText: {...typography.caption, color: colors.accentStrong, textAlign: 'left', writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
   warning: {...noticeSurface, borderColor: colors.error, backgroundColor: colors.errorSoft, gap: 3},
   warningTitle: {...typography.caption, fontWeight: '700', color: colors.error, textAlign: 'left', maxWidth: PROSE_MEASURE},
   warningText: {...typography.caption, color: colors.error, textAlign: 'left', writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   addRow: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
   /* 44, not 42. Measured 146x42 at every width. */
   addButton: {minHeight: MIN_TOUCH_TARGET, justifyContent: 'center', alignItems: 'center', paddingHorizontal: spacing.md, borderRadius: radii.md, backgroundColor: colors.accentStrong},
-  addButtonText: {...typography.body, color: colors.white, fontWeight: '700'},
+  addButtonText: {...typography.body, color: colors.accentText, fontWeight: '700'},
   /* Unreferenced today (no call site), and left at its declared value
      rather than silently corrected: this phase changes hit targets that
      were measured, and nothing renders this one to measure. */

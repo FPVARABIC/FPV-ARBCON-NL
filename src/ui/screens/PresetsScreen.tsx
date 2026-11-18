@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
   },
   identity: {
     ...typography.caption,
-    color: colors.accentText,
+    color: colors.accentStrong,
     backgroundColor: colors.accentSoft,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSoft,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accentStrong },
+  chipOn: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong },
   chipText: {...typography.label, color: colors.textPrimary},
   workspace: {
     flexDirection: 'row',
@@ -906,7 +906,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     backgroundColor: colors.accent,
   },
-  saveText: { color: colors.textPrimary, fontWeight: '700' },
+  saveText: { color: colors.accentText, fontWeight: '700' },
   status: {
     padding: spacing.md,
     borderRadius: radii.md,
@@ -914,7 +914,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     ...typography.label,
-    color: colors.accentText,
+    color: colors.accentStrong,
     textAlign: 'center',
     writingDirection: 'ltr',
   },

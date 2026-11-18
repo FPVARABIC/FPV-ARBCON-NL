@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>FPV Configurator NL — Vluchtcontroller configureren</title>
     <meta name="description" content="Nederlandstalige configuratie en kalibratie van FPV-vluchtcontrollers via MSP." />
-    <meta name="theme-color" content="#5EEAD4" />
+    <meta name="theme-color" content="#F4B917" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon.svg" />
@@ -43,14 +43,14 @@
 
         :focus-visible, not :focus - a mouse click must not paint a ring
         the pointer user did not ask for. The accent colour is the theme's
-        own turquoise family; the deep inner ring and soft outer halo remain
-        visible on both the warm paper background and accent-tinted controls.
+        own gold family; the deep inner ring and soft outer halo remain
+        visible on both the navy background and accent-tinted controls.
       */
       :focus-visible {
-        outline: 3px solid #0b6e7d;
+        outline: 3px solid #ffd15a;
         outline-offset: 2px;
         border-radius: 6px;
-        box-shadow: 0 0 0 5px rgba(94, 234, 212, 0.48);
+        box-shadow: 0 0 0 5px rgba(244, 185, 23, 0.38);
       }
       /* WEB CARET POLICY - measured, not cosmetic.
          A browser probe of the running app found 0 contenteditable
@@ -90,14 +90,14 @@
         cursor: auto;
       }
       body {
-        background-color: #faf8f3;
-        color: #152232;
-        /* Cairo is declared in src/web/cairo.css (bundled, fingerprinted);
+        background-color: #181626;
+        color: #f8f7fc;
+        /* Lato is declared in src/web/lato.css (bundled, fingerprinted);
            this stack names it first so everything that inherits from body
            — including the pre-JS #boot line once the CSS arrives — picks
-           it up, with honest Arabic fallbacks for the instant before. */
-        font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI',
-          'Noto Naskh Arabic', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
+           it up, with system fallbacks for the instant before. */
+        font-family: 'Lato', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+        color-scheme: dark;
         overscroll-behavior: none;
       }
       /* Shown until the entry chunk executes and replaces it. Plain CSS
@@ -109,13 +109,13 @@
         justify-content: center;
         height: 100%;
         font-size: 15px;
-        color: #526171;
+        color: #d1cedd;
       }
     </style>
   </head>
   <body>
     <div id="root">
-      <div id="boot">جارٍ تشغيل FPV-ARBCON…</div>
+      <div id="boot">FPV Configurator NL wordt gestart…</div>
     </div>
     <script type="module" src="/index.web.tsx"></script>
   </body>

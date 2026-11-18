@@ -99,7 +99,7 @@ export function ledColorToRgb(color: LedColorTriplet): LedRgb {
 
 /** A CSS colour for a swatch or a grid cell. */
 export function ledColorToCss(color: LedColorTriplet): string {
-  const {r, g, b} = ledColorToRgb(color);
+  const { r, g, b } = ledColorToRgb(color);
   return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -113,13 +113,24 @@ export function ledColorToCss(color: LedColorTriplet): string {
  * and one that disappears on half the palette.
  */
 export function ledColorLuminance(color: LedColorTriplet): number {
-  const {r, g, b} = ledColorToRgb(color);
+  const { r, g, b } = ledColorToRgb(color);
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 }
 
 /** Ink for text sitting on this colour. */
 export function ledSwatchInk(color: LedColorTriplet): '#000000' | '#FFFFFF' {
-  return ledColorLuminance(color) > 0.55 ? '#000000' : '#FFFFFF';
+  const { r, g, b } = ledColorToRgb(color);
+  const linear = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance =
+    0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+  // Choose the higher WCAG contrast, including dim yellow/green swatches
+  // that the previous luma threshold incorrectly labelled in white.
+  return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05)
+    ? '#000000'
+    : '#FFFFFF';
 }
 
 /**

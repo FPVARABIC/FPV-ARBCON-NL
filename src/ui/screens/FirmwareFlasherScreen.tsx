@@ -3318,7 +3318,7 @@ const styles = StyleSheet.create({
   modalTitle: {...typography.title, color: colors.textPrimary},
   confirmBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.lg,

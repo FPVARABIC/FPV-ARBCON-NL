@@ -155,8 +155,8 @@ describe('Home offers exactly three doors', () => {
       .findAllByProps({testID: 'start-route-group'})[0]
       .findAllByType(Text)
       .map(node => String(node.props.children));
-    expect(primaries).toContain("Open de drone.");
-    expect(primaries).toContain("Open de Firmware-update.");
+    expect(primaries).toContain("Vluchtcontroller verbinden");
+    expect(primaries).toContain("Firmware openen");
   });
 
   /**
@@ -177,9 +177,9 @@ describe('Home offers exactly three doors', () => {
     ).toBeGreaterThan(0);
 
     const order = textOrder(renderer);
-    const configure = order.indexOf("Open de drone.");
-    const firmware = order.indexOf("Open de Firmware-update.");
-    const guide = order.indexOf("Maak een vluchtregister open.");
+    const configure = order.indexOf("Vluchtcontroller verbinden");
+    const firmware = order.indexOf("Firmware openen");
+    const guide = order.indexOf("Vliegstijlgidsen openen");
     expect(configure).toBeGreaterThanOrEqual(0);
     expect(firmware).toBeGreaterThanOrEqual(0);
     expect(guide).toBeGreaterThan(configure);
@@ -191,8 +191,8 @@ describe('Home offers exactly three doors', () => {
     renderers.push(renderer);
     const order = textOrder(renderer);
     // The first card title on the page is the configurator's.
-    const configure = order.indexOf("Maak de drone klaar.");
-    const guideTitle = order.indexOf("Vliegpatroon handleiding.");
+    const configure = order.indexOf("Drone configureren");
+    const guideTitle = order.indexOf("Kies je vliegstijl");
     expect(configure).toBeGreaterThanOrEqual(0);
     expect(guideTitle).toBeGreaterThan(configure);
   });
@@ -202,9 +202,9 @@ describe('Home offers exactly three doors', () => {
     renderers.push(renderer);
     const text = screenText(renderer);
 
-    expect(text).toContain("Maak de drone klaar.");
-    expect(text).toContain("Contact met de plaat.");
-    expect(text).toContain('Motors');
+    expect(text).toContain("Drone configureren");
+    expect(text).toContain("Verbinding, kalibratie en bordinformatie");
+    expect(text).toContain('Motoren');
     expect(text).toContain('OSD');
     expect(text).toContain('CLI');
   });
@@ -214,11 +214,11 @@ describe('Home offers exactly three doors', () => {
     renderers.push(renderer);
     const text = screenText(renderer);
 
-    expect(text).toContain("Vliegpatroon handleiding.");
+    expect(text).toContain("Kies je vliegstijl");
     // Names the styles it holds - and no number, because choosing an
     // aircraft comes before any value applies to it.
-    expect(text).toContain("Film · vrije · wedstrijd · interne web · lange termijn");
-    expect(text).toContain("Film · vrije · wedstrijd · interne web · lange termijn");
+    expect(text).toContain("Cinematic · Freestyle · Racing · Tiny Whoop · Long Range");
+    expect(text).toContain("Cinematic · Freestyle · Racing · Tiny Whoop · Long Range");
   });
 
   it('the firmware card is direct and not overloaded', () => {
@@ -227,7 +227,7 @@ describe('Home offers exactly three doors', () => {
     const text = screenText(renderer);
 
     expect(text).toContain("Firmware bijwerken");
-    expect(text).toContain("Firmware installeren of bijwerken en Target en bouwinstellingen kiezen.");
+    expect(text).toContain("Kies je bord en firmwareversie, controleer het bestand en voer de update uit.");
   });
 
   it('the awkward slogan is gone, and no marketing language replaced it', () => {
@@ -237,7 +237,7 @@ describe('Home offers exactly three doors', () => {
 
     expect(text).not.toContain("Twee taken, twee ingangen");
     expect(text).not.toContain("Twee ingangen");
-    expect(text).toContain("Kies wat je wilt uitvoeren.");
+    expect(text).toContain("Wat wil je doen?");
   });
 
   it('each door navigates straight to its destination - no intermediate choice', () => {

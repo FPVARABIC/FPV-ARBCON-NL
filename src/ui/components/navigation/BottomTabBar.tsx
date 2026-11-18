@@ -20,15 +20,24 @@
  */
 
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import {colors, radii, spacing, typography} from '../../theme';
+import { colors, radii, spacing, typography } from '../../theme';
 import { Icon } from '../../icons';
 import { MIN_TOUCH_TARGET, readInteraction } from '../controls/interaction';
 import { MAIN_TABS, type MainTabKey } from '../../../navigation/tabs';
 import { TAB_ICONS } from './tabIcons';
 import { useActiveItemReveal } from './activeItemReveal';
+import { ToolDirectory } from './ToolDirectory';
+import { Button } from '../controls/Button';
 
 const VISIBLE_TABS = MAIN_TABS.filter(tab => tab.implemented);
 
@@ -43,6 +52,7 @@ export default function BottomTabBar({
 }: BottomTabBarProps): React.JSX.Element {
   const { t } = useTranslation();
   const reveal = useActiveItemReveal<MainTabKey>(activeTab, 'x');
+  const [directoryOpen, setDirectoryOpen] = React.useState(false);
 
   return (
     <View
@@ -51,10 +61,22 @@ export default function BottomTabBar({
       accessibilityLabel={t('tabs.barAccessibilityLabel')}
       testID="main-tab-bar"
     >
+      <View style={styles.directoryHeader}>
+        <Text style={styles.directoryHint}>
+          Veeg door de onderdelen of open de volledige lijst.
+        </Text>
+        <Button
+          label={`Alle functies (${VISIBLE_TABS.length})`}
+          icon="sliders-horizontal"
+          size="sm"
+          testID="main-all-tools"
+          onPress={() => setDirectoryOpen(true)}
+        />
+      </View>
       <ScrollView
         ref={reveal.scrollRef}
         horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator
         contentContainerStyle={styles.strip}
         onLayout={reveal.onScrollViewLayout}
         onContentSizeChange={reveal.onContentSizeChange}
@@ -95,15 +117,49 @@ export default function BottomTabBar({
           );
         })}
       </ScrollView>
+      <Modal
+        visible={directoryOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDirectoryOpen(false)}
+      >
+        <View style={styles.directoryBackdrop}>
+          <View
+            style={styles.directorySheet}
+            accessibilityViewIsModal
+            testID="main-tools-sheet"
+          >
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Alle functies</Text>
+              <Button
+                label="Sluiten"
+                size="sm"
+                onPress={() => setDirectoryOpen(false)}
+                testID="main-tools-close"
+              />
+            </View>
+            <ScrollView contentContainerStyle={styles.directoryContent}>
+              <ToolDirectory
+                compact
+                activeTab={activeTab}
+                onSelect={tab => {
+                  setDirectoryOpen(false);
+                  onSelectTab(tab);
+                }}
+              />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   bar: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.backgroundRaised,
     borderTopWidth: 1,
-    borderTopColor: colors.accentStrong,
+    borderTopColor: colors.borderStrong,
     paddingTop: spacing.sm,
   },
   strip: {
@@ -146,10 +202,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
   },
   tabPressed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: colors.surfaceHover,
   },
   tabActive: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.accentSoft,
   },
   iconBubble: {
     width: 34,
@@ -165,8 +221,48 @@ const styles = StyleSheet.create({
     ...typography.caption,
     fontWeight: '700',
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   labelActive: {
     color: colors.accentStrong,
   },
+  directoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  directoryHint: { ...typography.helper, color: colors.textMuted, flex: 1 },
+  directoryBackdrop: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  directorySheet: {
+    width: '100%',
+    maxWidth: 760,
+    maxHeight: '90%',
+    backgroundColor: colors.backgroundRaised,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radii.lg,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.md,
+    gap: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
+  sheetTitle: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    flexShrink: 1,
+  },
+  directoryContent: { padding: spacing.md },
 });

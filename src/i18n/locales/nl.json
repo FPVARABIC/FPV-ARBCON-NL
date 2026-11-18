@@ -1990,7 +1990,7 @@
     "draftPending": "{{value}} zal worden gebruikt na het opslaan en herstarten.",
     "storageTitle": "De opslag.",
     "serialOnly": "De opname is alleen beschikbaar via seriële poort.",
-    "flashTitle": "Het geheugen van binnen.",
+    "flashTitle": "Intern flashgeheugen",
     "sdTitle": "SD.",
     "usedOfTotal": "{{used}} gebruikt door {{total}}",
     "freeOfTotal": "Toegankelijk voor {{free}} opname van {{total}}",
@@ -2032,7 +2032,7 @@
     },
     "device": {
       "NONE": "Zonder opname.",
-      "FLASH": "Het geheugen van binnen.",
+      "FLASH": "Intern flashgeheugen",
       "SDCARD": "SD.",
       "SERIAL": "Mijn reekspoort.",
       "UNKNOWN": "Een onbekende bestemming voor deze versie. raw {{raw}} )"

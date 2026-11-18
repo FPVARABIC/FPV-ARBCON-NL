@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   buttonSecondary: {backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border},
-  buttonDanger: {backgroundColor: colors.error},
+  buttonDanger: {backgroundColor: colors.errorFill},
   buttonText: {...typography.sectionTitle, color: colors.accentText, textAlign: 'center'},
   buttonTextCompact: {...typography.bodyStrong},
   buttonTextSecondary: {color: colors.textPrimary},

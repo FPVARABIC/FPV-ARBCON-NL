@@ -2892,7 +2892,7 @@ const styles = StyleSheet.create({
   professionalStopButton: {
     minHeight: MIN_TOUCH_TARGET,
     borderRadius: radii.md,
-    backgroundColor: colors.error,
+    backgroundColor: colors.errorFill,
     alignItems: 'center',
     justifyContent: 'center',
     /* SIZED TO THE ACTION, NOT TO THE SCREEN.
@@ -3492,7 +3492,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: spacing.xl,
     minHeight: MIN_TOUCH_TARGET + spacing.sm,
-    backgroundColor: colors.error,
+    backgroundColor: colors.errorFill,
     borderRadius: radii.lg,
     padding: spacing.md,
     shadowColor: colors.error,

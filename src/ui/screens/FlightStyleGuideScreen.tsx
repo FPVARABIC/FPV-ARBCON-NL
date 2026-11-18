@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  chipText: {...typography.caption, color: colors.accentText, fontWeight: '600'},
+  chipText: {...typography.caption, color: colors.accentStrong, fontWeight: '600'},
   aircraft: {
     ...typography.caption,
     color: colors.textMuted,

@@ -32,14 +32,8 @@ class MainApplication : Application(), ReactApplication {
     super.onCreate()
     // Persist Dutch LTR before React Native creates its first surface.
     applyDutchLayoutDirection(this)
-    // The shared UI typeface, including Dutch Latin glyphs. Registering the res/font XML family under
-    // the name "Cairo" is what makes { fontFamily: 'Cairo', fontWeight }
-    // in shared JS styles resolve to the real weight-mapped faces (see
-    // res/font/cairo.xml); without this, Android would look for a
-    // "Cairo.ttf" asset, miss, and silently fall back to the system font.
-    // Registered before loadReactNative so no first-frame text can render
-    // ahead of the family being known.
-    ReactFontManager.getInstance().addCustomFont(this, "Cairo", R.font.cairo)
+    // Register the bundled Dutch UI typeface before the first React surface.
+    ReactFontManager.getInstance().addCustomFont(this, "Lato", R.font.lato)
     loadReactNative(this)
   }
 }

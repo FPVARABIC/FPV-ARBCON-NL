@@ -22,22 +22,23 @@ function contrast(first: string, second: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-describe('FPV-ARBCON light visual identity', () => {
+describe('Firecom-inspired dark visual identity', () => {
+  const surfaces = [colors.background, colors.backgroundRaised, colors.surface, colors.surfaceAlt, colors.surfaceRaised];
+  it.each(surfaces)('keeps ordinary and disabled copy readable on %s', background => {
+    for (const foreground of [colors.textPrimary, colors.textSecondary, colors.textMuted, colors.disabled, colors.accentStrong]) {
+      expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
   it.each([
-    ['primary copy', colors.textPrimary, colors.background],
-    ['secondary copy', colors.textSecondary, colors.background],
-    ['muted copy on white', colors.textMuted, colors.white],
-    ['muted copy on paper', colors.textMuted, colors.background],
-    ['muted copy on raised paper', colors.textMuted, colors.backgroundRaised],
-    ['teal links', colors.accentStrong, colors.white],
-    ['teal actions', colors.accentText, colors.accent],
-    ['danger actions', colors.white, colors.error],
-    ['warning copy', colors.warning, colors.white],
-    ['error copy', colors.error, colors.white],
-    ['status copy on its tint', colors.error, colors.errorSoft],
-    ['warning copy on its tint', colors.warning, colors.warningSoft],
-    ['success copy on its tint', colors.success, colors.successSoft],
-    ['info copy on its tint', colors.info, colors.infoSoft],
+    ['gold actions', colors.accentText, colors.accent],
+    ['hovered gold actions', colors.accentText, colors.accentHover],
+    ['pressed gold actions', colors.accentText, colors.accentPressed],
+    ['danger actions', colors.white, colors.errorFill],
+    ['hardware copy', colors.accentStrong, colors.accentSoft],
+    ['error copy', colors.error, colors.errorSoft],
+    ['warning copy', colors.warning, colors.warningSoft],
+    ['success copy', colors.success, colors.successSoft],
+    ['info copy', colors.info, colors.infoSoft],
   ])('keeps %s at WCAG AA contrast', (_name, foreground, background) => {
     expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
   });

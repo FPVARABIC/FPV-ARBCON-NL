@@ -1281,7 +1281,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     writingDirection: 'ltr',
   },
-  propsChips: {flexDirection: 'row', gap: spacing.xs},
+  propsChips: {flexDirection: 'row', flexWrap: 'wrap', maxWidth: '100%', gap: spacing.xs},
   propsChip: {
     minHeight: 44,
     justifyContent: 'center',

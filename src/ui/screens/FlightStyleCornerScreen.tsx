@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  chipText: {...typography.caption, color: colors.accentText, fontWeight: '600'},
+  chipText: {...typography.caption, color: colors.accentStrong, fontWeight: '600'},
   chipQuiet: {
     borderRadius: radii.pill,
     backgroundColor: colors.surfaceAlt,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   /* A numeral, so it declares its own direction rather than inheriting. */
   stepBadgeText: {
     ...typography.label,
-    color: colors.white,
+    color: colors.accentText,
     writingDirection: 'ltr',
   },
   /* Was typography.heading - the size a SCREEN title uses. A step
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   recommendValues: {flexDirection: 'row', flexWrap: 'wrap', gap: 6},
   valueChip: {
     borderRadius: radii.sm,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.borderSoft,
     paddingHorizontal: spacing.sm,

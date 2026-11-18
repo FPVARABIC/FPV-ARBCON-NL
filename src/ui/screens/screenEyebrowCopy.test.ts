@@ -10,7 +10,7 @@
  * on every phone width.
  *
  * They are gone. This keeps them gone: an eyebrow is either a localized
- * lookup or a short Arabic phrase, never a hardcoded Latin string. Protocol
+ * lookup or a short Dutch phrase, never a hardcoded Latin string. Protocol
  * identifiers still belong in the code, in commit messages and in the
  * diagnostics export - just not as chrome above the operator's first control.
  */
@@ -45,13 +45,14 @@ describe('screen eyebrows', () => {
 
   it.each(
     files.map(name => [name] as const),
-  )('%s introduces itself in Arabic, not in protocol shorthand', name => {
+  )('%s introduces itself in Dutch, not in protocol shorthand', name => {
     const source = fs.readFileSync(path.join(SCREENS, name), 'utf8');
     for (const content of eyebrowContents(source)) {
       // A localized lookup or any interpolation is fine - the string itself
-      // then lives in the locale file, which is reviewed as Arabic copy.
+      // then lives in the locale file, which is reviewed as Dutch copy.
       if (content.includes('{')) continue;
-      expect(content).not.toMatch(/[A-Za-z]/);
+      expect(content).not.toMatch(/[\u0600-\u06ff]/);
+      expect(content).not.toMatch(/MSP_[A-Z_]+|API\s+\d|EXCLUSIVE LINK/);
     }
   });
 });
@@ -72,7 +73,7 @@ describe('validation codes are translated, never printed raw', () => {
   ];
 
   it.each(MODELS.filter(([, namespace]) => namespace !== ''))(
-    '%s has an Arabic sentence for every code it can emit',
+    '%s has a Dutch sentence for every code it can emit',
     (model, namespace) => {
       const source = fs.readFileSync(path.join(__dirname, model), 'utf8');
       const codes = new Set(
@@ -82,7 +83,7 @@ describe('validation codes are translated, never printed raw', () => {
 
       const locale = JSON.parse(
         fs.readFileSync(
-          path.join(__dirname, '..', '..', 'i18n', 'locales', 'ar.json'),
+          path.join(__dirname, '..', '..', 'i18n', 'locales', 'nl.json'),
           'utf8',
         ),
       ) as Record<string, unknown>;
@@ -99,7 +100,8 @@ describe('validation codes are translated, never printed raw', () => {
         // Arabic prose, not the identifier. Protocol proper nouns - GPS,
         // SBAS, MSP, Betaflight - stay in Latin script on purpose; they are
         // what the operator sees printed on their own hardware.
-        expect(sentence).toMatch(/[؀-ۿ]/);
+        expect(sentence).toMatch(/[A-Za-z]/);
+        expect(sentence).not.toMatch(/[\u0600-\u06ff]/);
         expect(sentence).not.toContain(code);
         expect((sentence ?? '').length).toBeGreaterThan(20);
       }

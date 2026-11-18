@@ -129,7 +129,7 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle="light-content"
         backgroundColor={colors.backgroundRaised}
       />
       <NavigationContainer

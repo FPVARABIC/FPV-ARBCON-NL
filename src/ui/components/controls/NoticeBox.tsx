@@ -80,7 +80,7 @@ const VARIANTS: Record<NoticeVariant, VariantSpec> = {
   hardware: {
     bg: colors.accentSoft,
     border: colors.accentStrong,
-    fg: colors.accentText,
+    fg: colors.accentStrong,
     icon: 'wrench',
   },
 };

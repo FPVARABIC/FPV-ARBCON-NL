@@ -337,7 +337,7 @@ function UsageBar({
 }): React.JSX.Element | null {
   if (fraction === undefined) return null;
   return (
-    <View style={styles.barTrack} testID={testID}>
+    <View style={styles.barTrack} testID={testID} accessibilityRole="progressbar" accessibilityLabel="Geheugengebruik" accessibilityValue={{min: 0, max: 100, now: Math.round(fraction * 100)}}>
       <View style={[styles.barFill, {width: `${Math.round(fraction * 100)}%`}]} />
     </View>
   );
@@ -1387,7 +1387,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
   },
-  barFill: {height: 8, borderRadius: radii.pill, backgroundColor: colors.accentStrong},
+  barFill: {height: 8, borderRadius: radii.pill, backgroundColor: colors.accent},
 
   inlineNotice: {
     flexDirection: 'row',
@@ -1420,7 +1420,7 @@ const styles = StyleSheet.create({
   },
   draftText: {
     ...typography.body,
-    color: colors.accentText,
+    color: colors.accentStrong,
     flexShrink: 1,
     textAlign: 'left',
   },
@@ -1493,7 +1493,7 @@ const styles = StyleSheet.create({
 
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(21,34,50,0.55)',
+    backgroundColor: colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.lg,

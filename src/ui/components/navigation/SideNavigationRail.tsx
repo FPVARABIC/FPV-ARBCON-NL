@@ -67,7 +67,7 @@ export default function SideNavigationRail({
           rail keeps the textual identity only. */}
       <View style={styles.brand} testID="main-side-rail-brand">
         <View style={styles.brandCopy}>
-          <Text style={styles.brandName}>FPV-ARBCON</Text>
+          <Text style={styles.brandName}>FPV Configurator NL</Text>
           <Text style={styles.brandTagline}>{"FPV-configuratiecentrum"}</Text>
         </View>
       </View>
@@ -80,7 +80,7 @@ export default function SideNavigationRail({
         ref={reveal.scrollRef}
         style={styles.scroll}
         contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator
         onLayout={reveal.onScrollViewLayout}
         onContentSizeChange={reveal.onContentSizeChange}
         testID="main-side-rail-scroll"
@@ -115,7 +115,6 @@ export default function SideNavigationRail({
               </View>
               <Text
                 style={[styles.label, isActive && styles.labelActive]}
-                numberOfLines={1}
               >
                 {t(tab.labelKey)}
               </Text>
@@ -143,7 +142,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.sm,
     borderRadius: radii.md,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.backgroundRaised,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
   },
   brandCopy: { flex: 1 },
   brandName: {
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
   },
   brandTagline: {
     ...typography.caption,
-    color: colors.accentText,
+    color: colors.accentStrong,
     writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
   header: {
     paddingHorizontal: spacing.xs,

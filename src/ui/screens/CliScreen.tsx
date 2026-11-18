@@ -733,7 +733,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#111C27',
   },
   terminalTitle: { ...typography.sectionTitle, color: '#E7F5F3' },
-  terminalTools: { flexDirection: 'row', gap: spacing.lg },
+  terminalTools: { flexDirection: 'row', flexWrap: 'wrap', maxWidth: '100%', gap: spacing.lg },
   /* Terminal chrome sits on the dark terminal surface, so it keeps local
      colours rather than the light shared Button - but it now obeys the
      same target floor and state rules. */
@@ -745,7 +745,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderRadius: radii.sm,
   },
-  toolActive: { backgroundColor: 'rgba(94, 234, 212, 0.16)' },
+  toolActive: { backgroundColor: colors.accentSoft },
   toolDisabled: { opacity: 0.45 },
   toolText: { ...typography.label, color: colors.accent, maxWidth: PROSE_MEASURE},
   terminal: { height: 360, padding: spacing.md },
@@ -834,7 +834,7 @@ const styles = StyleSheet.create({
     minWidth: 210,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.error,
+    backgroundColor: colors.errorFill,
     borderRadius: radii.md,
   },
   saveText: { ...typography.body, color: colors.white, fontWeight: '700' },
@@ -845,7 +845,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     ...typography.body,
-    color: colors.accentText,
+    color: colors.accentStrong,
     textAlign: 'left', maxWidth: PROSE_MEASURE},
   hardware: {
     ...typography.caption,

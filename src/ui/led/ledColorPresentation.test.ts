@@ -134,3 +134,21 @@ describe('a board that sent no palette gets no invented one', () => {
     expect(ledNodeSwatch([F10_HSV_ANCHORS.red], 5)).toBeUndefined();
   });
 });
+
+it('keeps swatch numbers at AA contrast across hue, whiteness and brightness', () => {
+  const linear = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  for (let hue = 0; hue < 360; hue += 15) {
+    for (const whiteness of [0, 64, 128, 192, 255]) {
+      for (const value of [0, 48, 96, 144, 192, 255]) {
+        const color = {hue, whiteness, value};
+        const {r, g, b} = ledColorToRgb(color);
+        const luminance = 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+        const contrast = ledSwatchInk(color) === '#000000' ? (luminance + 0.05) / 0.05 : 1.05 / (luminance + 0.05);
+        expect(contrast).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  }
+});

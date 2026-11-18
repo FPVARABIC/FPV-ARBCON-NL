@@ -1,0 +1,9 @@
+/* Lato, SIL Open Font License 1.1. Bundled locally; no font CDN at runtime. */
+@font-face {
+  font-family: 'Lato'; font-style: normal; font-weight: 400 500; font-display: swap;
+  src: url('./fonts/lato-regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Lato'; font-style: normal; font-weight: 600 700; font-display: swap;
+  src: url('./fonts/lato-bold.ttf') format('truetype');
+}

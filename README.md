@@ -6,11 +6,19 @@
 
 Openbare webversie op GitHub Pages. Aanmelden is niet nodig. Hetzelfde adres staat in **About** van deze repository.
 
-Zelfstandige Nederlandse editie van FPV-ARBCON. Deze repository bevat uitsluitend de Nederlandse broncodestatus uit de gecontroleerde commit `a2b1d5661ebe12b1e2292903a0a7b169b764d7bf`. De webversie wordt afzonderlijk via GitHub Pages gepubliceerd; het actieve adres staat in About.
+Zelfstandige Nederlandse editie van FPV-ARBCON. Deze repository bouwt voort op de gecontroleerde Nederlandse commit `a2b1d5661ebe12b1e2292903a0a7b169b764d7bf`. De webversie wordt afzonderlijk via GitHub Pages gepubliceerd; het actieve adres staat in About.
 
 De functies, MSP-protocollen, configuratiewaarden en beveiligingen blijven gelijk aan de brontoepassing. De interface, meldingen, toegankelijkheidslabels en 37 handleidingafbeeldingen zijn Nederlandstalig. De weergaverichting is van links naar rechts, ook op een apparaat met een Arabische systeemtaal.
 
 De Android-app heet **FPV Configurator NL** en krijgt applicatie-ID `com.fpvarbcon.nl`, zodat beide edities naast elkaar kunnen worden geïnstalleerd. De interne Kotlin-namespace en React Native-registratienaam blijven behouden.
+
+## Interface
+
+De volledige interface gebruikt een donkerblauw-gouden vormgeving, geïnspireerd op [Firecom](https://www.firecom.nl/), met lokaal meegeleverde Lato-lettertypen. De eigen productnaam blijft FPV Configurator NL.
+
+Alle 17 configuratieonderdelen staan in het overzicht op Home en in de werkruimtenavigatie. Op de telefoon opent **Alle functies** een complete lijst. De donatiesectie is verwijderd. De bestaande verbindingscontrole, motorbeveiligingen en schrijfbevestigingen blijven van kracht.
+
+[Verificatierapport van de interface](docs/FIRECOM_INTERFACE_REVIEW_NL.md).
 
 ## Lokaal controleren
 
