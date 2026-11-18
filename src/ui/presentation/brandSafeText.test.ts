@@ -15,12 +15,12 @@ describe('brand-safe operator copy', () => {
     expect(usbManufacturerLabel('Betaflight')).toBeNull();
   });
 
-  it('uses FPV-ARBCON for displayed filenames without changing technical text elsewhere', () => {
+  it('uses fiercon for displayed filenames without changing technical text elsewhere', () => {
     expect(
       firmwareFilenameLabel(
         'betaflight_2025.12.5_STM32F405_SPEEDYBEEF405V5.hex',
       ),
-    ).toBe('FPV-ARBCON_2025.12.5_STM32F405_SPEEDYBEEF405V5.hex');
+    ).toBe('fiercon_2025.12.5_STM32F405_SPEEDYBEEF405V5.hex');
     expect(sanitizeUserVisibleText('Betaflight build server')).toBe(
       'Firmware build server',
     );

@@ -145,6 +145,7 @@ describe('OrientationHero', () => {
     expect(computeOrientationWorkspaceLayout(1600, 1, 1540, false).expanded).toBe(false);
     expect(computeOrientationWorkspaceLayout(1100, 1, 1540, true).stageWidth).toBe(900);
     expect(computeOrientationWorkspaceLayout(1600, 1, 500, true).expanded).toBe(false);
+    expect(computeOrientationWorkspaceLayout(320, 1, 207, false).stageWidth).toBe(207);
   });
 
   it('WAITING: shows the waiting message, no 3D model, no readouts, no reset button', () => {

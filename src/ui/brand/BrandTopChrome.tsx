@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, radii, spacing, typography } from '../theme';
 import BrandLogo, {
   BRAND_PRODUCT_NAME,
-  BRAND_PRODUCT_TAGLINE,
 } from './BrandLogo';
 
 /** Persistent product identity on every web route; native keeps its Home lockup. */
@@ -11,13 +10,12 @@ export default function BrandTopChrome(): React.JSX.Element {
   return (
     <View style={styles.strip} testID="brand-top-chrome">
       <View style={styles.lockup}>
-        <BrandLogo height={48} testID="brand-logo" />
+        <BrandLogo height={32} testID="brand-logo" />
         <View style={styles.rule} />
         <View style={styles.copy}>
           <Text style={styles.productName} testID="brand-product-name">
             {BRAND_PRODUCT_NAME}
           </Text>
-          <Text style={styles.tagline}>{BRAND_PRODUCT_TAGLINE}</Text>
         </View>
         <View style={styles.locale}>
           <Text style={styles.localeText}>NL</Text>
@@ -30,7 +28,7 @@ const styles = StyleSheet.create({
   strip: {
     width: '100%',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSoft,
@@ -41,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
   },
-  rule: { width: 2, height: 36, backgroundColor: colors.accent },
+  rule: { width: 2, height: 24, backgroundColor: colors.accent },
   copy: { flex: 1, minWidth: 0, gap: 2 },
   productName: {
     ...typography.heading,

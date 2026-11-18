@@ -320,11 +320,11 @@ function cellOf(
  * ================================================================== */
 
 describe('load', () => {
-  it('1. renders the Arabic title and subtitle', async () => {
+  it('1. renders the Dutch workspace title without the introductory paragraph', async () => {
     const {tree} = await mount();
     const text = textOf(tree);
     expect(text).toContain(L.title);
-    expect(text).toContain(L.subtitle);
+    expect(text).not.toContain(L.subtitle);
     act(() => tree.unmount());
   });
 

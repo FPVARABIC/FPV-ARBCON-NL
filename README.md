@@ -1,8 +1,8 @@
-# FPV Configurator NL
+# fiercon
 
 ## Webversie proberen
 
-[Open FPV Configurator NL](https://fpvarabic.github.io/FPV-ARBCON-NL/)
+[Open fiercon](https://fpvarabic.github.io/FPV-ARBCON-NL/)
 
 Openbare webversie op GitHub Pages. Aanmelden is niet nodig. Hetzelfde adres staat in **About** van deze repository.
 
@@ -10,15 +10,15 @@ Zelfstandige Nederlandse editie van FPV-ARBCON. Deze repository bouwt voort op d
 
 De functies, MSP-protocollen, configuratiewaarden en beveiligingen blijven gelijk aan de brontoepassing. De interface, meldingen, toegankelijkheidslabels en 37 handleidingafbeeldingen zijn Nederlandstalig. De weergaverichting is van links naar rechts, ook op een apparaat met een Arabische systeemtaal.
 
-De Android-app heet **FPV Configurator NL** en krijgt applicatie-ID `com.fpvarbcon.nl`, zodat beide edities naast elkaar kunnen worden geïnstalleerd. De interne Kotlin-namespace en React Native-registratienaam blijven behouden.
+De Android-app heet **fiercon** en krijgt applicatie-ID `com.fpvarbcon.nl`, zodat beide edities naast elkaar kunnen worden geïnstalleerd. De interne Kotlin-namespace en React Native-registratienaam blijven behouden.
 
 ## Interface
 
-De volledige interface gebruikt een donkerblauw-gouden vormgeving, geïnspireerd op [Firecom](https://www.firecom.nl/), met lokaal meegeleverde Lato-lettertypen. De eigen productnaam blijft FPV Configurator NL.
+De volledige interface gebruikt een donkerblauw-gouden vormgeving, geïnspireerd op [Firecom](https://www.firecom.nl/), met lokaal meegeleverde Lato-lettertypen. De productnaam is **fiercon**. De indeling gebruikt compacte instellingenpanelen en gegroepeerde navigatie, met Betaflight als functionele referentie en een eigen vormgeving.
 
 Alle 17 configuratieonderdelen staan in het overzicht op Home en in de werkruimtenavigatie. Op de telefoon opent **Alle functies** een complete lijst. De donatiesectie is verwijderd. De bestaande verbindingscontrole, motorbeveiligingen en schrijfbevestigingen blijven van kracht.
 
-[Verificatierapport van de interface](docs/FIRECOM_INTERFACE_REVIEW_NL.md).
+[Verificatierapport van fiercon](docs/FIERCON_INTERFACE_REVIEW_NL.md).
 
 ## Lokaal controleren
 

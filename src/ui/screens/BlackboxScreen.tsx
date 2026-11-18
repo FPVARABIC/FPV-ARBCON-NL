@@ -1091,7 +1091,7 @@ export default function BlackboxScreen({
       <ScrollView contentContainerStyle={[styles.content, {maxWidth}]}>
         <View style={styles.header}>
           <Text style={styles.title}>{t('blackbox.title')}</Text>
-          <Text style={styles.subtitle}>{t('blackbox.subtitle')}</Text>
+
           {/* ONE CHIP, AND ONLY ONE.
               "Is anything being logged at all" is the question a pilot
               opens this screen with, and it is answered by the device

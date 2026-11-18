@@ -386,6 +386,11 @@ describe('computeDroneScene', () => {
     expect(materials).toEqual(
       new Set([
         'HUB',
+        'FRAME_EDGE',
+        'FASTENER',
+        'MOTOR_SHAFT',
+        'PROP_BLADE_FRONT',
+        'PROP_BLADE_REAR',
         'STANDOFF',
         'ARM',
         'MOTOR_FRONT',

@@ -423,7 +423,7 @@ function RotorGlyph({size, active}: {size: number; active: boolean}): React.JSX.
   const thickness = Math.max(2, Math.round(size * 0.16));
   const hub = Math.max(4, Math.round(size * 0.3));
   return (
-    <View style={[styles.rotor, {width: size, height: size}, active && styles.rotorActive]}>
+    <View style={[styles.rotor, {width: size, height: size, borderRadius: size / 2}, active && styles.rotorActive]}>
       <View
         style={[
           styles.blade,
@@ -1079,6 +1079,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   rotor: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.backgroundRaised,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1092,6 +1095,8 @@ const styles = StyleSheet.create({
   },
   hub: {
     backgroundColor: colors.textSecondary,
+    borderWidth: 1,
+    borderColor: colors.background,
   },
   slotRow: {
     ...typography.caption,

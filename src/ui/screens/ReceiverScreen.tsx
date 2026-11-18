@@ -405,7 +405,7 @@ export default function ReceiverScreen({sessionKey, active, onOpenPorts, onOpenM
           MSP jargon and no hard-coded frequency claim. */}
       <View style={styles.header}>
         <Text style={styles.title} testID="receiver-title">{t('receiverScreen.title')}</Text>
-        <Text style={styles.subtitle}>{t('receiverScreen.subtitle')}</Text>
+
       </View>
 
       <ReceiverLiveWorkspace sessionKey={sessionKey} active={active} wide={wide} />

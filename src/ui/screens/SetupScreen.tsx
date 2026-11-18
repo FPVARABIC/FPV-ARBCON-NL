@@ -47,6 +47,7 @@
  * gap stays unreachable.
  */
 
+import {SectionNavigation, useSectionNavigation} from '../components/navigation/SectionNavigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -212,6 +213,7 @@ function SetupScreenContent({
   active: boolean;
 }): React.JSX.Element {
   const { t } = useTranslation();
+  const sections = useSectionNavigation();
   const { sessionId } = sessionKey;
   // Desktop tiers get the wider workspace envelope; narrower tiers keep
   // the 1180px reading cap. See useContentEnvelope.ts.
@@ -474,6 +476,7 @@ function SetupScreenContent({
         onDisconnect={handleDisconnect}
       />
       <ScrollView
+        ref={sections.scrollRef}
         contentContainerStyle={[
           styles.scrollContent,
           { maxWidth: contentMaxWidth, paddingHorizontal: workspaceGutter },
@@ -515,6 +518,7 @@ function SetupScreenContent({
         {/* 1. THE COMPACT STATUS AREA. First content, not sticky chrome:
                on a phone an operator scrolls past it to the model, and
                on a desktop it never leaves the first viewport. */}
+        <SectionNavigation items={[{key: 'orientation', label: 'Oriëntatie'}, {key: 'status', label: 'Bord & telemetrie'}, {key: 'alignment', label: 'Uitlijning'}, {key: 'maintenance', label: 'Onderhoud'}]} onSelect={sections.jump} />
         <SetupStatusBar
           sessionId={sessionId}
           armingReadiness={armingReadiness}
@@ -539,7 +543,7 @@ function SetupScreenContent({
                carries its own eyebrow and title, so the heading restated
                what the card beneath it already said, at the cost of a
                tenth of a phone viewport. */}
-        <LiveOrientationHero
+        <View onLayout={sections.register('orientation')}><LiveOrientationHero
           sessionKey={sessionKey}
           active={active}
           orientationViewOffset={uiState.orientationViewOffset}
@@ -555,10 +559,11 @@ function SetupScreenContent({
           }
         />
 
+        </View>
         {/* 4. THE DENSE GRID, directly under the model - Status, GPS and
                Build side by side on a desktop, stacking on a phone. This
                is what the four elevated telemetry cards became. */}
-        <SetupInfoGrid
+        <View onLayout={sections.register('status')}><SetupInfoGrid
           armingReadiness={armingReadiness}
           battery={batterySummary}
           connected={connected}
@@ -576,6 +581,7 @@ function SetupScreenContent({
           onOpenSensors={onOpenSensors}
         />
 
+        </View>
         {/* 5. BOARD ALIGNMENT stays a full feature and moves BELOW the
                live information. It used to sit between the model and
                everything measured, which put a configuration form in the
@@ -584,15 +590,15 @@ function SetupScreenContent({
                firmware has ALREADY corrected with these angles, so it can
                never reveal that they are wrong - and the card still says
                so in words; it simply no longer interrupts. */}
-        <BoardAlignmentCard sessionKey={sessionKey} active={active} />
+        <View onLayout={sections.register('alignment')}><BoardAlignmentCard sessionKey={sessionKey} active={active} /></View>
 
         {/* 6. ADVANCED, from here down. */}
-        <SetupSectionHeading
+        <View onLayout={sections.register('maintenance')}><SetupSectionHeading
           eyebrow={t('setupSections.maintenance.eyebrow')}
           title={t('setupSections.maintenance.title')}
           description={t('setupSections.maintenance.description')}
           testID="setup-maintenance-heading"
-        />
+        /></View>
         {/* DIAGNOSTICS, SECOND - not deleted, relocated.
 
             The full warning stack and the stability check used to open
@@ -631,7 +637,6 @@ function SetupScreenContent({
 function SetupSectionHeading({
   eyebrow,
   title,
-  description,
   testID,
 }: {
   eyebrow: string;
@@ -647,7 +652,7 @@ function SetupSectionHeading({
         <Text style={styles.sectionTitle} accessibilityRole="header">
           {title}
         </Text>
-        <Text style={styles.sectionDescription}>{description}</Text>
+
       </View>
     </View>
   );

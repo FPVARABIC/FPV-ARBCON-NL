@@ -20,6 +20,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -334,6 +335,8 @@ function PortCard({
   readonly onBaud: (field: SerialBaudField, value: number) => void;
 }) {
   const { t } = useTranslation();
+  const {width, fontScale} = useWindowDimensions();
+  const columns = width / fontScale >= 1100;
   const [expanded, setExpanded] = useState(false);
   const roles = enabledSerialRoles(port);
   const telemetry = roles.find(role =>
@@ -459,7 +462,7 @@ function PortCard({
             />
           ) : null}
 
-          <ChoiceGroup
+          <View style={[styles.roleColumns, columns && styles.roleColumnsWide]}><View style={styles.roleColumn}><ChoiceGroup
             categoryKey="telemetry"
             title={t('portsConfiguration.telemetry')}
             roles={TELEMETRY_ROLES}
@@ -479,7 +482,7 @@ function PortCard({
               onChange={value => onBaud('telemetryBaudIndex', value)}
             />
           ) : null}
-          <ChoiceGroup
+          </View><View style={styles.roleColumn}><ChoiceGroup
             categoryKey="sensors"
             title={t('portsConfiguration.sensors')}
             roles={SENSOR_ROLES}
@@ -498,7 +501,7 @@ function PortCard({
               onChange={value => onBaud('gpsBaudIndex', value)}
             />
           ) : null}
-          <ChoiceGroup
+          </View><View style={styles.roleColumn}><ChoiceGroup
             categoryKey="peripherals"
             title={t('portsConfiguration.peripherals')}
             roles={PERIPHERAL_ROLES}
@@ -518,6 +521,7 @@ function PortCard({
               onChange={value => onBaud('blackboxBaudIndex', value)}
             />
           ) : null}
+          </View></View>
         </>
       ) : null}
     </View>
@@ -796,9 +800,7 @@ export default function PortsScreen({
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>{t('portsConfiguration.eyebrow')}</Text>
           <Text style={styles.title}>{t('portsConfiguration.title')}</Text>
-          <Text style={styles.subtitle}>
-            {t('portsConfiguration.subtitle')}
-          </Text>
+
         </View>
 
         <NoticeBox
@@ -1112,7 +1114,7 @@ const styles = StyleSheet.create({
     // fallback so the envelope logic is the only authority.
     alignSelf: 'center',
   },
-  hero: { alignItems: 'flex-end', gap: spacing.xs },
+  hero: { alignItems: 'flex-start', gap: spacing.xs, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
@@ -1200,6 +1202,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     textAlign: 'left',
     writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+  roleColumns: {gap: spacing.lg},
+  roleColumnsWide: {flexDirection: 'row', alignItems: 'flex-start'},
+  roleColumn: {flex: 1, minWidth: 0, gap: spacing.md},
   portCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,

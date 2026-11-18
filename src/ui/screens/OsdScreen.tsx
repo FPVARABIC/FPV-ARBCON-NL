@@ -438,8 +438,7 @@ export default function OsdScreen({
         contentContainerStyle={[styles.content, {maxWidth}]}>
         <View style={styles.hero}>
           <Text style={styles.title}>{"Het is op het scherm."}</Text>
-          <Text style={styles.subtitle}>
-            {"Trek elk element in de preview om de positie te veranderen, en sla het dan op voor vluchtcontroller."}</Text>
+
         </View>
 
         {loadingMessage !== undefined ? (
@@ -879,7 +878,7 @@ const OSD_ELEMENT_CHIP_BASIS = 216;
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: colors.background},
   content: {width: '100%', alignSelf: 'center', padding: spacing.lg, gap: spacing.md},
-  hero: {gap: 4},
+  hero: {gap: 4, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft},
   eyebrow: {...typography.eyebrow, color: colors.accentStrong},
   title: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
   subtitle: {...typography.body, color: colors.textSecondary, textAlign: 'left', maxWidth: PROSE_MEASURE},

@@ -449,7 +449,7 @@ export default function LedStripScreen({
           <Text style={styles.title} accessibilityRole="header">
             {t('ledStripScreen.title')}
           </Text>
-          <Text style={styles.subtitle}>{t('ledStripScreen.subtitle')}</Text>
+
           <Button
             label={t('ledStripScreen.reload')}
             icon="refresh-cw"

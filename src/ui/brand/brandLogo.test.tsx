@@ -2,23 +2,8 @@
  * The asset-truth test below reads the WebP VP8X feature flags byte, and
  * a flags byte is read with a mask. Same documented file-header pattern
  * the OSD firmware-word suites use. */
-/**
- * THE OFFICIAL LOGO - asset truth, crop-window math, placement policy.
- *
- * Three layers of proof:
- *   1. BYTES. The committed .webp is the operator's exact file - pinned
- *      by sha256, size, container magic and the VP8X ALPHA flag, so no
- *      re-encode, "optimization" or redraw can ever slip in silently.
- *   2. GEOMETRY. BrandLogo's clipping window derives from the measured
- *      opaque-content box (592x761 inside the 1024x1536 canvas); the
- *      emblem's aspect ratio survives every requested height and the
- *      untouched full image is positioned at the exact matching offsets.
- *   3. PLACEMENT. Exactly one brand mark in the web top chrome; the
- *      Android Start screen carries it; no tool screen imports it (the
- *      Android shell stays tool-first); and the protocol layer cannot
- *      reach the asset at all - imports walked from source, the same
- *      technique osdConfigurationTruth.test.tsx uses for the OSD photo.
- */
+/** fiercon mark geometry/accessibility and placement. The original supplied
+ * emblem is retained as a legacy source asset, separate from the current mark. */
 
 import {createHash} from 'crypto';
 import {existsSync, readFileSync, readdirSync, statSync} from 'fs';
@@ -65,7 +50,7 @@ function flatten(style: unknown): Record<string, unknown> {
   return flat;
 }
 
-describe('the committed asset is the operator\'s exact file', () => {
+describe('the archived supplied emblem remains intact', () => {
   it('matches the recorded byte identity - sha256, size, WebP container, real alpha channel', () => {
     const bytes = readFileSync(ASSET_PATH);
     expect(bytes.length).toBe(EXPECTED_BYTES);
@@ -80,42 +65,23 @@ describe('the committed asset is the operator\'s exact file', () => {
     expect(bytes[20] & 0x10).toBe(0x10);
   });
 
-  it('is what the render layer actually loads (the Jest asset stub points at this exact module path)', () => {
+  it('keeps the legacy asset module addressable independently of the current vector mark', () => {
     const source = BRAND_LOGO_SOURCE as unknown as {testUri?: string};
     expect(source.testUri ?? '').toMatch(/fpvArabicLogo\.webp$/);
   });
 });
 
-describe('BrandLogo crop-window geometry', () => {
-  it('reserves the measured emblem aspect ratio and clips the transparent margins away', () => {
-    const height = 100;
-    const renderer = render(<BrandLogo height={height} />);
-    const scale = height / BRAND_LOGO_CONTENT_HEIGHT;
-
-    const windowNode = renderer.root.findByProps({testID: 'brand-logo'});
-    const windowStyle = flatten(windowNode.props.style);
-    expect(windowStyle.height).toBe(height);
-    expect(windowStyle.width).toBeCloseTo(height * BRAND_LOGO_ASPECT, 6);
-    expect(windowStyle.overflow).toBe('hidden');
-    // The emblem is portrait 592:761 - the reserved box must agree.
-    expect(BRAND_LOGO_ASPECT).toBeCloseTo(
-      BRAND_LOGO_CONTENT_WIDTH / BRAND_LOGO_CONTENT_HEIGHT,
-      10,
-    );
-
-    const image = renderer.root.findByProps({testID: 'brand-logo-image'});
-    const imageStyle = flatten(image.props.style);
-    // Full untouched canvas, scaled uniformly...
-    expect(imageStyle.width).toBeCloseTo(1024 * scale, 6);
-    expect(imageStyle.height).toBeCloseTo(1536 * scale, 6);
-    // ...slid so the measured content box fills the window exactly.
-    expect(imageStyle.left).toBeCloseTo(-244 * scale, 6);
-    expect(imageStyle.top).toBeCloseTo(-329 * scale, 6);
-    // Uniform scale of the whole canvas: stretch cannot distort here
-    // because width/height above keep the asset's own 1024:1536 ratio.
-    expect(image.props.resizeMode).toBe('stretch');
-
-    act(() => renderer.unmount());
+describe('fiercon identity geometry', () => {
+  it('keeps the vector mark square at both toolbar and launcher sizes', () => {
+    for (const height of [32, 64, 100]) {
+      const renderer = render(<BrandLogo height={height} />);
+      const windowStyle = flatten(renderer.root.findByProps({testID: 'brand-logo'}).props.style);
+      expect(windowStyle.height).toBe(height);
+      expect(windowStyle.width).toBe(height);
+      expect(BRAND_LOGO_ASPECT).toBe(BRAND_LOGO_CONTENT_WIDTH / BRAND_LOGO_CONTENT_HEIGHT);
+      expect(BRAND_LOGO_LABEL).toBe('fiercon');
+      act(() => renderer.unmount());
+    }
   });
 
   it('announces the brand exactly once - and not at all when decorative', () => {

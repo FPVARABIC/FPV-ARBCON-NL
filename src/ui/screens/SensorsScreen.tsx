@@ -705,7 +705,7 @@ export default function SensorsScreen({
           <Text style={styles.title} accessibilityRole="header">
             {t('sensorsScreen.title')}
           </Text>
-          <Text style={styles.subtitle}>{t('sensorsScreen.subtitle')}</Text>
+
         </View>
 
         {loading ? (
@@ -1433,7 +1433,7 @@ function currentHardwareRaw(
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: colors.background},
   content: {width: '100%', alignSelf: 'center', padding: spacing.lg, gap: spacing.lg},
-  hero: {gap: 4},
+  hero: {gap: 4, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft},
   title: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
   subtitle: {...typography.body, color: colors.textSecondary, textAlign: 'left'},
   loading: {

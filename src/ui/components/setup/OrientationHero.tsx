@@ -147,7 +147,10 @@ export function computeOrientationWorkspaceLayout(
     : estimatedWidth;
   const minimumRowWidth = HERO_TABLET_MAX_SIZE + DESKTOP_INSTRUMENT_RAIL_WIDTH + DESKTOP_WORKSPACE_GAP;
   if (!desktopEnabled || effective < DESKTOP_WORKSPACE_MIN_WIDTH || measured < minimumRowWidth) {
-    return { expanded: false, stageWidth: compactSize, stageHeight: compactSize, presentationScale: undefined };
+    // Fit the actual card, including the instrument column. Window width
+    // alone overestimates space when the hero sits inside another panel.
+    const fittedSize = Math.max(1, Math.min(compactSize, measured - (sidebar ? 156 + DESKTOP_WORKSPACE_GAP : 0)));
+    return { expanded: false, stageWidth: fittedSize, stageHeight: fittedSize, presentationScale: undefined };
   }
   const stageWidth = Math.floor(measured - DESKTOP_INSTRUMENT_RAIL_WIDTH - DESKTOP_WORKSPACE_GAP);
   return { expanded: true, stageWidth, stageHeight: Math.min(stageWidth, DESKTOP_STAGE_MAX_HEIGHT), presentationScale: DESKTOP_MODEL_SCALE };
@@ -227,8 +230,12 @@ export default function OrientationHero({
   const { t } = useTranslation();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const sidebar = shouldUseOrientationSidebar(windowWidth, fontScale);
-  const [measuredVisualsWidth, setMeasuredVisualsWidth] = useState<number>();
-  const workspace = computeOrientationWorkspaceLayout(windowWidth, fontScale, measuredVisualsWidth);
+  const [measuredCardWidth, setMeasuredCardWidth] = useState<number>();
+  const innerWidth = measuredCardWidth === undefined ? undefined : Math.max(1, measuredCardWidth - 2 * spacing.lg - 2);
+  const desktopFits = ORIENTATION_DESKTOP_WORKSPACE_ENABLED && windowWidth / fontScale >= DESKTOP_WORKSPACE_MIN_WIDTH &&
+    innerWidth !== undefined && innerWidth >= HERO_TABLET_MAX_SIZE + DESKTOP_INSTRUMENT_RAIL_WIDTH + DESKTOP_WORKSPACE_GAP + 320 + spacing.lg;
+  const measuredVisualsWidth = innerWidth === undefined ? undefined : desktopFits ? innerWidth - 320 - spacing.lg : innerWidth;
+  const workspace = computeOrientationWorkspaceLayout(windowWidth, fontScale, measuredVisualsWidth, desktopFits);
   // FINAL UI CORRECTION: on a phone the stage is the full card width
   // (dominant), with the dials on their own row directly beneath it.
   const heroSize = workspace.stageWidth;
@@ -236,9 +243,12 @@ export default function OrientationHero({
   const instrumentStageWidth = sidebar ? 156 : heroSize;
   const instrumentsLayout = sidebar ? 'sidebar' : 'row';
   const [hintVisible, setHintVisible] = useState(false);
-  const handleVisualsLayout = (event: LayoutChangeEvent) => {
+  // Measure the stable outer card, not the stage that changes parent when
+  // rotating a phone or crossing a desktop breakpoint. This avoids a late
+  // measurement from the old stage overwriting the new viewport size.
+  const handleCardLayout = (event: LayoutChangeEvent) => {
     const measured = event.nativeEvent.layout.width;
-    setMeasuredVisualsWidth(current => current === measured ? current : measured);
+    setMeasuredCardWidth(current => current === measured ? current : measured);
   };
   const visualsStyle = [
     styles.visuals,
@@ -274,7 +284,6 @@ export default function OrientationHero({
     return (
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
-          <Text style={styles.eyebrow}>{t('orientationHero.eyebrow')}</Text>
           <Text style={styles.title}>{t('orientationHero.title')}</Text>
         </View>
         <View
@@ -449,7 +458,7 @@ export default function OrientationHero({
     );
 
   const stage = (
-    <View style={visualsStyle} onLayout={handleVisualsLayout}>
+    <View style={visualsStyle}>
       <View
         style={[styles.rendererWrapper, { width: heroSize, height: heroHeight }]}
         accessible={accessibilityText !== undefined}
@@ -594,7 +603,7 @@ export default function OrientationHero({
 
   if (workspace.expanded) {
     return (
-      <View style={styles.container} testID={containerTestID}>
+      <View style={styles.container} onLayout={handleCardLayout} testID={containerTestID}>
         {renderHeader(status)}
         {readouts}
         <View style={styles.desktopRow}>
@@ -609,7 +618,7 @@ export default function OrientationHero({
   }
 
   return (
-    <View style={styles.container} testID={containerTestID}>
+    <View style={styles.container} onLayout={handleCardLayout} testID={containerTestID}>
       {renderHeader(status)}
       {readouts}
       {stage}
@@ -782,6 +791,7 @@ const styles = StyleSheet.create({
   },
   readoutValue: {
     ...typography.title,
+    fontVariant: ['tabular-nums'],
     color: colors.accentStrong,
     marginTop: spacing.xs / 2,
   },

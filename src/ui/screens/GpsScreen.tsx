@@ -513,7 +513,7 @@ export default function GpsScreen({
         <View style={styles.hero}>
           <Text style={styles.eyebrow}>{t('gpsSystem.eyebrow')}</Text>
           <Text style={styles.title}>{t('gpsSystem.title')}</Text>
-          <Text style={styles.subtitle}>{t('gpsSystem.subtitle')}</Text>
+
           <View style={styles.statusRow}>
             <View
               style={[
@@ -1025,7 +1025,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
-  hero: { paddingHorizontal: spacing.sm, paddingVertical: spacing.lg },
+  hero: { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
   eyebrow: { ...typography.eyebrow, color: colors.accentStrong },
   title: {
     ...typography.display,

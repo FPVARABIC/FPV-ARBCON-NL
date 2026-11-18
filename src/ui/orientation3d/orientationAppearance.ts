@@ -22,21 +22,16 @@
 import type {DroneSceneMaterial, DroneScenePrimitive} from './droneSceneGeometry';
 import {colors} from '../theme';
 
-/** Front motors/props BLUE, rear RED - the SOLE front/back color scheme
- * (per the approved prototype spec). Reuses the existing theme palette's
- * own accent/error colors rather than introducing new ones. */
+/** Gold marks the nose/front rotors; coral marks the rear. Shared by SVG and Skia. */
 export const MATERIAL_COLOR: Record<DroneSceneMaterial, string> = {
-  // FINAL-POLISH PASS: the central body read as a dark smudge against
-  // the dark card, because surfaceAlt is only two steps off the
-  // background. Moved one step up the SAME neutral ramp to border - no
-  // new colour enters the palette, and the hub still sits below the arms
-  // in the hierarchy.
-  HUB: colors.border,
+  FRAME_EDGE: colors.border,
+  FASTENER: colors.accentStrong,
+  MOTOR_SHAFT: colors.textMuted,
+  PROP_BLADE_FRONT: colors.accent,
+  PROP_BLADE_REAR: colors.error,
+  HUB: colors.borderStrong,
   STANDOFF: colors.border,
-  // Arms are the shape that communicates the airframe's attitude, so
-  // they move from textSecondary to textPrimary - again an existing
-  // palette step, now clearly above the hub.
-  ARM: colors.textPrimary,
+  ARM: colors.textSecondary,
   MOTOR_FRONT: colors.accent,
   MOTOR_REAR: colors.error,
   PROP_RING_FRONT: colors.accent,
@@ -54,7 +49,7 @@ export const TRANSLUCENT_MATERIALS = new Set<DroneSceneMaterial>([
   'PROP_DISC_REAR',
   'LEVEL_GRID',
 ]);
-export const TRANSLUCENT_OPACITY = 0.18;
+export const TRANSLUCENT_OPACITY = 0.08;
 
 /** FINAL-POLISH PASS: the level grid stays deliberately subordinate to
  * the drone. With the model 15% larger and the body/arms brighter, the
@@ -74,7 +69,7 @@ export const LEVEL_GRID_OPACITY = 0.14;
  *
  * The 0.6px half-width is included in the clipping matrix that sized
  * MODEL_PIXEL_SCALE_FACTOR - see that constant's own comment. */
-export const OUTLINE_STROKE_WIDTH = 1.2;
+export const OUTLINE_STROKE_WIDTH = 0.8;
 export const OUTLINED_MATERIALS = new Set<DroneSceneMaterial>([
   'HUB',
   'ARM',
@@ -97,6 +92,7 @@ export const STALE_OPACITY_MULTIPLIER = 0.45;
 /** The per-primitive appearance both renderers draw from. */
 export type PrimitiveAppearance = {
   readonly color: string;
+  readonly filled: boolean;
   readonly baseOpacity: number;
   readonly outlined: boolean;
 };
@@ -106,6 +102,7 @@ export function appearanceFor(
 ): PrimitiveAppearance {
   return {
     color: MATERIAL_COLOR[material],
+    filled: material !== 'PROP_RING_FRONT' && material !== 'PROP_RING_REAR',
     baseOpacity:
       material === 'LEVEL_GRID'
         ? LEVEL_GRID_OPACITY

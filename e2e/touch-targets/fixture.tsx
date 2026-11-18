@@ -29,6 +29,8 @@ import { createRoot } from 'react-dom/client';
 import { View, useWindowDimensions } from 'react-native';
 
 import '../../src/i18n';
+import OrientationHero from '../../src/ui/components/setup/OrientationHero';
+import {sceneAirframeFor} from '../../src/ui/orientation3d/airframeSceneModel';
 import '../../src/web/lato.css';
 import { MotorAirframeControls } from '../../src/ui/screens/MotorAirframeControls';
 import { FirmwareChoice } from '../../src/ui/components/firmware';
@@ -363,7 +365,7 @@ const shellLayout = {
   ...MAIN_TABS_SHELL,
 };
 
-function Shell({children}: {children: React.ReactNode}): React.JSX.Element {
+function Shell({children, activeTab = 'SETUP'}: {children: React.ReactNode; activeTab?: import('../../src/navigation/tabs').MainTabKey}): React.JSX.Element {
   const {width, fontScale} = useWindowDimensions();
   const useSideRail = isDesktopTier(resolveLayoutTier(width, fontScale));
   return (
@@ -375,13 +377,13 @@ function Shell({children}: {children: React.ReactNode}): React.JSX.Element {
           testID="main-tabs"
         >
           {useSideRail ? (
-            <SideNavigationRail activeTab="SETUP" onSelectTab={() => undefined} />
+            <SideNavigationRail activeTab={activeTab} onSelectTab={() => undefined} />
           ) : null}
           <View style={shellLayout.content} testID="shell-content">
             <View style={shellLayout.visible}>{children}</View>
           </View>
           {useSideRail ? null : (
-            <BottomTabBar activeTab="SETUP" onSelectTab={() => undefined} />
+            <BottomTabBar activeTab={activeTab} onSelectTab={() => undefined} />
           )}
         </View>
       </View>
@@ -477,7 +479,26 @@ const motorOperator = {
   stopAll: () => 'ACCEPTED' as const,
 } as any;
 
+/** Local presentation fixture only; never included in the public application. */
+function OrientationPresentationScene(): React.JSX.Element {
+  const [pose, setPose] = React.useState({rollDeg: 0, pitchDeg: 0, yawDeg: 0});
+  const [mixer, setMixer] = React.useState('3:4');
+  const [mode, count] = mixer.split(':').map(Number);
+  const airframe = React.useMemo(() => sceneAirframeFor({mixerModeRaw: mode, motorCount: count, sessionId: 'presentation-fixture'}), [mode, count]);
+  return <Shell><div data-testid="model-presentation" style={{overflow: 'auto', color: '#F8F7FC', background: '#181626', padding: 18}}>
+    <p>Lokale weergavetest · voorbeeldoriëntatie · geen hardware</p>
+    <label>Model <select aria-label="Model" value={mixer} onChange={e => setMixer(e.target.value)}>
+      <option value="3:4">Quad X</option><option value="6:6">Y6</option><option value="8:1">Vliegende vleugel</option><option value="14:1">Vliegtuig</option><option value="255:4">Onbekend</option>
+    </select></label>
+    <div style={{display: 'flex', flexWrap: 'wrap', gap: 18, margin: '12px 0'}}>
+      {(['rollDeg', 'pitchDeg', 'yawDeg'] as const).map(key => <label key={key}>{key}: {pose[key]}° <input type="range" aria-label={key} min="-180" max="180" value={pose[key]} onChange={e => setPose(current => ({...current, [key]: Number(e.target.value)}))} /></label>)}
+    </div>
+    <OrientationHero orientationView={{status: 'LIVE', ...pose}} airframe={airframe} hasSeenResetHint onResetView={() => setPose({rollDeg: 0, pitchDeg: 0, yawDeg: 0})} onResetHintShown={() => undefined} />
+  </div></Shell>;
+}
+
 const SCENES: Record<string, () => React.JSX.Element> = {
+  'orientation-preview': () => <OrientationPresentationScene />,
   /* The shell scenes. Each mounts the REAL screen inside the REAL
      browser composition; `verify-desktop-workspace.mjs` measures these. */
   /* Setup is a ROUTE component: it reads its session from
@@ -598,6 +619,8 @@ const SCENES: Record<string, () => React.JSX.Element> = {
  * ==================================================================== */
 const CENSUS_PREFIX = 'census:';
 
+const REGISTRY_TABS: Record<string, import('../../src/navigation/tabs').MainTabKey> = {Setup: 'SETUP', Motors: 'MOTORS', MotorConfiguration: 'MOTORS', Ports: 'PORTS', GPS: 'GPS', Configurations: 'CONFIGURATIONS', Receiver: 'RECEIVER', PID: 'PID', Modes: 'MODES', Failsafe: 'FAILSAFE', Power: 'POWER', OSD: 'OSD', VTX: 'VTX', LED: 'LED', Sensors: 'SENSORS', Blackbox: 'BLACKBOX', Presets: 'PRESETS', CLI: 'CLI'};
+
 function RegistryScene({name}: {name: string}): React.JSX.Element {
   const [element, setElement] = React.useState<React.ReactElement | null>(null);
   const [failed, setFailed] = React.useState<string | undefined>(undefined);
@@ -628,8 +651,8 @@ function RegistryScene({name}: {name: string}): React.JSX.Element {
   /* `data-ready` is what the verifier waits for: a screen measured
      before its snapshot arrives is a measurement of a spinner. */
   return (
-    <View testID={element === null ? 'scene-loading' : 'scene-ready'}>
-      {element === null ? null : <Shell>{element}</Shell>}
+    <View style={{flex: 1}} testID={element === null ? 'scene-loading' : 'scene-ready'}>
+      {element === null ? null : <Shell activeTab={REGISTRY_TABS[name]}>{element}</Shell>}
     </View>
   );
 }

@@ -1,0 +1,46 @@
+{
+  "application": "fiercon",
+  "repository": "FPVARABIC/FPV-ARBCON-NL",
+  "web": "https://fpvarabic.github.io/FPV-ARBCON-NL/",
+  "native_typecheck": "passed",
+  "web_typecheck": "passed",
+  "eslint": {
+    "errors": 0,
+    "warnings": 472
+  },
+  "web_bundle_scan": "passed",
+  "initial_full_jest": {
+    "suites": 484,
+    "suites_passed": 477,
+    "suites_failed": 7,
+    "tests": 9026,
+    "tests_passed": 9014,
+    "tests_failed": 12
+  },
+  "resolved_full_run_findings": {
+    "rerun_suites": 7,
+    "rerun_tests": 265,
+    "passed": true,
+    "findings": "Updated obsolete text assertions; added section-selection feedback; removed warning colour from a decorative motor hub."
+  },
+  "additional_geometry_materials_renderer_checks": {
+    "suites": 5,
+    "tests": 191,
+    "passed": true
+  },
+  "shell_identity_diagram_checks": {
+    "suites": 4,
+    "tests": 60,
+    "passed": true
+  },
+  "layout": {
+    "cases": 84,
+    "horizontal_page_overflows": 0,
+    "clipped_labels": 0,
+    "undersized_controls": 0
+  },
+  "mobile_directory": 17,
+  "hardware_tested": false,
+  "apk_built": false,
+  "runner_note": "Some existing fixture timers require Jest forceExit after assertions finish."
+}

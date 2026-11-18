@@ -54,6 +54,11 @@ export type Vec2 = {x: number; y: number};
 export type DroneOrientationDeg = {rollDeg: number; pitchDeg: number; yawDeg: number};
 
 export type DroneSceneMaterial =
+  | 'FRAME_EDGE'
+  | 'FASTENER'
+  | 'MOTOR_SHAFT'
+  | 'PROP_BLADE_FRONT'
+  | 'PROP_BLADE_REAR'
   | 'HUB'
   | 'STANDOFF'
   | 'ARM'
@@ -100,7 +105,8 @@ const STANDOFF_HALF_WIDTH = 0.02;
 const HUB_EDGE_RADIUS = HUB_BOTTOM_RADIUS;
 const MOTOR_RADIUS_FROM_CENTER = 1.6;
 const ARM_Y = 0.06;
-const ARM_HALF_WIDTH = 0.035;
+const ARM_HALF_WIDTH = 0.05;
+const FRAME_THICKNESS = 0.045;
 
 const MOTOR_BASE_RADIUS = 0.09;
 const MOTOR_BELL_RADIUS = 0.065;
@@ -541,6 +547,15 @@ export function computeDroneScene(
   };
 
   const primitives: DroneScenePrimitive[] = [];
+  const addEdges = (top: Vec3[], thickness: number, material: DroneSceneMaterial = 'FRAME_EDGE') => {
+    for (let i = 0; i < top.length; i++) {
+      const a = top[i];
+      const b = top[(i + 1) % top.length];
+      const face = projectPolygon([a, b, {...b, y: b.y - thickness}, {...a, y: a.y - thickness}]);
+      primitives.push({kind: 'POLYGON', material, ...face});
+    }
+  };
+
 
   // Level reference grid - projected WITHOUT rotateBodyPoint, because it
   // represents the world horizon the airframe is tilting against. If it
@@ -585,7 +600,9 @@ export function computeDroneScene(
     }
     // Hub top plate (narrower).
     {
-      const {points, depth} = projectPolygon(ringAroundOrigin(HUB_TOP_RADIUS, HUB_TOP_Y));
+      const plate = ringAroundOrigin(HUB_TOP_RADIUS, HUB_TOP_Y);
+      addEdges(plate, FRAME_THICKNESS);
+      const {points, depth} = projectPolygon(plate);
       primitives.push({kind: 'POLYGON', material: 'HUB', points, depth});
     }
     // 4 small standoffs between the plates.
@@ -601,6 +618,8 @@ export function computeDroneScene(
       ];
       const {points, depth} = projectPolygon(localQuad);
       primitives.push({kind: 'POLYGON', material: 'STANDOFF', points, depth});
+      const fastener = projectPolygon(circleAt({x: cx, y: HUB_TOP_Y, z: cz}, 0.025, HUB_TOP_Y + 0.004));
+      primitives.push({kind: 'POLYGON', material: 'FASTENER', ...fastener});
     }
   } else {
     /* A FIXED WING IS NOT A HUB WITH ARMS (§14/§21). A flying wing gets
@@ -609,6 +628,7 @@ export function computeDroneScene(
        the entire point of the model on this screen, and neither is a
        renamed quadcopter. */
     for (const panel of fixedWingPanels(silhouette)) {
+      addEdges(panel, FRAME_THICKNESS);
       const {points, depth} = projectPolygon(panel);
       primitives.push({kind: 'POLYGON', material: 'HUB', points, depth});
     }
@@ -637,6 +657,7 @@ export function computeDroneScene(
         vecAdd(armEnd, vecScale(perpendicular, -ARM_HALF_WIDTH)),
         vecAdd(armStart, vecScale(perpendicular, -ARM_HALF_WIDTH)),
       ];
+      addEdges(armQuad, FRAME_THICKNESS);
       const arm = projectPolygon(armQuad);
       primitives.push({kind: 'POLYGON', material: 'ARM', points: arm.points, depth: arm.depth});
     }
@@ -656,9 +677,9 @@ export function computeDroneScene(
         circleAt(centre, MOTOR_BASE_RADIUS, MOTOR_BASE_Y + deckOffset),
       );
       primitives.push({kind: 'POLYGON', material: motorMaterial, points: base.points, depth: base.depth});
-      const bell = projectPolygon(
-        circleAt(centre, MOTOR_BELL_RADIUS, MOTOR_BELL_Y + deckOffset),
-      );
+      const bellTop = circleAt(centre, MOTOR_BELL_RADIUS, MOTOR_BELL_Y + deckOffset);
+      addEdges(bellTop, MOTOR_BELL_Y - MOTOR_BASE_Y, 'MOTOR_SHAFT');
+      const bell = projectPolygon(bellTop);
       primitives.push({kind: 'POLYGON', material: motorMaterial, points: bell.points, depth: bell.depth});
     }
 
@@ -667,6 +688,17 @@ export function computeDroneScene(
       const ring = projectPolygon(circleAt(centre, PROP_RADIUS, PROP_Y + deckOffset));
       primitives.push({kind: 'POLYGON', material: propRingMaterial, points: ring.points, depth: ring.depth});
       primitives.push({kind: 'POLYGON', material: propDiscMaterial, points: ring.points, depth: ring.depth});
+      for (let blade = 0; blade < 3; blade++) {
+        const angle = blade * Math.PI * 2 / 3;
+        const plan = [[0.04, -0.035], [0.47, -0.065], [0.53, 0], [0.47, 0.065], [0.04, 0.035]];
+        const bladePoints = plan.map(([radius, lateral]) => ({
+          x: centre.x + Math.cos(angle) * radius - Math.sin(angle) * lateral,
+          y: PROP_Y + deckOffset + 0.006,
+          z: centre.z + Math.sin(angle) * radius + Math.cos(angle) * lateral,
+        }));
+        primitives.push({kind: 'POLYGON', material: motor.isFront ? 'PROP_BLADE_FRONT' : 'PROP_BLADE_REAR', ...projectPolygon(bladePoints)});
+      }
+
     }
   }
 

@@ -470,11 +470,11 @@ describe('PidTuningScreen · the save chain', () => {
     const renderer = await render(fullPort());
     const summary = () => joinedText(renderer, 'pid-save-bar-summary');
     press(renderer, 'pid-simplified-masterMultiplier-value-plus');
-    expect(summary()).toContain("Eenvoudige aanpassing.");
+    expect(summary()).toContain("PID-afstelling");
     expect(summary()).not.toContain("Rates-algoritme");
     press(renderer, 'pid-rates-type-3');
     expect(summary()).toContain("Rates-algoritme");
-    expect(summary()).toContain("Eenvoudige aanpassing.");
+    expect(summary()).toContain("PID-afstelling");
     act(() => renderer.unmount());
   });
 

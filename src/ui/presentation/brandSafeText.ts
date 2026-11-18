@@ -67,8 +67,8 @@ export function sanitizeUserVisibleText(value: string): string {
 /** A file this application hands to the operator carries OUR name. */
 export function firmwareFilenameLabel(filename: string): string {
   return filename
-    .replace(EXTERNAL_FIRMWARE_BRAND, 'FPV-ARBCON')
-    .replace(EXTERNAL_FIRMWARE_IDENTIFIER, 'FPV-ARBCON');
+    .replace(EXTERNAL_FIRMWARE_BRAND, 'fiercon')
+    .replace(EXTERNAL_FIRMWARE_IDENTIFIER, 'fiercon');
 }
 
 export function usbProductLabel(

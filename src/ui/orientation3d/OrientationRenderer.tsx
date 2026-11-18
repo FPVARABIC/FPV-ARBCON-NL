@@ -166,7 +166,7 @@ export function OrientationRenderer({
           // path object - no extra geometry is built for it.
           return (
             <React.Fragment key={index}>
-              <Path path={drawable.path} color={drawable.color} opacity={opacity} />
+              {drawable.filled && <Path path={drawable.path} color={drawable.color} opacity={opacity} />}
               {drawable.outlined && (
                 <Path
                   path={drawable.path}

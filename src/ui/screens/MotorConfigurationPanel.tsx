@@ -567,7 +567,6 @@ export function MotorConfigurationPanel({
         <View style={styles.flexOne}>
           <Text style={styles.eyebrow}>{t('motorConfiguration.eyebrow')}</Text>
           <Text style={styles.title}>{t('motorConfiguration.title')}</Text>
-          <Text style={styles.caption}>{t('motorConfiguration.subtitle')}</Text>
         </View>
         <Pressable
           onPress={requestReload}

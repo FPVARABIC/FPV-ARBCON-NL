@@ -32,6 +32,7 @@
  * `RATE_TYPES` table this file used to carry was a second opinion about a
  * subsystem already pinned to firmware source, and it is gone.
  */
+import {SectionNavigation, useSectionNavigation} from '../components/navigation/SectionNavigation';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Alert, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
 import {useTranslation} from 'react-i18next';
@@ -462,6 +463,7 @@ function SimplifiedFilterCard({copy, block, observed, disabled, onToggle, onMult
 }
 
 export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDirtyChange, controller = pidTuningController}: PidTuningScreenProps): React.JSX.Element {
+  const sections = useSectionNavigation();
   const {t} = useTranslation(); const {width, fontScale} = useWindowDimensions(); const {maxWidth} = useContentEnvelope(true); const wide = width / Math.max(fontScale, 1) >= 1040;
   const [phase, setPhase] = useState<Phase>('IDLE');
   const [snapshot, setSnapshot] = useState<MspPidTuningSnapshot>();
@@ -836,7 +838,7 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
   const overwrite = draftSimplified !== undefined && simplifiedDirty ? overwriteSummary(draftSimplified) : undefined;
   const axisSettings = (axis: RateAxisDraft): RateAxisSettings => ({rcRate: axis.rcRate, superRate: axis.superRate, expo: axis.expo, rateLimit: axis.limit});
   const dirtyScopes = [
-    ...(simplifiedDirty ? ["Eenvoudige aanpassing."] : []),
+    ...(simplifiedDirty ? ["PID-afstelling"] : []),
     ...(ratesTypeDirty ? ["Rates-algoritme"] : []),
     ...(valuesDirty ? ["De waarden."] : []),
   ];
@@ -850,11 +852,11 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
     </View>;
   };
 
-  return <View style={styles.root} testID="pid-screen"><ScrollView contentContainerStyle={[styles.content, {maxWidth}]}>
+  return <View style={styles.root} testID="pid-screen"><ScrollView ref={sections.scrollRef} contentContainerStyle={[styles.content, {maxWidth}]}>
     {/* 1. WHAT THIS PAGE IS. One line, not a paragraph - the safety notice
         below carries the warning, and repeating it in the header would just
         push the first control further down. */}
-    <View style={styles.hero}><Text style={styles.title}>{"PID-afstelling"}</Text><Text style={styles.subtitle}>{"Stel de regelmogelijkheid en de snelheid van het vliegtuig aan. Geen aanpassing wordt verzonden voordat de controller DISARMED is bewezen, en elke tekst wordt opnieuw gelezen om te controleren."}</Text></View>
+    <View style={styles.hero}><Text style={styles.title}>{"PID-afstelling"}</Text></View>
 
     <NoticeBox variant="danger" title={"Het veranderen van de bediening kan het vliegtuig onstabiel maken."} testID="pid-danger">
       <Text style={styles.dangerText}>{"Verwijder de propellers tijdens het instellen. Wijzig geleidelijk en bewaar de oorspronkelijke waarden. Een geslaagde MSP-opdracht bewijst niet dat de afstelling geschikt is om te vliegen."}</Text>
@@ -875,19 +877,21 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
     {loadingMessage !== undefined ? <View style={styles.warning} testID="pid-load-message"><Text style={styles.warningText}>{loadingMessage}</Text>{loadOutcome?.kind === 'REJECTED' && loadOutcome.reason === 'MOTOR_TEST_ACTIVE' ? <Button label={"Motorscherm openen"} onPress={onOpenMotors} variant="secondary" icon="fan" style={styles.inlineAction} /> : <Button label={"Opnieuw uitlezen"} onPress={reload} variant="secondary" icon="refresh-cw" style={styles.inlineAction} />}</View> : null}
 
     {draft !== undefined ? <>
+      <SectionNavigation items={[{key: 'tuning', label: 'PID & filters'}, {key: 'rates', label: 'Rates'}, {key: 'advanced', label: 'Geavanceerd'}]}
+        onSelect={key => { if (key === 'advanced') setAdvancedChoice(true); sections.jump(key); }} />
       {/* 2. WHO AM I TUNING. Two selectors that used to read `1 | 1`; each
           now carries what it governs and, when the board sends one, its
           name. */}
       <View style={styles.profileBadges}>
-        <ProfileSelector label={"PID-profiel"} hint={"Hij regeert de correctie- en filterkracht."} name={profileNames.pid} testID="pid-active-profile" count={snapshot?.pidProfileCount} active={snapshot?.pidProfileIndex} disabled={busy || controller.selectProfile === undefined} onSelect={index => selectProfile('PID', index)} />
-        <ProfileSelector label={"Rateprofiel"} hint={"Hij bepaalt de snelheid en reactie van stick."} name={profileNames.rate} testID="pid-active-rates-profile" count={snapshot?.rateProfileCount} active={snapshot?.controlRateProfileIndex} disabled={busy || controller.selectProfile === undefined} onSelect={index => selectProfile('RATE', index)} />
+        <ProfileSelector label={"PID-profiel"} hint={"PID-waarden & filters"} name={profileNames.pid} testID="pid-active-profile" count={snapshot?.pidProfileCount} active={snapshot?.pidProfileIndex} disabled={busy || controller.selectProfile === undefined} onSelect={index => selectProfile('PID', index)} />
+        <ProfileSelector label={"Rateprofiel"} hint={"Stickrespons & draaisnelheid"} name={profileNames.rate} testID="pid-active-rates-profile" count={snapshot?.rateProfileCount} active={snapshot?.controlRateProfileIndex} disabled={busy || controller.selectProfile === undefined} onSelect={index => selectProfile('RATE', index)} />
       </View>
 
       {/* 3. THE MAIN WORKSPACE. */}
-      <View style={styles.section} testID="pid-simplified">
-        <Text style={styles.sectionTitle}>{"Eenvoudige aanpassing."}</Text>
+      <View style={styles.section} testID="pid-simplified" onLayout={sections.register('tuning')}>
+        <Text style={styles.sectionTitle}>{"PID-afstelling"}</Text>
         <Text style={styles.sectionHint}>{SIMPLIFIED_SUMMARY}</Text>
-        <Disclosure label={"Hoe werkt de vereenvoudigde reglementering?"} open={explanationOpen} onToggle={() => setExplanationOpen(value => !value)} testID="pid-simplified-explanation">
+        <Disclosure label={"Uitleg bij vereenvoudigde afstelling"} open={explanationOpen} onToggle={() => setExplanationOpen(value => !value)} testID="pid-simplified-explanation">
           <Text style={styles.bodyText}>{SIMPLIFIED_EXPLANATION}</Text>
         </Disclosure>
 
@@ -933,9 +937,9 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
       {/* 4. RATES. The formula selector is a DRAFT: selecting it writes
           nothing until the save bar is used, and the notice says plainly
           that the stored numbers are not converted. */}
-      <View style={styles.section} testID="pid-rates">
-        <Text style={styles.sectionTitle}>{"Draaiingssnelheid (Rates)."}</Text>
-        <Text style={styles.sectionHint}>{"Bepaal hoeveel graden per seconde het vliegtuig draait wanneer het stick volledig wordt aangedreven, en hoe de reactie wordt verdeeld tussen het middelpunt en het punt."}</Text>
+      <View style={styles.section} testID="pid-rates" onLayout={sections.register('rates')}>
+        <Text style={styles.sectionTitle}>{"Rates"}</Text>
+
         <ChoiceChips
           options={[{key: '0', label: ratesTypeName(classifyRatesType(0))}, {key: '1', label: ratesTypeName(classifyRatesType(1))}, {key: '2', label: ratesTypeName(classifyRatesType(2))}, {key: '3', label: ratesTypeName(classifyRatesType(3))}, {key: '4', label: ratesTypeName(classifyRatesType(4))}]}
           selectedKey={effectiveRatesTypeRaw === undefined || effectiveRatesTypeRaw > 4 ? null : String(effectiveRatesTypeRaw)}
@@ -982,8 +986,8 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
       {/* 6. EVERYTHING ELSE. Nothing here was removed when the page was
           reorganised; it simply stopped being the first thing a beginner
           meets. */}
-      <Disclosure label={"Geavanceerde instellingen."} open={advancedOpen} onToggle={() => setAdvancedChoice(!advancedOpen)} tone="card" testID="pid-advanced">
-        <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{"Eerste transacties"}</Text><Text style={styles.sectionHint}>{"P voor de huidige correctie, I voor de accumulatie van fouten, D voor het aanpassen van veranderingen en F voor het volgen. De grenzen van firmware 2025.12.2."}</Text></View>
+      <View onLayout={sections.register('advanced')}><Disclosure label={"Geavanceerde instellingen"} open={advancedOpen} onToggle={() => setAdvancedChoice(!advancedOpen)} tone="card" testID="pid-advanced">
+        <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{"PID-waarden"}</Text><Text style={styles.sectionHint}>{"P · I · D · Feedforward"}</Text></View>
         {simplifiedGenerating ? <NoticeBox variant="info" testID="pid-generator-owns"><Text style={styles.bodyText}>{"Simplified Adjustment is actief en genereert sommige van deze waarden; De velden die hij heeft zijn hier geblokkeerd, omdat de aanpassing bij behoud wordt ingetrokken."}</Text></NoticeBox> : null}
         <View style={[styles.axisGrid, wide && styles.axisGridWide]}>{AXES.map(axis => <AxisCard key={axis.key} axisKey={axis.key} title={axis.title} subtitle={axis.subtitle} value={draft[axis.key]} disabled={busy} ownedFields={ownedDirectFields} update={update} />)}</View>
 
@@ -1005,8 +1009,8 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
         <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>Filters</Text><Text style={styles.sectionHint}>{"Alleen de actieve filters die door het lezen zijn aangetoond worden aangepast. De app activeert geen ongemonteerde functie in de FC-constructie en verandert het filtertype niet."}</Text></View>
         {!filtersEditable ? <View style={styles.warning}><Text style={styles.warningText}>{"Gyro/PID loop rate. De filters zijn alleen te lezen en mogen niet worden geschreven zonder een betrouwbare Nyquist."}</Text></View> : <View style={styles.rateEvidence}><Text style={styles.readout}>Gyro Nyquist: {gyroNyquist} Hz</Text><Text style={styles.readout}>D-term Nyquist: {pidNyquist} Hz</Text></View>}
         <View style={[styles.readOnlyGrid, wide && styles.readOnlyGridWide]}>
-          <View style={[styles.card, wide && styles.cardInRow]} testID="pid-gyro-filter"><Text style={styles.sectionTitle}>Gyro LPF1</Text>{snapshot?.filterConfig.gyroLpf1DynamicMinHz !== undefined && snapshot.filterConfig.gyroLpf1DynamicMinHz > 0 ? <><Text style={styles.sectionHint}>{"De dynamische status is bevestigd door het lezen; Min moet kleiner blijven dan Max en Nyquist.."}</Text><View style={styles.fieldsRow}><NumericField label="Dynamic min Hz" value={draft.filters.gyroLpf1DynamicMinHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1DynamicMinHz', next)} testID="pid-gyro-dynamic-min" /><NumericField label="Dynamic max Hz" value={draft.filters.gyroLpf1DynamicMaxHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1DynamicMaxHz', next)} testID="pid-gyro-dynamic-max" /></View></> : <><Text style={styles.sectionHint}>{"De vaste positie is bevestigd door het lezen; 0 Hij is kapot. LPF1."}</Text><NumericField label="Static cutoff Hz" value={draft.filters.gyroLpf1StaticHz} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1StaticHz', next)} testID="pid-gyro-static" /></>}</View>
-          <View style={[styles.card, wide && styles.cardInRow]} testID="pid-dterm-filter"><Text style={styles.sectionTitle}>D-term LPF1</Text>{snapshot?.filterConfig.dtermLpf1DynamicMinHz !== undefined && snapshot.filterConfig.dtermLpf1DynamicMinHz > 0 ? <><Text style={styles.sectionHint}>{"De dynamische status is bevestigd door het lezen; Hij wordt geregeerd door PID loop Nyquist."}</Text><View style={styles.fieldsRow}><NumericField label="Dynamic min Hz" value={draft.filters.dtermLpf1DynamicMinHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1DynamicMinHz', next)} testID="pid-dterm-dynamic-min" /><NumericField label="Dynamic max Hz" value={draft.filters.dtermLpf1DynamicMaxHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1DynamicMaxHz', next)} testID="pid-dterm-dynamic-max" /></View></> : <><Text style={styles.sectionHint}>{"De vaste positie is bevestigd door het lezen; 0 Hij is kapot. LPF1."}</Text><NumericField label="Static cutoff Hz" value={draft.filters.dtermLpf1StaticHz} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1StaticHz', next)} testID="pid-dterm-static" /></>}</View>
+          <View style={[styles.card, wide && styles.cardInRow]} testID="pid-gyro-filter"><Text style={styles.sectionTitle}>Gyro LPF1</Text>{snapshot?.filterConfig.gyroLpf1DynamicMinHz !== undefined && snapshot.filterConfig.gyroLpf1DynamicMinHz > 0 ? <><Text style={styles.sectionHint}>{"Min moet lager zijn dan Max en de Nyquist-frequentie."}</Text><View style={styles.fieldsRow}><NumericField label="Dynamic min Hz" value={draft.filters.gyroLpf1DynamicMinHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1DynamicMinHz', next)} testID="pid-gyro-dynamic-min" /><NumericField label="Dynamic max Hz" value={draft.filters.gyroLpf1DynamicMaxHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1DynamicMaxHz', next)} testID="pid-gyro-dynamic-max" /></View></> : <><Text style={styles.sectionHint}>{"Vaste afsnijfrequentie. 0 = uitgeschakeld."}</Text><NumericField label="Static cutoff Hz" value={draft.filters.gyroLpf1StaticHz} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('gyroLpf1StaticHz', next)} testID="pid-gyro-static" /></>}</View>
+          <View style={[styles.card, wide && styles.cardInRow]} testID="pid-dterm-filter"><Text style={styles.sectionTitle}>D-term LPF1</Text>{snapshot?.filterConfig.dtermLpf1DynamicMinHz !== undefined && snapshot.filterConfig.dtermLpf1DynamicMinHz > 0 ? <><Text style={styles.sectionHint}>{"Dynamisch filter. De maximale frequentie is begrensd door de PID-lusfrequentie."}</Text><View style={styles.fieldsRow}><NumericField label="Dynamic min Hz" value={draft.filters.dtermLpf1DynamicMinHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1DynamicMinHz', next)} testID="pid-dterm-dynamic-min" /><NumericField label="Dynamic max Hz" value={draft.filters.dtermLpf1DynamicMaxHz} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1DynamicMaxHz', next)} testID="pid-dterm-dynamic-max" /></View></> : <><Text style={styles.sectionHint}>{"Vaste afsnijfrequentie. 0 = uitgeschakeld."}</Text><NumericField label="Static cutoff Hz" value={draft.filters.dtermLpf1StaticHz} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dtermLpf1StaticHz', next)} testID="pid-dterm-static" /></>}</View>
         </View>
         <View style={styles.card} testID="pid-dynamic-notch"><Text style={styles.sectionTitle}>Dynamic Notch</Text>{snapshot?.filterConfig.dynamicNotchCount !== undefined && snapshot.filterConfig.dynamicNotchCount > 0 ? <><Text style={styles.sectionHint}>{"De functie is actief en bevestigd door het lezen. Laat deze fase het niet uitschakelen of activeren op een constructie die niet is aangetoond."}</Text><View style={styles.fieldsRow}><NumericField label={"Het aantal filters."} value={draft.filters.dynamicNotchCount} min={1} max={7} disabled={busy || !filtersEditable} onChange={next => updateFilter('dynamicNotchCount', next)} testID="pid-notch-count" /><NumericField label="Q ×100" value={draft.filters.dynamicNotchQ} min={1} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dynamicNotchQ', next)} testID="pid-notch-q" /><NumericField label="Min Hz" value={draft.filters.dynamicNotchMinHz} min={20} max={250} disabled={busy || !filtersEditable} onChange={next => updateFilter('dynamicNotchMinHz', next)} testID="pid-notch-min" /><NumericField label="Max Hz" value={draft.filters.dynamicNotchMaxHz} min={200} max={1000} disabled={busy || !filtersEditable} onChange={next => updateFilter('dynamicNotchMaxHz', next)} testID="pid-notch-max" /></View></> : <Text style={styles.sectionHint}>{"De huidige lezing bewijst niet dat Dynamic Notch actief is; Dus we zullen geen constructieondersteuning voorspellen of activatiewaarden sturen."}</Text>}</View>
 
@@ -1014,7 +1018,7 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
             page: opening «الإعدادات المتقدمة» must not drop forty controls
             into a phone screen (§29). Two balanced columns once the
             viewport can carry them (§27). */}
-        <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{"De expertinstellingen"}</Text><Text style={styles.sectionHint}>{"Gekoppelde groepen, elk met zijn domein in herinnering: wat dit bestand betreft en wat alle bestanden gemeen hebben."}</Text></View>
+        <View style={styles.sectionHeading}><Text style={styles.sectionTitle}>{"Expertinstellingen"}</Text></View>
         <AdvancedTuningGroups
           advanced={draft.advanced}
           filters={draft.advancedFilters}
@@ -1050,18 +1054,18 @@ export default function PidTuningScreen({sessionKey, active, onOpenMotors, onDir
           onCopy={(from, to) => { copyProfile(from, to).catch(() => undefined); }}
           onReset={() => { resetProfile().catch(() => undefined); }}
         />
-      </Disclosure>
+      </Disclosure></View>
     </> : phase === 'LOADING' ? <Text style={styles.loading}>{"De vluchtcontroller is aan het lezen."}</Text> : null}<View style={styles.bottomSpace} />
   </ScrollView>
   {/* 5. COMMIT. The bar names the scopes that changed, so a pilot who edited
       one thing is not told "الإعدادات تغيّرت" and left to guess which. */}
-  <StickyActionBar visible={dirty} summary={dirtyScopes.length === 0 ? "De instellingen zijn veranderd." : `Verander: ${dirtyScopes.join(' · ')}`} details={["Je schrijft alleen de veranderlijke groepen in volgorde: Rates-algorithme, dan waarden, dan vereenvoudigde instellingen, en je leest elke stap om te controleren."]} saveLabel={"Bewaar en controleren"} discardLabel={"Verwerpen"} onSave={save} onDiscard={discard} disabledReason={saveBlockedBySession ? blockMessage('SESSION_CHANGED') : blocked ? "Nyquist-waarden of -grenzen eerst corrigeren." : undefined} statusMessage={status?.text} statusTone={status?.warning ? 'warning' : 'normal'} busy={phase === 'SAVING'} busyLabel={"Afstelinstellingen opslaan…"} testID="pid-save-bar" /></View>;
+  <StickyActionBar visible={dirty} summary={dirtyScopes.length === 0 ? "Instellingen gewijzigd" : `Gewijzigd: ${dirtyScopes.join(' · ')}`} details={["Je schrijft alleen de veranderlijke groepen in volgorde: Rates-algorithme, dan waarden, dan vereenvoudigde instellingen, en je leest elke stap om te controleren."]} saveLabel={"Opslaan en verifiëren"} discardLabel={"Verwerpen"} onSave={save} onDiscard={discard} disabledReason={saveBlockedBySession ? blockMessage('SESSION_CHANGED') : blocked ? "Nyquist-waarden of -grenzen eerst corrigeren." : undefined} statusMessage={status?.text} statusTone={status?.warning ? 'warning' : 'normal'} busy={phase === 'SAVING'} busyLabel={"Afstelinstellingen opslaan…"} testID="pid-save-bar" /></View>;
 }
 
 const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: colors.background},
   content: {width: '100%', alignSelf: 'center', padding: spacing.lg, gap: spacing.md},
-  hero: {gap: 4},
+  hero: {gap: 4, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft},
   title: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
   subtitle: {...typography.body, color: colors.textSecondary, textAlign: 'left', writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
   profileBadges: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},

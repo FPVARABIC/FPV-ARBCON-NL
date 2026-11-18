@@ -68,7 +68,7 @@ const ARABIC = {
   region1Title: 'إعداد الطائرة',
   /* SETUP R9 markers: the compact status area's own column/section
      titles, used as order probes now that the four cards are gone. */
-  orientationTitle: "Beweging gesynchroniseerd met de vluchtcontroller",
+  orientationTitle: "3D-oriëntatie",
   statusColumnTitle: "Status",
   region4Title: "Diagnose en gereedheid",
   region5Title: "Vluchtcontrollertools",

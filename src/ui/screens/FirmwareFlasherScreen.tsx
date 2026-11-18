@@ -2398,7 +2398,6 @@ export default function FirmwareFlasherScreen({
           <Icon name="chevron-back" size={24} color={colors.textPrimary} />
         </Pressable>
         <View style={styles.headerCopy}>
-          <Text style={styles.headerEyebrow}>{"Een onafhankelijk en veilig instrument."}</Text>
           <Text style={styles.headerTitle}>Firmware Flasher</Text>
         </View>
         <View style={styles.formatPill}>
@@ -2434,7 +2433,7 @@ export default function FirmwareFlasherScreen({
         nestedScrollEnabled>
         {step === 'board' ? (
           <>
-            <FirmwareSection title={"Firmwarebron"} caption={"De twee sporen gaan door dezelfde strenge controle voordat flashen wordt toegelaten."}>
+            <FirmwareSection title={"Firmwarebron"}>
               <FirmwareChoice
                 value={sourceMode}
                 disabled={isBusy}
@@ -2601,11 +2600,6 @@ export default function FirmwareFlasherScreen({
                       <FirmwareNotice
                         title={`${targetDetail.target} • ${targetDetail.release}`}
                         text={`${targetDetail.manufacturer ?? "De fabrikant is onbekend."} • ${targetDetail.mcu ?? "MCU niet bekend."} • ${targetDetail.date ?? "De server bepaalt de builddatum"} • ${targetDetail.cloudBuild ? "Ondersteunt Cloud Build" : "Core Build klaar."}`}
-                      />
-                      <FirmwareNotice
-                        title={"Informatie binnen FPV-ARBCON"}
-                        text={"Het selecteren van het bord of de versie zal geen externe app of site openen; Alle bouwstappen en flashen blijven binnen dit scherm."}
-                        tone="success"
                       />
                     </>
                   ) : null}
@@ -2904,7 +2898,7 @@ export default function FirmwareFlasherScreen({
               </View>
               {showFlashGuide ? (
                 <FirmwareNotice
-                  title={"De basisprocedure binnen FPV-ARBCON"}
+                  title={"Procedure"}
                   text={"propellers verwijderen en accu ontkoppelen, Target en lokale versie of bestand kiezen, HEX/UF2/BIN-formulier controleren, USB alleen koppelen, één apparaat selecteren, de beveiligingspoort bevestigen, en vervolgens beginnen en de kabel niet ontkoppelen totdat de controle en herstart zijn voltooid."}
                   tone="info"
                 />

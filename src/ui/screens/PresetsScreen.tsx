@@ -374,8 +374,7 @@ export default function PresetsScreen({
       <ScrollView contentContainerStyle={[styles.content, { maxWidth }]}>
         <View style={styles.hero}>
           <Text style={styles.title}>{"Presets"}</Text>
-          <Text style={styles.subtitle}>
-            {"Officiële setuppakketten, met een preview van de bestellingen en een back-up voor het bewaren."}</Text>
+
           <View style={styles.identityRow}>
             <Text style={styles.identity}>
               Firmware: {firmwareVersion ?? '—'}

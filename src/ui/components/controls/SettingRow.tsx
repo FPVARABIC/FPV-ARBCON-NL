@@ -54,7 +54,7 @@ export function SettingRow({
 
 const styles = StyleSheet.create({
   row: {
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
   rowStacked: {},

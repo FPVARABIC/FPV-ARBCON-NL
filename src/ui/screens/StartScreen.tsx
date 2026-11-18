@@ -10,7 +10,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import type { RootStackParamList } from '../../navigation/types';
-import { MAIN_TABS } from '../../navigation/tabs';
 import { BrandLogo, BRAND_PRODUCT_NAME, BRAND_PRODUCT_TAGLINE } from '../brand';
 import { Icon, type IconName } from '../icons';
 import {
@@ -39,7 +38,6 @@ import {
 } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Start'>;
-const TOOL_COUNT = MAIN_TABS.filter(tab => tab.implemented).length;
 
 function ActionCard({
   title,
@@ -149,37 +147,10 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
               </View>
             </View>
           ) : null}
-          <View style={styles.eyebrowRow}>
-            <View style={styles.goldRule} />
-            <Text style={styles.eyebrow}>FPV CONFIGURATIE & DIAGNOSE</Text>
-          </View>
+          <Text style={styles.eyebrow}>WERKBANK</Text>
           <Text style={[styles.heroTitle, desktop && styles.heroTitleDesktop]}>
-            Jouw drone.{'\n'}Elke instelling in beeld.
+            Vluchtcontroller configureren
           </Text>
-          <Text style={styles.intro}>
-            Verbind je vluchtcontroller, stel je drone zorgvuldig af en houd
-            alle gereedschappen binnen handbereik.
-          </Text>
-          <View style={styles.heroMeta}>
-            <View style={styles.metaItem}>
-              <Icon
-                name="sliders-horizontal"
-                size={18}
-                color={colors.accentStrong}
-              />
-              <Text style={styles.metaText}>
-                {TOOL_COUNT} configuratieonderdelen
-              </Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Icon name="cpu" size={18} color={colors.accentStrong} />
-              <Text style={styles.metaText}>Firmware & herstel</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Icon name="compass" size={18} color={colors.accentStrong} />
-              <Text style={styles.metaText}>Vliegstijlgidsen</Text>
-            </View>
-          </View>
         </View>
       </View>
       <View style={[styles.container, {maxWidth: contentCap}]}>
@@ -191,8 +162,8 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
         />
         <View style={styles.sectionHeading}>
           <View style={styles.sectionCopy}>
-            <Text style={styles.eyebrow}>AAN DE SLAG</Text>
-            <Text style={styles.sectionTitle}>Wat wil je doen?</Text>
+
+            <Text style={styles.sectionTitle}>Verbinding & firmware</Text>
           </View>
           <View style={styles.connectionBadge} testID="start-connection-state">
             <Icon
@@ -217,7 +188,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
         >
           <ActionCard
             title="Drone configureren"
-            description="Verbind je vluchtcontroller en werk vanuit één overzichtelijke werkruimte."
+            description="USB · Configuratie en diagnose"
             bullets={[
               'Verbinding, kalibratie en bordinformatie',
               'Motoren, ontvanger en OSD',
@@ -231,7 +202,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
           />
           <ActionCard
             title="Firmware bijwerken"
-            description="Kies je bord en firmwareversie, controleer het bestand en voer de update uit."
+            description="Firmware selecteren · Flashen · Herstel"
             bullets={[
               'Bord, target en versie selecteren',
               'Officiële bouwopties of een lokaal bestand',
@@ -263,13 +234,9 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
           <View style={styles.sectionCopy}>
             <Text style={styles.eyebrow}>ALLE GEREEDSCHAPPEN</Text>
             <Text style={styles.sectionTitle}>
-              De volledige configurator. Zonder zoeken.
+              Configuratieonderdelen
             </Text>
-            <Text style={styles.body}>
-              Alle {TOOL_COUNT} onderdelen blijven beschikbaar in de werkruimte
-              na verbinding met je vluchtcontroller. De navigatie bevat op je
-              telefoon ook een volledige lijst.
-            </Text>
+
           </View>
           <ToolDirectory />
         </View>
@@ -277,12 +244,9 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
       <View style={[styles.container, {maxWidth: contentCap}]} testID="start-guide-section">
         <View style={[styles.guide, desktop && styles.guideRow]}>
           <View style={styles.guideCopy}>
-            <Text style={styles.eyebrow}>KENNIS & VOORBEREIDING</Text>
-            <Text style={styles.sectionTitle}>Kies je vliegstijl</Text>
-            <Text style={styles.body}>
-              Stapsgewijze uitleg met instellingen, schermafbeeldingen en
-              bronverwijzingen.
-            </Text>
+            <Text style={styles.eyebrow}>VLIEGSTIJLGIDSEN</Text>
+            <Text style={styles.sectionTitle}>Vliegstijl & afstelling</Text>
+
             <Text style={styles.caption}>
               Cinematic · Freestyle · Racing · Tiny Whoop · Long Range
             </Text>
@@ -337,8 +301,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.borderSoft,
   },
   hero: {
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
     gap: spacing.lg,
   },
   nativeBrand: {
@@ -358,12 +322,12 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     ...typography.display,
-    fontSize: 34,
-    lineHeight: 42,
+    fontSize: 26,
+    lineHeight: 34,
     color: colors.textPrimary,
     maxWidth: 960,
   },
-  heroTitleDesktop: { fontSize: 48, lineHeight: 56 },
+  heroTitleDesktop: { fontSize: 32, lineHeight: 40 },
   intro: {
     ...typography.body,
     fontSize: 17,

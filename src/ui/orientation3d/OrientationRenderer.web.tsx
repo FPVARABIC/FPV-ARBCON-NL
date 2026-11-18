@@ -153,7 +153,7 @@ export function OrientationRenderer({
           // no extra geometry is built for it.
           return (
             <React.Fragment key={index}>
-              <polygon points={drawable.points} fill={drawable.color} fillOpacity={opacity} />
+              {drawable.filled && <polygon points={drawable.points} fill={drawable.color} fillOpacity={opacity} />}
               {drawable.outlined && (
                 <polygon
                   points={drawable.points}

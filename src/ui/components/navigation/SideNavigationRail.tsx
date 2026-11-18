@@ -23,12 +23,13 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../../theme';
+import {colors, radii, spacing, typography} from '../../theme';
 import { Icon } from '../../icons';
 import { MIN_TOUCH_TARGET, readInteraction } from '../controls/interaction';
 import { MAIN_TABS, type MainTabKey } from '../../../navigation/tabs';
 import { TAB_ICONS } from './tabIcons';
 import { useActiveItemReveal } from './activeItemReveal';
+import { TOOL_GROUP_STARTS } from './toolGroups';
 
 const VISIBLE_TABS = MAIN_TABS.filter(tab => tab.implemented);
 
@@ -67,8 +68,7 @@ export default function SideNavigationRail({
           rail keeps the textual identity only. */}
       <View style={styles.brand} testID="main-side-rail-brand">
         <View style={styles.brandCopy}>
-          <Text style={styles.brandName}>FPV Configurator NL</Text>
-          <Text style={styles.brandTagline}>{"FPV-configuratiecentrum"}</Text>
+          <Text style={styles.brandName}>fiercon</Text>
         </View>
       </View>
       {header !== undefined ? (
@@ -88,8 +88,9 @@ export default function SideNavigationRail({
         {VISIBLE_TABS.map(tab => {
           const isActive = tab.key === activeTab;
           return (
+            <React.Fragment key={tab.key}>
+              {TOOL_GROUP_STARTS.has(tab.key) ? <Text style={styles.groupLabel}>{TOOL_GROUP_STARTS.get(tab.key)}</Text> : null}
             <Pressable
-              key={tab.key}
               onPress={() => onSelectTab(tab.key)}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive, disabled: false }}
@@ -119,6 +120,7 @@ export default function SideNavigationRail({
                 {t(tab.labelKey)}
               </Text>
             </Pressable>
+            </React.Fragment>
           );
         })}
       </ScrollView>
@@ -129,9 +131,9 @@ export default function SideNavigationRail({
 const styles = StyleSheet.create({
   rail: {
     width: SIDE_RAIL_WIDTH,
-    backgroundColor: colors.surface,
-    borderStartWidth: 1,
-    borderStartColor: colors.borderSoft,
+    backgroundColor: colors.backgroundRaised,
+    borderEndWidth: 1,
+    borderEndColor: colors.borderSoft,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
     gap: spacing.md,
@@ -148,15 +150,20 @@ const styles = StyleSheet.create({
   },
   brandCopy: { flex: 1 },
   brandName: {
-    ...typography.caption,
-    color: colors.textPrimary,
+    ...typography.title,
+    color: colors.accentStrong,
     fontWeight: '700',
     writingDirection: 'ltr',
   },
-  brandTagline: {
-    ...typography.caption,
-    color: colors.accentStrong,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+  groupLabel: {
+    ...typography.eyebrow,
+    color: colors.textMuted,
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
   header: {
     paddingHorizontal: spacing.xs,
     paddingBottom: spacing.sm,
@@ -192,7 +199,7 @@ const styles = StyleSheet.create({
     height: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radii.pill,
+    borderRadius: radii.sm,
   },
   iconBubbleActive: { backgroundColor: colors.accent },
   label: {

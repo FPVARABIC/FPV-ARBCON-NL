@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "FPV-ARBCON",
+    "name": "fiercon",
     "underConstruction": "In ontwikkeling"
   },
   "connection": {
@@ -239,7 +239,7 @@
   },
   "orientationHero": {
     "eyebrow": "Live toesteloriëntatie",
-    "title": "Beweging gesynchroniseerd met de vluchtcontroller",
+    "title": "3D-oriëntatie",
     "live": "Live",
     "waiting": "Wachten op oriëntatiegegevens…",
     "error": "Oriëntatie kan niet worden weergegeven",
@@ -249,11 +249,11 @@
     "rollLabel": "Roll",
     "pitchLabel": "Pitch",
     "headingLabel": "Relatieve koers",
-    "resetButton": "Oriëntatieweergave resetten (alleen weergave)",
+    "resetButton": "Weergave resetten",
     "resetHint": "Hiermee wordt alleen de kijkhoek op het scherm gereset. De huidige houding wordt het nieuwe nulpunt. Er wordt geen opdracht naar de vluchtcontroller verzonden en er worden geen sensoren gekalibreerd.",
     "resetHintDismiss": "OK",
     "resetUnavailable": "Resetten is niet beschikbaar: er is geen recente oriëntatiemeting uit een actieve sessie.",
-    "headingRelativeNote": "De getoonde koers is relatief aan het huidige nulpunt en is geen magnetische koers."
+    "headingRelativeNote": "Relatieve koers; geen magnetische koers."
   },
   "flightInstruments": {
     "eyebrow": "Oriëntatie-instrumenten",
@@ -984,7 +984,7 @@
     },
     "integratedEyebrow": "De boom van de toepassing.",
     "integratedTitle": "Speciaal personeel.",
-    "integratedDetail": "Ga naar het eigen systeem van de vereiste instelling binnen FPV-ARBCON; Er zijn geen links of externe interfaces.",
+    "integratedDetail": "Open de bijbehorende instellingen in fiercon.",
     "destination": {
       "setup": "Directie, accu, sensoren en direct stand-by.",
       "motors": "Protocol. ESC En ontrouwelijkheid en 3 D En de beveiligde controle en de uitgang.",

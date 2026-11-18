@@ -2049,9 +2049,7 @@ export function MotorsScreenView({
           <Text style={styles.title} testID="motors-title">
             {t('motorsScreen.title')}
           </Text>
-          <Text style={styles.headerSubtitle} numberOfLines={1}>
-            {t('motorsScreen.subtitle')}
-          </Text>
+
         </View>
 
         <View style={styles.dangerBanner} testID="motors-propeller-warning">

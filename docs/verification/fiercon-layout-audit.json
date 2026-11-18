@@ -1,0 +1,647 @@
+{
+  "cases": 84,
+  "scope": "Default rendered screen states using shared UI and controlled fixture controllers; not a physical flight-controller test.",
+  "results": [
+    {
+      "scene": "Home",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Setup",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Failsafe",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Power",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "GPS",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "PID",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "OSD",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Modes",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Ports",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Receiver",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Configurations",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "VTX",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Motors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "LED",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Sensors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Blackbox",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Presets",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "CLI",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "FlightStyleGuide",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "FlightStyleCorner",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Firmware",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 1280
+    },
+    {
+      "scene": "Home",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Setup",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Failsafe",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Power",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "GPS",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "PID",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "OSD",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Modes",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Ports",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Receiver",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Configurations",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "VTX",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Motors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "LED",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Sensors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Blackbox",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Presets",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "CLI",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "FlightStyleGuide",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "FlightStyleCorner",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Firmware",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 768
+    },
+    {
+      "scene": "Home",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Setup",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Failsafe",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Power",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "GPS",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "PID",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "OSD",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Modes",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Ports",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Receiver",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Configurations",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "VTX",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Motors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "LED",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Sensors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Blackbox",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Presets",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "CLI",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "FlightStyleGuide",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "FlightStyleCorner",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Firmware",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 390
+    },
+    {
+      "scene": "Home",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Setup",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Failsafe",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Power",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "GPS",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "PID",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "OSD",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Modes",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Ports",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Receiver",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Configurations",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "VTX",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Motors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "LED",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Sensors",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Blackbox",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Presets",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "CLI",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "FlightStyleGuide",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "FlightStyleCorner",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    },
+    {
+      "scene": "Firmware",
+      "clipped": [],
+      "documentOverflow": 0,
+      "small": [],
+      "width": 320
+    }
+  ],
+  "additional": {
+    "mobileDirectoryTools": 17,
+    "mobileDirectoryWidth": 390,
+    "mobileDirectoryIssues": [],
+    "pidRatesJump": {
+      "sectionTopAfterJump": 61,
+      "scrollTop": 602
+    },
+    "orientationResize": [
+      {
+        "viewport": 320,
+        "stageWidth": 207,
+        "availableWidth": 207
+      },
+      {
+        "viewport": 768,
+        "stageWidth": 410,
+        "availableWidth": 655
+      },
+      {
+        "viewport": 1280,
+        "stageWidth": 496,
+        "availableWidth": 636
+      }
+    ],
+    "airframes": [
+      {
+        "model": "3:4",
+        "polygons": 206,
+        "unfilled": 20
+      },
+      {
+        "model": "6:6",
+        "polygons": 266,
+        "unfilled": 25
+      },
+      {
+        "model": "8:1",
+        "polygons": 55,
+        "unfilled": 6
+      },
+      {
+        "model": "14:1",
+        "polygons": 73,
+        "unfilled": 9
+      },
+      {
+        "model": "255:4",
+        "polygons": 50,
+        "unfilled": 4
+      }
+    ]
+  }
+}

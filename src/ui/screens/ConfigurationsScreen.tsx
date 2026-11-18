@@ -488,9 +488,7 @@ export default function ConfigurationsScreen({
             {t('configurationsSystem.eyebrow')}
           </Text>
           <Text style={styles.title}>{t('configurationsSystem.title')}</Text>
-          <Text style={styles.subtitle}>
-            {t('configurationsSystem.subtitle')}
-          </Text>
+
           <View style={styles.badgeRow}>
             <View
               style={[
@@ -1006,7 +1004,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
-  hero: { paddingHorizontal: spacing.sm, paddingVertical: spacing.lg },
+  hero: { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
   eyebrow: { ...typography.eyebrow, color: colors.accentStrong },
   title: { ...typography.display, color: colors.textPrimary, marginTop: spacing.xs },
   subtitle: {

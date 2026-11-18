@@ -77,7 +77,7 @@ export function ToolDirectory({
             </View>
             <View style={styles.copy}>
               <Text style={styles.title}>{t(tab.labelKey)}</Text>
-              <Text style={styles.description}>{DESCRIPTIONS[tab.key]}</Text>
+
             </View>
             {onSelect ? (
               <Icon
@@ -99,6 +99,7 @@ export function ToolDirectory({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t(tab.labelKey)}
+                accessibilityHint={DESCRIPTIONS[tab.key]}
                 accessibilityState={{ selected: activeTab === tab.key }}
                 onPress={() => onSelect(tab.key)}
                 testID={`tool-select-${tab.key}`}
@@ -130,8 +131,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    minHeight: 96,
-    padding: spacing.md,
+    minHeight: 58,
+    padding: spacing.sm,
     borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.borderSoft,

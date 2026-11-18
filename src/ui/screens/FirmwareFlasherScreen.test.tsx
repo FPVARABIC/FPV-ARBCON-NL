@@ -329,7 +329,7 @@ describe('FirmwareFlasherScreen', () => {
     expect(renderer.root.findAllByProps({testID: 'osd-protocol-selector'}).length).toBeGreaterThan(0);
     expect(renderer.root.findAllByProps({testID: 'motor-protocol-selector'}).length).toBeGreaterThan(0);
     expect(allText(renderer)).toContain('[None]');
-    expect(allText(renderer)).toContain("Informatie binnen FPV-ARBCON");
+    expect(allText(renderer)).not.toContain("Het selecteren van het bord of de versie zal geen externe app of site openen");
     expect(api.loadBuild).toHaveBeenCalledWith('S405', '4.6.0', expect.any(AbortSignal));
     act(() => renderer.unmount());
   });
