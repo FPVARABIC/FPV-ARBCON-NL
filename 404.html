@@ -1,0 +1,130 @@
+<!doctype html>
+<!-- Dutch metadata and LTR are set before the first paint. -->
+<html lang="nl" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FPV Configurator NL — Vluchtcontroller configureren</title>
+    <meta name="description" content="Nederlandstalige configuratie en kalibratie van FPV-vluchtcontrollers via MSP." />
+    <meta name="theme-color" content="#5EEAD4" />
+    <link rel="manifest" href="/FPV-ARBCON-NL/manifest.webmanifest" />
+    <link rel="icon" href="/FPV-ARBCON-NL/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/FPV-ARBCON-NL/icon.svg" />
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      /*
+        #root MUST be a flex container, not just a full-height block.
+        Found by loading the real production build in Chromium: React
+        Native Web mounts an AppContainer styled `flex: 1 1 0%`, and
+        flex-grow does NOTHING inside a `display: block` parent. Every
+        descendant - the navigator, the screen, the ScrollView - is also
+        `flex: 1`, so the entire chain resolved to height 0 while the
+        content still PAINTED through overflow. The page therefore looked
+        completely correct and was quietly broken: nothing could scroll,
+        and clicks on the Start screen's buttons landed on #root instead
+        of the button, because the button's layout box had no ancestor
+        with height. A screenshot would never have caught this.
+      */
+      #root {
+        display: flex;
+        flex-direction: column;
+      }
+      /*
+        AUD-005: keyboard focus used to be the browser default - a 1px ring
+        that disappeared into the former dark surface. Tab traversal worked
+        and Enter activated, so this was purely a visibility defect, and an
+        operator who cannot see where focus is cannot use the keyboard at all.
+
+        :focus-visible, not :focus - a mouse click must not paint a ring
+        the pointer user did not ask for. The accent colour is the theme's
+        own turquoise family; the deep inner ring and soft outer halo remain
+        visible on both the warm paper background and accent-tinted controls.
+      */
+      :focus-visible {
+        outline: 3px solid #0b6e7d;
+        outline-offset: 2px;
+        border-radius: 6px;
+        box-shadow: 0 0 0 5px rgba(94, 234, 212, 0.48);
+      }
+      /* WEB CARET POLICY - measured, not cosmetic.
+         A browser probe of the running app found 0 contenteditable
+         elements and 0 inputs on ordinary screens, yet 149 selectable
+         text nodes: every label, heading, badge and status line was
+         `user-select: auto`, so a click left a collapsed selection and a
+         drag selected product chrome. That is the thin blinking
+         Word-like line the operator reported, and it also has a real
+         safety cost - react-native-web's press responder terminates on
+         `selectionchange`, so accidental selection can interfere with a
+         held control.
+         Ordinary chrome is therefore not selectable and uses the default
+         arrow cursor. REAL TEXT INTERACTION IS PRESERVED EXPLICITLY
+         BELOW, with higher specificity than this rule: inputs, text
+         areas, genuine editors and anything the product marks copyable
+         (CLI output, diagnostics, logs) keep native selection, their own
+         caret and a text cursor. Keyboard focus is untouched - the
+         :focus-visible ring above still applies to every control. */
+      #root {
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: default;
+      }
+      #root input,
+      #root textarea,
+      #root [contenteditable="true"],
+      #root [data-selectable="true"],
+      #root [data-selectable="true"] *,
+      /* Intentionally copyable product surfaces, named explicitly: the
+         CLI terminal log and the connection/telemetry diagnostics an
+         operator is asked to copy into a report. */
+      #root [data-testid="cli-output"],
+      #root [data-testid="usb-log"],
+      #root [data-testid="connection-report-text"] {
+        -webkit-user-select: text;
+        user-select: text;
+        cursor: auto;
+      }
+      body {
+        background-color: #faf8f3;
+        color: #152232;
+        /* Cairo is declared in src/web/cairo.css (bundled, fingerprinted);
+           this stack names it first so everything that inherits from body
+           — including the pre-JS #boot line once the CSS arrives — picks
+           it up, with honest Arabic fallbacks for the instant before. */
+        font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI',
+          'Noto Naskh Arabic', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
+        overscroll-behavior: none;
+      }
+      /* Shown until the entry chunk executes and replaces it. Plain CSS
+         and plain markup on purpose - it must be visible before any
+         JavaScript has run. */
+      #boot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 15px;
+        color: #526171;
+      }
+    </style>
+    <script type="module" crossorigin src="/FPV-ARBCON-NL/assets/index-mThiSKF2.js"></script>
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/rolldown-runtime-B0Z9INg1.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/react-vendor-BM8O_LXT.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/interaction-BHugiK93.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/transport-DMtwH1Py.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/i18n--DhGRRz3.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/connectionNotice-KHlOOJNG.js">
+    <link rel="modulepreload" crossorigin href="/FPV-ARBCON-NL/assets/preload-helper-CVEIiN-U.js">
+    <link rel="stylesheet" crossorigin href="/FPV-ARBCON-NL/assets/index-GrlMnhR8.css">
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot">جارٍ تشغيل FPV-ARBCON…</div>
+    </div>
+  </body>
+</html>
