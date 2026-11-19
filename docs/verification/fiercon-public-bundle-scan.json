@@ -8,13 +8,14 @@
   "ok": true,
   "html_rules_passed": true,
   "public_base": "/FPV-ARBCON-NL/",
-  "entry": "/FPV-ARBCON-NL/assets/index-BUF-lGP3.js",
+  "entry": "/FPV-ARBCON-NL/assets/index-DSAzDVi3.js",
   "javascript_chunks": 41,
-  "files": 86,
+  "files": 102,
   "sourcemaps": 0,
   "fixture_code": false,
   "donation_url": false,
   "visible_brand": "fiercon",
   "manifest_name": "fiercon",
-  "application_source_commit": "3a1e45da6625c1cf508a9791f06878cedcadbeca"
+  "application_source_commit": "3f28aeeb45a28351bda03f35fdc1e7ba717cac6e",
+  "combined_javascript_sha256": "768c85126e7d7e68d1f29436807035d8675a324756cf86834ecce2f396ba64dc"
 }

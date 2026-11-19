@@ -1,0 +1,2455 @@
+{
+  "success": true,
+  "numTotalTestSuites": 488,
+  "numPassedTestSuites": 488,
+  "numFailedTestSuites": 0,
+  "numTotalTests": 9070,
+  "numPassedTests": 9070,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "startTime": 1795082497853,
+  "application_source_commit": "3f28aeeb45a28351bda03f35fdc1e7ba717cac6e",
+  "command": "NODE_OPTIONS=--max-old-space-size=2304 npm test -- --silent --maxWorkers=2 --workerIdleMemoryLimit=768MB --json",
+  "suites": [
+    {
+      "file": "__tests__/App.test.tsx",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "scripts/__tests__/nativeCodegenPackage.test.js",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "scripts/__tests__/scanProductionBundle.test.js",
+      "status": "passed",
+      "tests": 194
+    },
+    {
+      "file": "scripts/__tests__/webEntryPath.test.js",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/async/boundedBody.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/core/async/deadline.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/firmware-adapters/betaflightMixerReferenceV147.test.ts",
+      "status": "passed",
+      "tests": 49
+    },
+    {
+      "file": "src/core/firmware-adapters/betaflightMotorDomainV147.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/core/firmware-adapters/betaflightMotorVectorsV147.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/core/firmware-adapters/motorFirmwareCompatibility.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/firmware-flasher/bootloaderTransition.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/core/firmware-flasher/buildApi.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/firmware-flasher/byteRange.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/firmware-flasher/cloudBuildCoordinator.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/firmware-flasher/customDefaults.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/firmware-flasher/firmwareCatalog.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/core/firmware-flasher/firmwareFile.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/firmware-flasher/flashCompletionModel.test.ts",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "file": "src/core/firmware-flasher/flashPhaseModel.test.ts",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/core/firmware-flasher/intelHex.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/firmware-flasher/md5.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/firmware-flasher/operatorMessage.test.ts",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/core/firmware-flasher/stalledBody.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/firmware-flasher/standardBuildConfiguration.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/core/firmware-flasher/targetCatalogCoverage.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/protocol/__tests__/identificationOverRawBytes.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/core/protocol/__tests__/motorTestLateSameCommandResponse.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/protocol/__tests__/motorTestLease.test.ts",
+      "status": "passed",
+      "tests": 83
+    },
+    {
+      "file": "src/core/protocol/__tests__/motorTestStopWriteLatency.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/core/protocol/__tests__/mspChecksum.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/__tests__/mspClient.test.ts",
+      "status": "passed",
+      "tests": 64
+    },
+    {
+      "file": "src/core/protocol/__tests__/mspClientErrorCodes.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/core/protocol/__tests__/mspEncoder.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/core/protocol/__tests__/mspStreamParser.test.ts",
+      "status": "passed",
+      "tests": 36
+    },
+    {
+      "file": "src/core/protocol/msp/__tests__/osdVirtualFlightController.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/core/protocol/msp/commands/ledStripCommands.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/MspPayloadReader.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/blackboxWireContract.test.ts",
+      "status": "passed",
+      "tests": 33
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeAnalog.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeApiVersion.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeAttitude.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeAuxiliaryPortsEvidence.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeBatteryState.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeBoardAlignment.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeBoardInfo.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeDetailedGps.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeFailsafe.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeFcVariant.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeFcVersion.test.ts",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeFilterConfigFull.test.ts",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeGeneralConfiguration.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeGpsConfiguration.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeGpsRescue.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeGpsSatelliteInfo.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeLedStrip.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeModes.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeMotorCapabilities.test.ts",
+      "status": "passed",
+      "tests": 35
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeMotorOutputOrder.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeMotorTelemetry.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeOsdConfiguration.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodePidAdvancedFull.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodePidTuning.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodePowerConfiguration.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeRawGps.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeRcTuningFull.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeReceiver.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeSensorTelemetry.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeSerialPorts.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeSimplifiedTuning.test.ts",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeStatusEx.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeStatusExDiagnostics.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/decodeVtxConfiguration.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/ledStripWireContract.test.ts",
+      "status": "passed",
+      "tests": 40
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/pidWireContracts.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/core/protocol/msp/decoding/sensorWireContract.test.ts",
+      "status": "passed",
+      "tests": 67
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeAdvancedConfigDebugMode.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeBoardAlignment.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeDshotEscDirection.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeFailsafe.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeGeneralConfiguration.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeGpsRescue.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeLedStrip.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeModes.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeMotorConfiguration.test.ts",
+      "status": "passed",
+      "tests": 39
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeMotorOutputOrder.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeOsdConfiguration.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodePowerConfiguration.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeProfileCommands.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeRatesType.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeSelectSetting.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeSetMotorPayload.test.ts",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/core/protocol/msp/encoding/encodeVtxConfiguration.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/protocol/msp/identification/BoxIdsAcquisition.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/core/protocol/msp/identification/MspIdentificationService.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/protocol/msp/identification/connectionStageTruth.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/protocol/msp/identification/flightControllerNaming.test.ts",
+      "status": "passed",
+      "tests": 45
+    },
+    {
+      "file": "src/core/protocol/msp/identification/mspCompatibility.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/protocol/msp/pollingCapacityAudit.test.ts",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/core/protocol/telemetry/MspOperationCoordinator.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/protocol/telemetry/MspTelemetryScheduler.test.ts",
+      "status": "passed",
+      "tests": 58
+    },
+    {
+      "file": "src/core/protocol/telemetry/clock.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/protocol/telemetry/motorTestTelemetryBarrier.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/core/protocol/telemetry/orientationPollingUnderMotorTestBarrier.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/protocol/telemetry/schedulerCadenceDecoupling.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/core/state/advancedFilterFields.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/core/state/advancedPidFields.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/core/state/advancedPidWiring.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/core/state/armingBlockers.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/core/state/armingReadiness.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/state/auxTelemetrySemantics.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/state/batteryTelemetry.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/state/blackboxPresentation.test.ts",
+      "status": "passed",
+      "tests": 33
+    },
+    {
+      "file": "src/core/state/blackboxStorageSemantics.test.ts",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/core/state/boardAlignmentModel.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/state/dynamicIdle.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/state/failsafeConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/state/fcTools.test.ts",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "file": "src/core/state/feedforwardFeel.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/state/generalConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/state/gpsConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/core/state/gpsPositionQuality.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/state/gpsRescueConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/state/ledStripDraft.test.ts",
+      "status": "passed",
+      "tests": 77
+    },
+    {
+      "file": "src/core/state/ledStripModel.test.ts",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "file": "src/core/state/ledStripPresentation.test.ts",
+      "status": "passed",
+      "tests": 52
+    },
+    {
+      "file": "src/core/state/ledStripSaveModel.test.ts",
+      "status": "passed",
+      "tests": 33
+    },
+    {
+      "file": "src/core/state/ledStripTruth.test.ts",
+      "status": "passed",
+      "tests": 25
+    },
+    {
+      "file": "src/core/state/modesConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/state/motorAirframeLayout.test.ts",
+      "status": "passed",
+      "tests": 41
+    },
+    {
+      "file": "src/core/state/motorArmingRestriction.test.ts",
+      "status": "passed",
+      "tests": 108
+    },
+    {
+      "file": "src/core/state/motorControlCommandEngine.test.ts",
+      "status": "passed",
+      "tests": 46
+    },
+    {
+      "file": "src/core/state/motorControlRuntimeScope.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/core/state/motorControlStateMachine.test.ts",
+      "status": "passed",
+      "tests": 42
+    },
+    {
+      "file": "src/core/state/motorDepartureGate.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/state/motorDiagnosticsSemantics.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/core/state/motorDirectionWorkflow.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/state/motorExpectedRotation.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/state/motorFcFirmwareVersion.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/core/state/motorOutputEngagement.test.ts",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "file": "src/core/state/motorOutputReordering.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/core/state/motorOutputReorderingFirmware.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/core/state/motorSessionPresentation.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/core/state/motorStaticFacts.test.ts",
+      "status": "passed",
+      "tests": 33
+    },
+    {
+      "file": "src/core/state/motorStopExecutionProjection.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/core/state/motorTelemetryVirtualEsc.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/core/state/motorTestBenchGate.test.ts",
+      "status": "passed",
+      "tests": 161
+    },
+    {
+      "file": "src/core/state/motorTestBoxIds.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/state/motorTestCommandVector.test.ts",
+      "status": "passed",
+      "tests": 33
+    },
+    {
+      "file": "src/core/state/motorTestContinuousSafetyMonitor.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/state/motorTestController.test.ts",
+      "status": "passed",
+      "tests": 229
+    },
+    {
+      "file": "src/core/state/motorTestSafetyMonitor.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/core/state/motorTestStateMachine.test.ts",
+      "status": "passed",
+      "tests": 203
+    },
+    {
+      "file": "src/core/state/motorTopologyPresentation.test.ts",
+      "status": "passed",
+      "tests": 53
+    },
+    {
+      "file": "src/core/state/motorTopologyTruth.test.ts",
+      "status": "passed",
+      "tests": 44
+    },
+    {
+      "file": "src/core/state/motorVerificationModel.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/core/state/orientationStability.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/state/orientationViewModel.test.ts",
+      "status": "passed",
+      "tests": 36
+    },
+    {
+      "file": "src/core/state/osdElementAuthenticity.test.ts",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "file": "src/core/state/osdElementNameIntegrity.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/core/state/osdLayoutGeometry.test.ts",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/core/state/pidSemanticModels.test.ts",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/core/state/pidTuningModel.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/core/state/pidWriteVerification.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/core/state/presetCatalog.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/core/state/rateFormulaEngine.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/core/state/receiverBuildCapability.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/core/state/receiverConfigurationModel.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/core/state/receiverModeCapability.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/core/state/receiverRuntimeSemantics.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/core/state/rpmFilterFields.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/core/state/rpmFilterWiring.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/core/state/sensorPresentation.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/core/state/sensorTruthSemantics.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/core/state/serialPortsEvidence.test.ts",
+      "status": "passed",
+      "tests": 36
+    },
+    {
+      "file": "src/core/state/serialPortsModel.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/core/state/setupDiagnostics.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/core/state/setupNotice.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/core/state/setupSafetyModel.test.ts",
+      "status": "passed",
+      "tests": 50
+    },
+    {
+      "file": "src/core/state/setupStatusModel.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/core/state/simplifiedTuningGenerator.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/i18n/dutchEdition.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/i18n/i18nCoverage.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/navigation/blackboxTabPlacement.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/clipboard.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/platforms/connectionReport.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/mapLink.web.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/lifecycle/motorTestLifecycleBridge.test.ts",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/platforms/react-native/protocol/BoardAlignmentController.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/platforms/react-native/protocol/CliBackupService.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/platforms/react-native/protocol/EspFirmwareFlasher.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/platforms/react-native/protocol/FailsafeConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/FcToolsController.test.ts",
+      "status": "passed",
+      "tests": 64
+    },
+    {
+      "file": "src/platforms/react-native/protocol/FirmwareBootloaderController.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/platforms/react-native/protocol/FirmwarePresetRepository.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/GeneralConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/platforms/react-native/protocol/GpsConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/react-native/protocol/ModesConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/platforms/react-native/protocol/MotorConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/platforms/react-native/protocol/MspSessionCoordinator.test.ts",
+      "status": "passed",
+      "tests": 76
+    },
+    {
+      "file": "src/platforms/react-native/protocol/OsdConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/PidTuningController.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/platforms/react-native/protocol/PidTuningProductionPath.test.ts",
+      "status": "passed",
+      "tests": 72
+    },
+    {
+      "file": "src/platforms/react-native/protocol/PortsConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/react-native/protocol/PowerConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/RNMspTransport.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/platforms/react-native/protocol/RawCliSessionController.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/platforms/react-native/protocol/ReactNativeSerialPort.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/protocol/ReceiverConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 46
+    },
+    {
+      "file": "src/platforms/react-native/protocol/ReceiverModeWrite.test.ts",
+      "status": "passed",
+      "tests": 42
+    },
+    {
+      "file": "src/platforms/react-native/protocol/SetupUiSessionStore.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/platforms/react-native/protocol/Stm32SerialFlasher.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/platforms/react-native/protocol/VtxConfigurationController.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/apiVersionCompatibility.test.ts",
+      "status": "passed",
+      "tests": 54
+    },
+    {
+      "file": "src/platforms/react-native/protocol/auxTelemetryDebugLog.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/batteryDebugLog.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/protocol/blackboxControllerProductionPath.test.ts",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "file": "src/platforms/react-native/protocol/cliBackupRedTeam.test.ts",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/platforms/react-native/protocol/cliReplyReader.test.ts",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "file": "src/platforms/react-native/protocol/cliSessionLifecycle.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/platforms/react-native/protocol/crossScreenWriteAudit.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/react-native/protocol/escTelemetryProductionPath.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/platforms/react-native/protocol/fcRebootRecovery.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/react-native/protocol/flasherExclusiveAccess.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/platforms/react-native/protocol/gpsDetailTelemetry.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/platforms/react-native/protocol/gpsRescueSaveContract.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/platforms/react-native/protocol/ledStripProductionPath.test.ts",
+      "status": "passed",
+      "tests": 55
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorConfigurationApiCompatibility.test.ts",
+      "status": "passed",
+      "tests": 43
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorConfigurationInterlock.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorConfigurationOutputGate.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorDiagnosticsTelemetry.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorPropsDirectionTransaction.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorSessionReopen.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorTestCapability.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorTestSessionBinding.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/platforms/react-native/protocol/motorTestSessionLiveness.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/platforms/react-native/protocol/multiStageSaveTruth.test.ts",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/platforms/react-native/protocol/pidProfileSwitch.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/platforms/react-native/protocol/pidResetVerificationTruth.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/react-native/protocol/portsEvidenceTruth.test.ts",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/platforms/react-native/protocol/postCliScreenMatrix.test.ts",
+      "status": "passed",
+      "tests": 38
+    },
+    {
+      "file": "src/platforms/react-native/protocol/receiverCrossOwnership.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/react-native/protocol/receiverTelemetry.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/platforms/react-native/protocol/redTeamDroneAudit.test.ts",
+      "status": "passed",
+      "tests": 35
+    },
+    {
+      "file": "src/platforms/react-native/protocol/saveContractAudit.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/platforms/react-native/protocol/sensorsCalibrationProductionPath.test.ts",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/platforms/react-native/protocol/sensorsControllerProductionPath.test.ts",
+      "status": "passed",
+      "tests": 38
+    },
+    {
+      "file": "src/platforms/react-native/protocol/sensorsTelemetry.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/platforms/react-native/protocol/sessionBoundDraftOwnership.test.ts",
+      "status": "passed",
+      "tests": 77
+    },
+    {
+      "file": "src/platforms/react-native/protocol/sessionLease.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/platforms/react-native/protocol/setupAppStateTelemetryOwner.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/react-native/protocol/setupHiddenAttitudeSuppression.test.ts",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/platforms/react-native/protocol/setupPresentationBoundary.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/platforms/react-native/protocol/stm32EraseCancellation.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/react-native/protocol/stm32EraseUncertainty.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/platforms/react-native/protocol/stm32FlashPlan.test.ts",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "file": "src/platforms/react-native/protocol/useMspSessionState.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/protocol/useTelemetryValue.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/protocol/virtualDroneAcceptance.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/platforms/react-native/protocol/virtualDroneFailures.test.ts",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/platforms/react-native/protocol/zombieSessionPortRelease.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/platforms/react-native/transport/UsbSerialTransportClient.test.ts",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "file": "src/platforms/react-native/transport/devicePicker.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/platforms/react-native/transport/native/NativeUsbSerialTransport.web.test.ts",
+      "status": "passed",
+      "tests": 53
+    },
+    {
+      "file": "src/platforms/react-native/transport/native/usbSerialTransportTypes.parity.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/platforms/react-native/transport/native/webUsbDfu.web.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/platforms/react-native/transport/native/webUsbDfuCompletion.web.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/platforms/react-native/transport/native/webUsbDfuMemoryDiscovery.web.test.ts",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/platforms/react-native/transport/nativeErrorCatalogueContract.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/platforms/react-native/transport/transportErrors.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/platforms/supportLink.web.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/platforms/telemetryReport.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/platforms/web/connectionDiagnostics.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/platforms/web/telemetryDiagnostics.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/platforms/web/webAlert.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/platforms/web/webEnvironment.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/platforms/web/webOperatorCopy.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/brand/BrandTopChrome.web.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/ui/brand/brandLogo.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/components/controls/buttonWidthDiscipline.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/components/controls/controls.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/components/editing/StickyActionBar.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/components/gps/OfflinePositionMap.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/components/navigation/BottomTabBar.test.tsx",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/ui/components/navigation/SideNavigationRail.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/components/navigation/navigationScrolling.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/components/navigation/scrollOffset.web.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/components/navigation/toolDirectory.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/components/pid/AdvancedTuningGroups.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/components/pid/RateResponsePreview.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/components/setup/BoardAlignmentCard.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/components/setup/DiagnosticsSection.test.tsx",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/ui/components/setup/FcToolsSection.test.tsx",
+      "status": "passed",
+      "tests": 36
+    },
+    {
+      "file": "src/ui/components/setup/FlightInstruments.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/components/setup/OrientationCalibrationCard.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/components/setup/OrientationHero.test.tsx",
+      "status": "passed",
+      "tests": 35
+    },
+    {
+      "file": "src/ui/components/setup/OrientationRelativeDirection.test.tsx",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/ui/components/setup/OrientationStabilityPanel.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/components/setup/SafetyStrip.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/components/setup/SetupSafetyNotices.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/components/setup/connectionIndicator.test.ts",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/ui/components/setup/useTopBarNotice.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/icons/Icon.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/icons/layoutDirection.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/icons/layoutDirection.web.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/indicatorZeroTruth.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/led/ledColorPresentation.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "src/ui/operatorVocabulary.test.ts",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/ui/orientation3d/OrientationRenderer.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/orientation3d/airframeSceneModel.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/orientation3d/droneSceneGeometry.test.ts",
+      "status": "passed",
+      "tests": 67
+    },
+    {
+      "file": "src/ui/orientation3d/meshProjection.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/orientation3d/orientationAppearance.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/orientation3d/orientationLatencyDebugLog.test.ts",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/orientation3d/orientationRenderObserver.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/presentation/advancedTuningPresentation.test.ts",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/ui/presentation/brandSafeText.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/presentation/brandSurface.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/presentation/ratesPresentation.test.ts",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "file": "src/ui/presentation/simplifiedTuningPresentation.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/ui/presentation/writeStageNames.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/CliScreen.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/ConfigurationsScreen.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/EscDirectionPanel.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/screens/FailsafeScreen.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/FirmwareFlasherScreen.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/screens/FirmwareFlasherSimpleScreen.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/GpsScreen.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/MainTabsScreen.tabBlur.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/screens/ModesScreen.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/screens/MotorAirframeDiagram.test.tsx",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/ui/screens/MotorConfigurationPanel.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/MotorConfigurationSummary.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/screens/MotorDiagnosticsPanel.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/MotorOutputReorderPanel.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/ui/screens/MotorVerificationWizard.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/screens/MotorWorkspace.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/MotorsScreen.test.tsx",
+      "status": "passed",
+      "tests": 92
+    },
+    {
+      "file": "src/ui/screens/MotorsScreen.web.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/MotorsScreenRoute.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/OsdScreen.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/ui/screens/OsdScreen.web.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/PidTuningScreen.test.tsx",
+      "status": "passed",
+      "tests": 35
+    },
+    {
+      "file": "src/ui/screens/PortsScreen.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/PowerBatteryScreen.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/screens/PresetsScreen.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/ReceiverScreen.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/ReceiverScreen.web.test.tsx",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "file": "src/ui/screens/ReceiverScreenContract.test.tsx",
+      "status": "passed",
+      "tests": 54
+    },
+    {
+      "file": "src/ui/screens/ReceiverScreenLiveChannels.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/ReceiverScreenSmoothing.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/SensorsScreen.test.tsx",
+      "status": "passed",
+      "tests": 66
+    },
+    {
+      "file": "src/ui/screens/SetupArmingTruth.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/SetupDashboard.test.tsx",
+      "status": "passed",
+      "tests": 35
+    },
+    {
+      "file": "src/ui/screens/SetupHiddenRuntimeCost.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/SetupScreen.test.tsx",
+      "status": "passed",
+      "tests": 63
+    },
+    {
+      "file": "src/ui/screens/SetupScreenIntegration.test.tsx",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "file": "src/ui/screens/SetupTelemetryPipeline.test.tsx",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/ui/screens/StartScreen.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/ui/screens/TabletResponsiveLayout.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/UsbSerialDebugPanel.test.tsx",
+      "status": "passed",
+      "tests": 34
+    },
+    {
+      "file": "src/ui/screens/VideoTransmitterScreen.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/screens/aircraftOverviewDensity.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/ui/screens/androidDestinationCensus.test.ts",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/androidDestinationReachability.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/asyncBusySettles.test.tsx",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/ui/screens/asyncCoverageCensus.test.tsx",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/ui/screens/blackboxScreenProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/blackboxScreenTruth.test.tsx",
+      "status": "passed",
+      "tests": 38
+    },
+    {
+      "file": "src/ui/screens/blackboxStorageScenarios.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/busyStateTerminality.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/connectionStateMatrix.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/controlTypeCensus.test.tsx",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/ui/screens/crossFcTelemetryTruth.test.tsx",
+      "status": "passed",
+      "tests": 24
+    },
+    {
+      "file": "src/ui/screens/debugIsolation.test.ts",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/screens/entryHomeAndBack.test.tsx",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/ui/screens/escFieldValidity.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/screens/failsafeOperatorTruth.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/firmwareFlasherDfuTransition.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/firmwareFlasherResultContract.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/firmwareFlasherStandardFlow.test.tsx",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/ui/screens/firmwareFlasherTruthAndHierarchy.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/flasherDestructiveDisclosure.test.tsx",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/ui/screens/flasherRecoveryUx.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/flasherStaleAttempt.test.tsx",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "src/ui/screens/flightGuideDensity.test.tsx",
+      "status": "passed",
+      "tests": 26
+    },
+    {
+      "file": "src/ui/screens/flightGuideDuplicateRecommendation.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/screens/flightStyleGuideIndependence.test.tsx",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/ui/screens/gpsPositionTruth.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/screens/gpsUnknownIsNotOff.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/hardConnectionWall.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/hardwareVerificationNotice.test.tsx",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/ui/screens/homeConnectRetry.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/iconTruth.test.tsx",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/screens/indicatorStateTruth.test.tsx",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/ui/screens/interactionCensus.test.tsx",
+      "status": "passed",
+      "tests": 68
+    },
+    {
+      "file": "src/ui/screens/ledBehaviourClasses.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/ledStripGridGeometry.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/ledStripResponsive.test.tsx",
+      "status": "passed",
+      "tests": 27
+    },
+    {
+      "file": "src/ui/screens/ledStripScreenProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 76
+    },
+    {
+      "file": "src/ui/screens/mainTabsRenderCost.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/modesSelectionClarity.test.ts",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/ui/screens/motorAirframeArrowAudit.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/motorAirframeGeometry.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/motorAirframeSummaryStates.test.tsx",
+      "status": "passed",
+      "tests": 32
+    },
+    {
+      "file": "src/ui/screens/motorNumberingAndDiagram.test.tsx",
+      "status": "passed",
+      "tests": 28
+    },
+    {
+      "file": "src/ui/screens/motorPayloadIndexIdentity.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/motorSessionReopenProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/screens/motorSessionUx.test.tsx",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/ui/screens/motorTeardownBound.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/motorsAirframeIdentityProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/screens/motorsAsyncActLeakOracle.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/motorsBeginSessionReachesDevice.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/screens/motorsBlockedHoldUx.test.tsx",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/ui/screens/motorsBlockedStateMatrix.test.tsx",
+      "status": "passed",
+      "tests": 34
+    },
+    {
+      "file": "src/ui/screens/motorsCapabilityReachability.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/motorsCompactIdentification.test.tsx",
+      "status": "passed",
+      "tests": 44
+    },
+    {
+      "file": "src/ui/screens/motorsCompactionGuards.test.tsx",
+      "status": "passed",
+      "tests": 11
+    },
+    {
+      "file": "src/ui/screens/motorsContextAndTelemetryTruth.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/motorsCoreIdentityMapping.test.tsx",
+      "status": "passed",
+      "tests": 43
+    },
+    {
+      "file": "src/ui/screens/motorsDeadWorkspaceRegression.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/motorsDiagramSpace.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/screens/motorsDirectionNormalProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/screens/motorsDirectionProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/motorsDirectionTruth.test.tsx",
+      "status": "passed",
+      "tests": 66
+    },
+    {
+      "file": "src/ui/screens/motorsDockGeometry.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/screens/motorsEmergencyGuidance.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/motorsFinalClosure.test.tsx",
+      "status": "passed",
+      "tests": 17
+    },
+    {
+      "file": "src/ui/screens/motorsFinalWorkspace.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/screens/motorsFullStackReady.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/screens/motorsHierarchy.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/motorsInteractionRegression.test.tsx",
+      "status": "passed",
+      "tests": 41
+    },
+    {
+      "file": "src/ui/screens/motorsMixerActivation.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/motorsMixerCommandBoundary.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/motorsNoCountCommandTruth.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/motorsNoDefaultMotorCount.test.ts",
+      "status": "passed",
+      "tests": 103
+    },
+    {
+      "file": "src/ui/screens/motorsProductionBinding.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/ui/screens/motorsProductionPathUiMatrix.test.tsx",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "src/ui/screens/motorsTabReachability.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/motorsTruthfulnessGuards.test.tsx",
+      "status": "passed",
+      "tests": 42
+    },
+    {
+      "file": "src/ui/screens/motorsUxHierarchy.test.tsx",
+      "status": "passed",
+      "tests": 31
+    },
+    {
+      "file": "src/ui/screens/motorsWebHoldStability.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/operatorFacingCopy.test.ts",
+      "status": "passed",
+      "tests": 44
+    },
+    {
+      "file": "src/ui/screens/osd/osdPreviewIsolation.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/osdConfigurationTruth.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/screens/osdDragInteraction.test.tsx",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/screens/osdResponsiveLayout.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/screens/pidAdvancedTierUi.test.tsx",
+      "status": "passed",
+      "tests": 29
+    },
+    {
+      "file": "src/ui/screens/pidResetVerificationPresentation.test.tsx",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "src/ui/screens/pidRpmFilterVersionUi.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/pidTuningLegacySweep.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/pidTuningProductionUi.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/portsEvidencePresentation.test.tsx",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/ui/screens/portsRoleBaudMapping.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/presetsCatalogueFollowsTheAircraft.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/screens/publicSurfaceWall.test.tsx",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/ui/screens/rebootEvidenceTruth.test.tsx",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/screens/receiverBoundary.test.ts",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/receiverChannelAnchor.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/receiverChannelAnchor.web.test.tsx",
+      "status": "passed",
+      "tests": 9
+    },
+    {
+      "file": "src/ui/screens/rtlPhysicalTruth.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/saveEndingsFromRealBoards.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/saveStateTruth.test.tsx",
+      "status": "passed",
+      "tests": 13
+    },
+    {
+      "file": "src/ui/screens/screenEyebrowCopy.test.ts",
+      "status": "passed",
+      "tests": 42
+    },
+    {
+      "file": "src/ui/screens/sensorsChronologyRtl.test.tsx",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/screens/sensorsScreenProductionPath.test.tsx",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "src/ui/screens/sessionBoundDraftOwnershipUi.test.tsx",
+      "status": "passed",
+      "tests": 19
+    },
+    {
+      "file": "src/ui/screens/setupAircraftFirst.test.tsx",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/setupInformationHierarchy.test.tsx",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/ui/screens/staleTelemetryTruth.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/screens/startSupportSection.test.tsx",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "src/ui/screens/statusSemanticsCensus.test.tsx",
+      "status": "passed",
+      "tests": 25
+    },
+    {
+      "file": "src/ui/screens/touchTargetFloor.test.tsx",
+      "status": "passed",
+      "tests": 18
+    },
+    {
+      "file": "src/ui/screens/usbSerialDebugPanelBytes.test.ts",
+      "status": "passed",
+      "tests": 10
+    },
+    {
+      "file": "src/ui/screens/vtxModeKeepsTheBand.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/selectionStateContract.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/session/directConnect.test.tsx",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "src/ui/session/livenessContract.test.ts",
+      "status": "passed",
+      "tests": 46
+    },
+    {
+      "file": "src/ui/session/livenessStress.test.tsx",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "src/ui/session/navigationLiveness.test.tsx",
+      "status": "passed",
+      "tests": 8
+    },
+    {
+      "file": "src/ui/session/observedAirframeSharing.test.tsx",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "src/ui/session/rebootRecoveryLiveness.test.tsx",
+      "status": "passed",
+      "tests": 12
+    },
+    {
+      "file": "src/ui/session/rebootScenarios.test.tsx",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/session/verifiedConnection.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/textInputLabellingContract.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "src/ui/theme/colors.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "src/ui/theme/desktopLayout.test.ts",
+      "status": "passed",
+      "tests": 15
+    },
+    {
+      "file": "src/ui/theme/layout.test.ts",
+      "status": "passed",
+      "tests": 21
+    },
+    {
+      "file": "src/ui/theme/noticeScale.test.ts",
+      "status": "passed",
+      "tests": 96
+    }
+  ]
+}

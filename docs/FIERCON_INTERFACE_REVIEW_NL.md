@@ -4,6 +4,24 @@ De Nederlandse editie gebruikt nu de bronstructuur en echte vliegtuigmodellen va
 
 De eerste cosmetische aanpassing loste de inhoudsverdeling onvoldoende op. Deze wijziging vervangt de smalle werkruimten, de kleine vlakke vliegtuigweergave, de uitgerekte informatiekaarten en de lange PID-pagina door gerichte schermindelingen. Overbodige inleidingen zijn ingekort en onjuiste Nederlandse poort-, configuratie-, LED- en Blackbox-termen zijn verbeterd.
 
+## Gepubliceerde interface
+
+Op de startpagina staan de verbinding en firmware naast elkaar, gevolgd door zeventien configuratieschermen in vijf groepen. PID, Rates, Filters en Expert hebben elk een eigen tabblad met een uitleesbare selectiestatus. Bij Motoren staan de motorkaart en de regelaars naast elkaar. GPS verdeelt configuratie, kaart en positiewaarden over de werkruimte en schakelt op een telefoon naar één kolom.
+
+[Open de galerij met de startpagina, firmware en alle 17 schermen](verification/workbench/schermen/README.md).
+
+De vorige meting controleerde de buitenste webpagina. De werkruimte van React Native Web kan daarbinnen afzonderlijk scrollen. Bij een venster van 1280 px kwam de GPS-inhoud 562 px buiten die werkruimte. De bijbehorende regressiecontrole meet nu zowel de pagina als de inhoud van het werkpaneel en wacht eerst tot een schermspecifieke bediening is geladen.
+
+| Controle | Resultaat |
+|---|---|
+| Werkruimte en pagina | 153 van 153 combinaties binnen de beschikbare breedte, 17 onderdelen op 320, 390, 768, 1024, 1056, 1280, 1440, 1920 en 2560 px |
+| Interactie | Alle vier PID-tabbladen tonen het bijbehorende paneel en één geselecteerd tabblad. Beide firmwareweergaven en de vijf vliegstijlgidsen zijn geopend in de browser. |
+| Mobiel en browser | De TypeScript-controles voor beide platformen zijn geslaagd. De visuele controle is uitgevoerd in Chromium, met testgegevens voor de configuratieschermen. |
+| Volledige Jest-run | 488 suites, 9070 geslaagde tests en nul overgeslagen tests |
+| 3D | Negen lokale glTF-bestanden in de release. De testbrowser tekende de driehoeksmesh via de CPU. Een fysieke vluchtcontroller, een Android-APK en rendering op een GPU vallen buiten deze meting. |
+
+[Bekijk de metingen per scherm en breedte](verification/workbench/scrollview-audit.json) of [de testresultaten per suite](verification/workbench/jest-release-summary.json).
+
 ## Alle onderdelen
 
 | Onderdeel | Nieuwe indeling en controle |
@@ -23,7 +41,7 @@ De eerste cosmetische aanpassing loste de inhoudsverdeling onvoldoende op. Deze 
 | LED-strip | Raster naast selectie, functies en draadvolgorde. De brede celmatrix heeft op een telefoon een eigen horizontale scroller. |
 | Sensoren | Hardwarestatus en kalibratie naast de gedeelde 3D-oriëntatie. Ingesteld, gedetecteerd en aanwezig blijven afzonderlijke feiten. |
 | Vluchtregistratie | Opslagstatus, instellingen en geavanceerde velden in werkpanelen. De bestaande wisbevestiging blijft van kracht. |
-| Presets | Zoek- en categoriefilters, compatibele pakketten en wijzigingsvoorbeeld. |
+| Presets | Zoek- en categoriefilters met de resultaten links en het wijzigingsvoorbeeld rechts op desktop. Op telefoon staan lijst en detail onder elkaar. |
 | Opdrachtregel | Grote terminal met compacte leesopdrachten ernaast. |
 
 Home, verbinding, firmwareflashen en de vliegstijlgidsen gebruiken dezelfde kleuren en typografie. Alle 17 onderdelen blijven via de navigatie bereikbaar. De donatiesectie blijft verwijderd.
@@ -34,7 +52,7 @@ Negen upstream glTF-modellen zijn lokaal meegeleverd. Three.js rendert deze op h
 
 Er is geen animatielus of gesimuleerde vlucht toegevoegd. De nieuwste echte attitude gaat naar model, instrumenten en getallen. Oude gegevens blijven herkenbaar oud. De ingebedde GPS-kaart gebruikt lokaal gebundelde Natural Earth-geometrie en verstuurt geen coördinaten.
 
-## Verificatie
+## Verificatie van de eerdere ontwerpversie
 
 - Volledige Jest-run: **487/487 suites, 9066/9066 tests geslaagd**. De runner hergebruikt geen onbeperkt groeiende worker; `workerIdleMemoryLimit=768MB` voorkomt de heap-uitputting van een eerdere seriële run. Geen assertions zijn overgeslagen.
 - TypeScript voor native en web: geslaagd.
@@ -50,3 +68,7 @@ De testbrowser had geen WebGL-context. De echte CPU-meshfallback is visueel geco
 ## Publicatie
 
 De Nederlandse bron staat op `main`; de gebouwde webversie staat op `gh-pages`. Het vaste adres is [fiercon op GitHub Pages](https://fpvarabic.github.io/FPV-ARBCON-NL/), tevens het websiteveld in GitHub About. De webuitgave bevat een `release.json` met de precieze broncommit. Het Arabische project is niet gewijzigd.
+
+Bronversie voor deze publicatie is [`3f28aee`](https://github.com/FPVARABIC/FPV-ARBCON-NL/commit/3f28aeeb45a28351bda03f35fdc1e7ba717cac6e). De bijbehorende [Pages-publicatie](https://github.com/FPVARABIC/FPV-ARBCON-NL/actions/runs/44503356840) is geslaagd. De startpagina op het vaste adres kwam byte voor byte overeen met de gebouwde pagina. Alle 101 opvraagbare bestanden kwamen overeen met hun lokale SHA-256. Het besturingsbestand `.nojekyll` telt afzonderlijk mee in de uitgegeven Git-boom.
+
+[Bekijk de HTTP-controle per gepubliceerd bestand](verification/workbench/publicatiebestanden.json).
