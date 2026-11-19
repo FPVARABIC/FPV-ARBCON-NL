@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Breedtecontrole werkruimten</title>
+  <style>
+    body { margin: 12px; background: #11151e; color: #f3f6fc; font: 16px/1.5 system-ui, sans-serif }
+    #preview { overflow: auto; border: 1px solid #45516a }
+    iframe { display: block; border: 0; height: 840px }
+    pre { white-space: pre-wrap }
+  </style>
+</head>
+<body>
+  <p id="status" role="status">Breedtecontrole starten…</p>
+  <div id="preview"><iframe title="Test met voorbeeldgegevens"></iframe></div>
+  <details><summary>Meetresultaten</summary><pre id="results"></pre></details>
+  <script type="module" src="./widths.mjs"></script>
+</body>
+</html>

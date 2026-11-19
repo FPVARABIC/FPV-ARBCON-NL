@@ -1354,7 +1354,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
   },
   portHeaderActive: { backgroundColor: colors.surfaceHover },
-  portHeaderStatus: { alignItems: 'flex-start', gap: spacing.xs },
+  portHeaderStatus: { flexShrink: 1, minWidth: 0, alignItems: 'flex-start', gap: spacing.xs },
   portName: {
     ...typography.title,
     color: colors.textPrimary,
@@ -1386,6 +1386,7 @@ const styles = StyleSheet.create({
   },
   expandText: {
     ...typography.label,
+    flexShrink: 1,
     color: colors.accentStrong,
     writingDirection: 'ltr',
   },

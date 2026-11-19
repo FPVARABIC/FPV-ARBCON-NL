@@ -39,6 +39,8 @@ npm run scan:web-bundle
 
 Het Arabische referentiebestand blijft in `src/i18n/locales/ar.json` voor de sleutel- en interpolatiecontrole. Alleen `nl.json` wordt door deze editie geladen.
 
+De browsercontrole in `e2e/touch-targets/widths.html` meet het binnenste scrolgebied van alle 17 configuratieschermen op negen vensterbreedtes. Start `npx vite --config e2e/touch-targets/vite.config.mts` en open `/widths.html` op het getoonde adres. Elke meting wacht tot de bediening van het gekozen scherm en de lettertypen geladen zijn.
+
 ## GitHub Pages opnieuw bouwen
 
 De webpublicatie staat op de `gh-pages`-branch, met de gebouwde bestanden in de hoofdmap. Bouw met het repositorypad zodat scripts, lettertypen en afbeeldingen ook vanaf GitHub Pages laden:

@@ -369,7 +369,7 @@ const FailsafeLiveStatus = React.memo(function FailsafeLiveStatus({
       testID="failsafe-live-status"
       section="liveCard"
     >
-      <View>
+      <View style={styles.wrappingCopy}>
         <Text style={styles.liveLabel}>
           {statusValue.status === 'STALE' || channelsValue.status === 'STALE'
             ? 'Meting verouderd'
@@ -1058,13 +1058,13 @@ export default function FailsafeScreen({
                   style={styles.sectionHeader}
                   section="sectionHeader"
                 >
-                  <View>
+                  <View style={styles.wrappingCopy}>
                     <Text style={styles.sectionTitle}>
                       {'Fase 1 · Signaalverlies detecteren'}
                     </Text>
                     <Text style={styles.sectionHint}>
                       {
-                        'RX loss wachttijd voorafgaand aan de aankondiging, en een laag gas wachttijd dat direct afscheiding in plaats van de volledige procedure mogelijk maakt.'
+                        'Stel in hoelang de ontvanger het signaal mag verliezen en hoelang het gas laag moet staan om direct te ontwapenen.'
                       }
                     </Text>
                   </View>
@@ -1086,7 +1086,7 @@ export default function FailsafeScreen({
                     format={seconds}
                     rangeLabel={secondsRange(1, 200)}
                     hint={
-                      'De wachttijd voor de controller het signaal verliest.'
+                      'Wachttijd tussen signaalverlies en fase 2.'
                     }
                   />
                   <NumberStepper
@@ -1406,8 +1406,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     maxWidth: PROSE_MEASURE,
   },
+  wrappingCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 240, minWidth: 0, maxWidth: '100%' },
   liveCard: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: spacing.md,

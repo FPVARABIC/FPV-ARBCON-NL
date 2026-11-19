@@ -56,8 +56,8 @@ const KEY = { sessionId: 'touch-floor', generation: 1 } as const;
  */
 const REPAIRED_MODES = ['modes-add-range-0', 'modes-add-range-1', "Verwijderen"];
 const REPAIRED_PRESETS = [
-  "Alles", 'Tune', 'Rates', 'Filters', 'RC Link', 'Modes',
-  'OSD', 'VTX', 'LEDs', 'BNF', 'Other',
+  "Alles", 'Tune', 'Rates', 'Filters', 'RC Link', 'Vliegmodi',
+  'OSD', 'VTX', 'LEDs', 'BNF', 'Overig',
 ];
 const REPAIRED_MOTORS = ['motors-airframe-retry'];
 const REPAIRED_FLASHER_CHOICE = ['choice-online', 'choice-local'];

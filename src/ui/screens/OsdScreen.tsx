@@ -987,7 +987,7 @@ export default function OsdScreen({
                       testID={`osd-warning-${index}`}
                     >
                       <Text style={styles.switchLabel}>
-                        {'Waarschuwing'}
+                        {'Waarschuwing '}
                         {index + 1}
                       </Text>
                       <Text
@@ -1284,7 +1284,10 @@ const styles = StyleSheet.create({
   },
   switchGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   switchRow: {
-    flexBasis: 170,
+    flexBasis: 220,
+    flexShrink: 1,
+    maxWidth: '100%',
+    gap: spacing.xs,
     flexGrow: 1,
     minHeight: 44,
     flexDirection: 'row',
@@ -1299,7 +1302,7 @@ const styles = StyleSheet.create({
     borderColor: colors.success,
     backgroundColor: colors.successSoft,
   },
-  switchLabel: { ...typography.label, color: colors.textPrimary },
+  switchLabel: { ...typography.label, flexShrink: 1, color: colors.textPrimary },
   switchState: { ...typography.caption, color: colors.textMuted },
   switchStateOn: { color: colors.success, fontWeight: '600' },
   timerRow: {

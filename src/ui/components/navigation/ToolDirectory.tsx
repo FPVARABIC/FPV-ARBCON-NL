@@ -1,23 +1,12 @@
 import React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { MAIN_TABS, type MainTabKey } from '../../../navigation/tabs';
 import { Icon } from '../../icons';
-import {
-  colors,
-  effectiveWidth,
-  radii,
-  spacing,
-  typography,
-} from '../../theme';
+import { colors, effectiveWidth, radii, spacing, typography } from '../../theme';
 import { readInteraction } from '../controls/interaction';
 import { TAB_ICONS } from './tabIcons';
+import { TOOL_GROUPS } from './toolGroups';
 
 /** The same destination registry drives Home, the phone directory and both tab bars. */
 const DESCRIPTIONS: Record<MainTabKey, string> = {
@@ -52,6 +41,37 @@ export function ToolDirectory({
   const { t } = useTranslation();
   const { width, fontScale } = useWindowDimensions();
   const available = effectiveWidth(width, fontScale);
+  const tabs = MAIN_TABS.filter(tab => tab.implemented);
+  if (!onSelect) {
+    const groupColumns =
+      available >= 1150 ? 5 : available >= 780 ? 3 : available >= 520 ? 2 : 1;
+    return (
+      <View style={styles.grid} testID="tool-directory">
+        {TOOL_GROUPS.map(group => (
+          <View key={group.label} style={[styles.cell, { width: `${100 / groupColumns}%` }]}>
+            <View style={styles.group}>
+              <Text accessibilityRole="header" style={styles.groupTitle}>
+                {group.label}
+              </Text>
+              {tabs
+                .filter(tab => group.tabs.includes(tab.key))
+                .map(tab => (
+                  <View
+                    key={tab.key}
+                    style={styles.directoryRow}
+                    testID={`tool-directory-${tab.key}`}
+                  >
+                    <Icon name={TAB_ICONS[tab.key]} size={18} color={colors.textMuted} />
+                    <Text style={styles.directoryLabel}>{t(tab.labelKey)}</Text>
+                  </View>
+                ))}
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  }
+
   const columns = compact
     ? available >= 620
       ? 2
@@ -65,64 +85,42 @@ export function ToolDirectory({
     : 1;
   return (
     <View style={styles.grid} testID="tool-directory">
-      {MAIN_TABS.filter(tab => tab.implemented).map(tab => {
-        const content = (
-          <>
-            <View style={styles.icon}>
-              <Icon
-                name={TAB_ICONS[tab.key]}
-                size={22}
-                color={colors.accentStrong}
-              />
-            </View>
-            <View style={styles.copy}>
-              <Text style={styles.title}>{t(tab.labelKey)}</Text>
-
-            </View>
-            {onSelect ? (
-              <Icon
-                name={activeTab === tab.key ? 'check' : 'chevron-forward'}
-                size={18}
-                color={colors.accentStrong}
-              />
-            ) : null}
-          </>
-        );
-        const sizing = { width: `${100 / columns}%` as `${number}%` };
-        return (
-          <View
-            key={tab.key}
-            style={[styles.cell, sizing]}
-            testID={`tool-directory-${tab.key}`}
+      {tabs.map(tab => (
+        <View
+          key={tab.key}
+          style={[styles.cell, { width: `${100 / columns}%` }]}
+          testID={`tool-directory-${tab.key}`}
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t(tab.labelKey)}
+            accessibilityHint={DESCRIPTIONS[tab.key]}
+            accessibilityState={{ selected: activeTab === tab.key }}
+            onPress={() => onSelect(tab.key)}
+            testID={`tool-select-${tab.key}`}
+            style={state => {
+              const { hovered, pressed } = readInteraction(state);
+              return [
+                styles.card,
+                activeTab === tab.key && styles.selected,
+                (hovered || pressed) && styles.hovered,
+              ];
+            }}
           >
-            {onSelect ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t(tab.labelKey)}
-                accessibilityHint={DESCRIPTIONS[tab.key]}
-                accessibilityState={{ selected: activeTab === tab.key }}
-                onPress={() => onSelect(tab.key)}
-                testID={`tool-select-${tab.key}`}
-                style={state => {
-                  const { hovered, pressed } = readInteraction(state);
-                  return [
-                    styles.card,
-                    activeTab === tab.key && styles.selected,
-                    (hovered || pressed) && styles.hovered,
-                  ];
-                }}
-              >
-                {content}
-              </Pressable>
-            ) : (
-              <View style={styles.card}>{content}</View>
-            )}
-          </View>
-        );
-      })}
+            <Icon name={TAB_ICONS[tab.key]} size={22} color={colors.accentStrong} />
+            <Text style={styles.title}>{t(tab.labelKey)}</Text>
+            <Icon
+              name={activeTab === tab.key ? 'check' : 'chevron-forward'}
+              size={18}
+              color={colors.accentStrong}
+            />
+          </Pressable>
+        </View>
+      ))}
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -5 },
   cell: { padding: 5 },
@@ -146,13 +144,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceHover,
     borderColor: colors.accentStrong,
   },
-  icon: {
-    width: 34,
-    height: 38,
-    justifyContent: 'center',
-    alignItems: 'center',
+  group: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    backgroundColor: colors.surface,
   },
-  copy: { flex: 1, gap: 3, minWidth: 0 },
-  title: { ...typography.bodyStrong, color: colors.textPrimary },
-  description: { ...typography.caption, color: colors.textSecondary },
+  groupTitle: {
+    ...typography.heading,
+    color: colors.accentStrong,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
+  directoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 6,
+  },
+  directoryLabel: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
+  title: { ...typography.bodyStrong, color: colors.textPrimary, flex: 1 },
 });

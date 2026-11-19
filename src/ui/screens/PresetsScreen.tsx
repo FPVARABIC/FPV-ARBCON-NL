@@ -71,11 +71,11 @@ const CATEGORY_LABEL: Record<FirmwarePresetCategory, string> = {
   OSD: 'OSD',
   VTX: 'VTX',
   LEDS: 'LEDs',
-  MODES: 'Modes',
+  MODES: 'Vliegmodi',
   FILTERS: 'Filters',
   RC_LINK: 'RC Link',
   BNF: 'BNF',
-  OTHER: 'Other',
+  OTHER: 'Overig',
 };
 /**
  * The catalogue's provenance words, in Arabic. They used to render raw
@@ -85,9 +85,9 @@ const CATEGORY_LABEL: Record<FirmwarePresetCategory, string> = {
  * different from the other two, not to be a grey pill in another language.
  */
 const STATUS_LABEL: Record<FirmwarePresetStatus, string> = {
-  OFFICIAL: 'Officiële.',
-  COMMUNITY: 'Van de gemeenschap.',
-  EXPERIMENTAL: 'Experimental.',
+  OFFICIAL: 'Officieel',
+  COMMUNITY: 'Community',
+  EXPERIMENTAL: 'Experimenteel',
 };
 const ALL_CATEGORIES: readonly FirmwarePresetCategory[] = [
   'TUNE',
@@ -133,7 +133,7 @@ export default function PresetsScreen({
   const [batch, setBatch] = useState<CliBatchResult>();
   const [cliOpen, setCliOpen] = useState(false);
   const [status, setStatus] = useState(
-    'Laad de officiële index op en kies een geschikt pakket.',
+    'Kies een preset voor de aangesloten vluchtcontroller.',
   );
   const setBusy = useCallback(
     (busy: boolean) => onCliBusyChange(busy),
@@ -180,8 +180,8 @@ export default function PresetsScreen({
           : '';
       setStatus(
         compatible.length
-          ? `We hebben een ${compatible.length} pakket gevonden dat overeenkomt met ${version.versionString}. ${dropped}.`
-          : `Er zijn geen pakketten in de officiële versie van ${version.versionString}.${dropped}.`,
+          ? `Compatibele presets voor ${version.versionString}: ${compatible.length}.${dropped}`
+          : `Voor firmware ${version.versionString} zijn geen pakketten gevonden.${dropped}`,
       );
     } catch (error) {
       if (isStale()) return;
@@ -223,7 +223,7 @@ export default function PresetsScreen({
     setFirmwareVersion(undefined);
     setSelected(undefined);
     setLoaded(undefined);
-    setStatus('Laad de officiële index op en kies een geschikt pakket.');
+    setStatus('Kies een preset voor de aangesloten vluchtcontroller.');
     loadCatalog().catch(() => undefined);
   }, [active, loadCatalog, sessionKey]);
   useEffect(
@@ -264,7 +264,7 @@ export default function PresetsScreen({
           ),
         );
         setStatus(
-          'De vingerafdruk is gecontroleerd. Bekijk de beschrijving en keuzes voordat u de aanvraag indient.',
+          'Bestand gecontroleerd. Bekijk de opties en opdrachten voordat je de preset toepast.',
         );
       } catch (error) {
         setFailure(errorText(error));
@@ -300,7 +300,7 @@ export default function PresetsScreen({
     if (!sessionKey) return;
     setBusy(true);
     setFailure(undefined);
-    setStatus('Het maken van een diff all versie van de controller...');
+    setStatus('Configuratieback-up maken met diff all…');
     try {
       await cli.begin(sessionKey);
       const backup = await cli.captureDiffAll();
@@ -308,11 +308,11 @@ export default function PresetsScreen({
         `fpv-arbcon-backup-${firmwareVersion ?? 'unknown'}.txt`,
         backup,
       );
-      if (!saved) throw new Error('Het back-up is nog niet voltooid.');
+      if (!saved) throw new Error('De back-up is niet opgeslagen.');
       await cli.exitWithoutSave();
       setBackupReady(true);
       setStatus(
-        'diff all. is opgeslagen. Je kunt het pakket nu tijdelijk toepassen.',
+        'Back-up opgeslagen. Je kunt de preset nu tijdelijk toepassen.',
       );
     } catch (error) {
       await cli.exitWithoutSave().catch(() => undefined);
@@ -327,7 +327,7 @@ export default function PresetsScreen({
     setFailure(undefined);
     setBatch(undefined);
     setProgress({ done: 0, total: commands.length });
-    setStatus('Bevelen toepassen binnen CLI zonder save...');
+    setStatus('CLI-opdrachten uitvoeren…');
     try {
       await cli.begin(sessionKey);
       setCliOpen(true);
@@ -337,8 +337,8 @@ export default function PresetsScreen({
       setBatch(result);
       setStatus(
         result.errors.length
-          ? `Ze is aangekomen. ${result.errors.length} Fouten. CLI. Opslaan is geblokkeerd; Ga weg zonder te behouden.`
-          : 'De tijdelijke applicatie is foutloos afgerond. Controleer het resultaat en dan save of exit without saving.',
+          ? `CLI-fouten: ${result.errors.length}. Sluit af zonder op te slaan.`
+          : 'Preset tijdelijk toegepast. Controleer het resultaat en kies of je de wijzigingen wilt opslaan.',
       );
     } catch (error) {
       setCliOpen(false);
@@ -350,14 +350,12 @@ export default function PresetsScreen({
     if (!loaded) return;
     const warning = loaded.completeWarning.trim();
     Alert.alert(
-      'Preset app is tijdelijk.',
-      `${warning ? `${warning}\n\n` : ''} Hij zal worden gestuurd. ${
-        commands.length
-      } Een bevel aan mij. CLI Don. save. Houd propellers gescheiden.`,
+      'Preset tijdelijk toepassen?',
+      `${warning ? `${warning}\n\n` : ''}De vluchtcontroller voert ${commands.length} CLI-opdrachten uit. Opslaan volgt pas na bevestiging. Verwijder eerst de propellers.`,
       [
         { text: 'Annuleren', style: 'cancel' },
         {
-          text: 'Een tijdelijke toepassing',
+          text: 'Tijdelijk toepassen',
           style: 'destructive',
           onPress: () => applyNow().catch(() => undefined),
         },
@@ -368,7 +366,7 @@ export default function PresetsScreen({
     try {
       await cli.exitWithoutSave();
       setStatus(
-        'Ik kwam uit CLI zonder save; Het pakket is nog niet bevestigd.',
+        'CLI afgesloten zonder op te slaan.',
       );
     } catch (error) {
       setFailure(errorText(error));
@@ -381,7 +379,7 @@ export default function PresetsScreen({
     try {
       await cli.saveAndClose();
       setStatus(
-        'Stuur save en zet de controller weer op. Bel me terug als het niet meer automatisch is.',
+        'Opslagopdracht verzonden. Verbind opnieuw zodra de vluchtcontroller is herstart.',
       );
       setBackupReady(false);
     } catch (error) {
@@ -405,9 +403,6 @@ export default function PresetsScreen({
             <Text style={styles.identity}>
               Firmware: {firmwareVersion ?? '—'}
             </Text>
-            <Text style={styles.identity}>
-              {'De officiële pakkettenruimte.'}
-            </Text>
           </WorkbenchBlock>
         </WorkbenchBlock>
         {failure ? (
@@ -419,7 +414,8 @@ export default function PresetsScreen({
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder={'Zoek naar de naam, de auteur of het woord.'}
+            accessibilityLabel="Presets zoeken"
+            placeholder="Zoek op naam, auteur of trefwoord"
             placeholderTextColor={colors.textMuted}
             style={styles.search}
             editable={!cliOpen}
@@ -431,7 +427,7 @@ export default function PresetsScreen({
             disabled={loading || cliOpen}
           >
             <Text style={styles.reloadText}>
-              {loading ? 'Loading...' : 'Update van de index'}
+              {loading ? 'Laden…' : 'Lijst vernieuwen'}
             </Text>
           </Pressable>
         </WorkbenchBlock>
@@ -487,7 +483,7 @@ export default function PresetsScreen({
                 </WorkbenchBlock>
                 <Text style={styles.presetTitle}>{preset.title}</Text>
                 <Text style={styles.meta}>
-                  {preset.author ?? 'De samenleving van verpakkingen.'} ·{' '}
+                  {preset.author ? `${preset.author} · ` : ''}
                   {preset.firmwareVersions.join(', ')}
                 </Text>
               </Pressable>
@@ -495,18 +491,18 @@ export default function PresetsScreen({
           </WorkbenchBlock>
           <WorkbenchBlock style={styles.detail} section="detail">
             <Text style={styles.sectionTitle}>
-              {'Reviews voor de aanvraag'}
+              {'Wijzigingen bekijken'}
             </Text>
             {detailsLoading ? (
               <Text style={styles.hint}>
                 {
-                  'Het downloaden van het dossier en het testen van zijn vingerafdrukken...'
+                  'Preset downloaden en bestand controleren…'
                 }
               </Text>
             ) : null}
             {!loaded ? (
               <Text style={styles.hint}>
-                {'Kies Preset uit de lijst om te zien wat er verandert.'}
+                {'Selecteer een preset om de opties en wijzigingen te bekijken.'}
               </Text>
             ) : (
               <>
@@ -580,7 +576,7 @@ export default function PresetsScreen({
                 >
                   <Text style={styles.commandCount}>{commands.length}</Text>
                   <Text style={styles.hint}>
-                    {'CLI na de opties en INCLUDE.'}
+                    {'CLI-opdrachten voor de geselecteerde opties'}
                   </Text>
                 </WorkbenchBlock>
                 <Pressable
@@ -592,7 +588,7 @@ export default function PresetsScreen({
                   <Text style={styles.primaryText}>
                     {backupReady
                       ? 'diff all is opgeslagen.'
-                      : '1 · diff all maken en bewaren'}
+                      : 'Back-up opslaan (diff all)'}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -606,7 +602,7 @@ export default function PresetsScreen({
                   onPress={confirmApply}
                 >
                   <Text style={styles.applyText}>
-                    {'2 wordt tijdelijk zonder save toegepast.'}
+                    {'Preset tijdelijk toepassen'}
                   </Text>
                 </Pressable>
               </>
@@ -639,8 +635,8 @@ export default function PresetsScreen({
           >
             <Text style={styles.decisionTitle}>
               {batch?.errors.length
-                ? 'CLI-fouten  —  Bewaring verboden'
-                : 'Het pakket is tijdelijk.'}
+                ? 'Opslaan geblokkeerd door CLI-fouten'
+                : 'Preset tijdelijk actief'}
             </Text>
             {batch?.errors.map((item, index) => (
               <Text key={index} style={styles.cliError}>
@@ -658,7 +654,7 @@ export default function PresetsScreen({
                 onPress={() => closeWithoutSave().catch(() => undefined)}
               >
                 <Text style={styles.cancelText}>
-                  {'Afzeggen en uitgaan zonder te behouden.'}
+                  {'Afsluiten zonder opslaan'}
                 </Text>
               </Pressable>
               <Pressable
@@ -683,7 +679,7 @@ export default function PresetsScreen({
         <Text style={styles.hardware}>
           {t('hardwareVerification.behaviourTitle')}{' '}
           {
-            'Een geslaagde CLI-overdracht bewijst de kwaliteit van de afstelling of de vliegveiligheid niet. test op de werkbank zonder propellers.'
+            'Controleer de afstelling met een test op de werkbank zonder propellers.'
           }
         </Text>
       </WorkbenchScrollView>
@@ -752,9 +748,13 @@ const styles = StyleSheet.create({
     color: colors.error,
     writingDirection: 'ltr',
   },
-  toolbar: { flexDirection: 'row', gap: spacing.sm },
+  toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   search: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 190,
+    minWidth: 0,
+    maxWidth: '100%',
     minHeight: 46,
     borderWidth: 1,
     borderColor: colors.borderSoft,
@@ -803,10 +803,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     alignItems: 'flex-start',
   },
-  list: { flexGrow: 1, flexBasis: 340, gap: spacing.sm },
+  list: { flexGrow: 1, flexShrink: 1, flexBasis: 340, maxWidth: '100%', gap: spacing.sm },
   detail: {
     flexGrow: 2,
+    flexShrink: 1,
     flexBasis: 480,
+    maxWidth: '100%',
     padding: spacing.lg,
     borderRadius: radii.lg,
     backgroundColor: colors.surface,

@@ -73,7 +73,7 @@ import {
 import type {RootStackParamList} from './src/navigation/types';
 import {WebAlertHost, installWebAlert} from './src/platforms/web/webAlert';
 import {WebCompatibilityNotice} from './src/platforms/web/WebCompatibilityNotice';
-import {colors} from './src/ui/theme';
+import {colors, fonts} from './src/ui/theme';
 
 /**
  * True only in the GitHub Pages preview build, which sets
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundRaised,
   },
   fallbackText: {
-    fontFamily: 'Cairo',
+    fontFamily: fonts.family,
     fontSize: 14,
     lineHeight: 22,
     color: colors.textSecondary,

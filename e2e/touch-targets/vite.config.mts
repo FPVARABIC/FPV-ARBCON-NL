@@ -47,7 +47,7 @@ export default defineConfig({
   build: {
     outDir: `${HERE}dist`,
     emptyOutDir: true,
-    rollupOptions: {input: {fixture: `${HERE}index.html`}},
+    rollupOptions: {input: {widths: `${HERE}widths.html`, fixture: `${HERE}index.html`}},
     sourcemap: false,
     target: 'es2022',
   },

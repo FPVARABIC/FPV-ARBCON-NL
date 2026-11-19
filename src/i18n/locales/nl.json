@@ -1046,7 +1046,7 @@
     "vtx": "Videozender",
     "sensors": "Sensoren",
     "presets": "Presets",
-    "cli": "Opdrachtregel",
+    "cli": "Opdrachtregel (CLI)",
     "unavailable": "Nog niet beschikbaar",
     "barAccessibilityLabel": "Hoofdnavigatie",
     "blackbox": "Vluchtregistratie",

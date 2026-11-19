@@ -710,10 +710,11 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     gap: spacing.md,
   },
-  headerCopy: { flex: 1, gap: spacing.xs },
+  headerCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 190, maxWidth: '100%', gap: spacing.xs },
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
@@ -731,6 +732,7 @@ const styles = StyleSheet.create({
     maxWidth: PROSE_MEASURE,
   },
   liveBadge: {
+    maxWidth: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
@@ -744,6 +746,7 @@ const styles = StyleSheet.create({
   statusDotIdle: { backgroundColor: colors.textMuted },
   badgeText: {
     ...typography.caption,
+    flexShrink: 1,
     color: colors.textSecondary,
     fontWeight: '700',
     writingDirection: 'ltr',

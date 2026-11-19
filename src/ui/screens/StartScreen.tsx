@@ -44,7 +44,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Start'>;
 function ActionCard({
   title,
   description,
-  bullets,
   label,
   testID,
   icon,
@@ -54,7 +53,6 @@ function ActionCard({
 }: {
   title: string;
   description: string;
-  bullets: readonly string[];
   label: string;
   testID: string;
   icon: IconName;
@@ -64,7 +62,7 @@ function ActionCard({
 }): React.JSX.Element {
   return (
     <WorkbenchBlock
-      style={[styles.actionCard, desktop && styles.actionCardShare]}
+      style={[styles.actionCard, secondary && styles.secondaryCard, desktop && styles.actionCardShare]}
       section="actionCard"
     >
       <WorkbenchBlock style={styles.cardHeading} section="cardHeading">
@@ -74,14 +72,6 @@ function ActionCard({
         <Text style={styles.cardTitle}>{title}</Text>
       </WorkbenchBlock>
       <Text style={styles.body}>{description}</Text>
-      <WorkbenchBlock style={styles.bullets} section="bullets">
-        {bullets.map(item => (
-          <WorkbenchBlock key={item} style={styles.bullet} section="bullet">
-            <Icon name="check" size={17} color={colors.accentStrong} />
-            <Text style={styles.bulletText}>{item}</Text>
-          </WorkbenchBlock>
-        ))}
-      </WorkbenchBlock>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
@@ -160,8 +150,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
               </WorkbenchBlock>
             </WorkbenchBlock>
           ) : null}
-          <Text style={styles.eyebrow}>WERKBANK</Text>
-          <Text style={[styles.heroTitle, desktop && styles.heroTitleDesktop]}>
+          <Text accessibilityRole="header" style={[styles.heroTitle, desktop && styles.heroTitleDesktop]}>
             Vluchtcontroller configureren
           </Text>
         </WorkbenchBlock>
@@ -178,7 +167,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
         />
         <WorkbenchBlock style={styles.sectionHeading} section="sectionHeading">
           <WorkbenchBlock style={styles.sectionCopy} section="sectionCopy">
-            <Text style={styles.sectionTitle}>Verbinding & firmware</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>Verbinding & firmware</Text>
           </WorkbenchBlock>
           <WorkbenchBlock
             style={styles.connectionBadge}
@@ -208,12 +197,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
         >
           <ActionCard
             title="Drone configureren"
-            description="USB · Configuratie en diagnose"
-            bullets={[
-              'Verbinding, kalibratie en bordinformatie',
-              'Motoren, ontvanger en OSD',
-              'GPS, sensoren en CLI',
-            ]}
+            description="Verbinding, kalibratie en bordinformatie"
             label="Vluchtcontroller verbinden"
             testID="start-configure"
             icon="sliders-horizontal"
@@ -223,11 +207,6 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
           <ActionCard
             title="Firmware bijwerken"
             description="Firmware selecteren · Flashen · Herstel"
-            bullets={[
-              'Bord, target en versie selecteren',
-              'Officiële bouwopties of een lokaal bestand',
-              'DFU-flashen en herstelgereedschappen',
-            ]}
             label="Firmware openen"
             testID="start-firmware"
             icon="cpu"
@@ -244,7 +223,6 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
         <WorkbenchBlock style={styles.safety} section="safety">
           <Icon name="shield" size={20} color={colors.accentStrong} />
           <Text style={styles.safetyText}>
-            Instellingen worden pas geschreven na de vereiste controles.
             Verwijder de propellers vóór motortests.
           </Text>
         </WorkbenchBlock>
@@ -255,8 +233,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
           section="container"
         >
           <WorkbenchBlock style={styles.sectionCopy} section="sectionCopy">
-            <Text style={styles.eyebrow}>ALLE GEREEDSCHAPPEN</Text>
-            <Text style={styles.sectionTitle}>Configuratieonderdelen</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>Configuratieonderdelen</Text>
           </WorkbenchBlock>
           <ToolDirectory />
         </WorkbenchBlock>
@@ -271,8 +248,7 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
           section="guide"
         >
           <WorkbenchBlock style={styles.guideCopy} section="guideCopy">
-            <Text style={styles.eyebrow}>VLIEGSTIJLGIDSEN</Text>
-            <Text style={styles.sectionTitle}>Vliegstijl & afstelling</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>Vliegstijl & afstelling</Text>
 
             <Text style={styles.caption}>
               Cinematic · Freestyle · Racing · Tiny Whoop · Long Range
@@ -300,12 +276,6 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
             />
           </Pressable>
         </WorkbenchBlock>
-        <WorkbenchBlock style={styles.footer} section="footer">
-          <Text style={styles.footerName}>{BRAND_PRODUCT_NAME}</Text>
-          <Text style={styles.caption}>
-            Nederlandse editie · Configuratie, firmware en diagnose
-          </Text>
-        </WorkbenchBlock>
       </WorkbenchBlock>
       <HomeConnectPicker phase={phase} onChoose={choose} onDismiss={dismiss} />
     </WorkbenchScrollView>
@@ -319,7 +289,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.lg,
     gap: spacing.lg,
   },
   heroBand: {
@@ -340,13 +310,6 @@ const styles = StyleSheet.create({
   },
   brandCopy: { flex: 1, minWidth: 0 },
   brandName: { ...typography.title, color: colors.textPrimary },
-  eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  goldRule: { height: 3, width: 26, backgroundColor: colors.accent },
-  eyebrow: {
-    ...typography.eyebrow,
-    color: colors.accentStrong,
-    letterSpacing: 1.3,
-  },
   heroTitle: {
     ...typography.display,
     fontSize: 26,
@@ -355,16 +318,6 @@ const styles = StyleSheet.create({
     maxWidth: 960,
   },
   heroTitleDesktop: { fontSize: 32, lineHeight: 40 },
-  intro: {
-    ...typography.body,
-    fontSize: 17,
-    lineHeight: 28,
-    color: colors.textSecondary,
-    maxWidth: 700,
-  },
-  heroMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  metaText: { ...typography.caption, color: colors.textSecondary },
   sectionHeading: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -397,12 +350,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
-    borderTopColor: colors.accent,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.accent,
     borderRadius: radii.lg,
     backgroundColor: colors.surface,
-    padding: spacing.xl,
+    padding: spacing.lg,
     gap: spacing.md,
   },
+  secondaryCard: { borderLeftColor: colors.borderStrong },
   actionCardShare: { flexGrow: 1, flexShrink: 1, flexBasis: 0 },
   cardHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   cardIcon: {
@@ -414,9 +369,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   cardTitle: { ...typography.title, color: colors.textPrimary, flexShrink: 1 },
-  bullets: { gap: spacing.sm, paddingVertical: spacing.sm, flexGrow: 1 },
-  bullet: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  bulletText: { ...typography.body, color: colors.textSecondary, flex: 1 },
   action: {
     alignSelf: 'flex-start',
     minHeight: 48,
@@ -472,11 +424,4 @@ const styles = StyleSheet.create({
   },
   guideRow: { flexDirection: 'row', alignItems: 'center' },
   guideCopy: { flex: 1, gap: spacing.sm },
-  footer: {
-    borderTopWidth: 1,
-    borderTopColor: colors.borderSoft,
-    paddingTop: spacing.xl,
-    gap: 3,
-  },
-  footerName: { ...typography.label, color: colors.textPrimary },
 });

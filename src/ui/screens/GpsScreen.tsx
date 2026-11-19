@@ -1233,7 +1233,7 @@ const styles = StyleSheet.create({
   oneColumn: { flexDirection: 'column' },
   columnCard: { flex: 1 },
   metricGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.md },
-  metric: { width: '50%', padding: spacing.sm, minWidth: 120 },
+  metric: { width: '50%', flexShrink: 1, padding: spacing.sm, minWidth: 0 },
   metricLabel: { ...typography.caption, color: colors.textSecondary },
   metricValue: {
     ...typography.title,

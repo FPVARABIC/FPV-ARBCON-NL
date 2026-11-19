@@ -838,7 +838,7 @@ const styles = StyleSheet.create({
   },
   fieldsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   field: { flexGrow: 1, flexBasis: 170, gap: 5 },
-  sourceField: { flexGrow: 1, flexBasis: 300, gap: 5 },
+  sourceField: { flexGrow: 1, flexShrink: 1, flexBasis: 300, maxWidth: '100%', gap: 5 },
   fieldLabel: {
     ...typography.label,
     color: colors.textPrimary,

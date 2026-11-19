@@ -20,7 +20,7 @@
  */
 
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import {colors, radii, spacing, typography} from '../../theme';
@@ -60,17 +60,11 @@ export default function SideNavigationRail({
       accessibilityLabel={t('tabs.barAccessibilityLabel')}
       testID="main-side-rail"
     >
-      {/* ENTRY CLEANUP: the hand-drawn 'F' lettermark that stood in for
-          a real brand mark is GONE. The official logo now lives where
-          the brand brief puts it - the persistent web top chrome
-          (BrandTopChrome) and the Android Start screen - and repeating
-          an emblem here would stack two marks in the same corner. The
-          rail keeps the textual identity only. */}
-      <View style={styles.brand} testID="main-side-rail-brand">
-        <View style={styles.brandCopy}>
+      {Platform.OS !== 'web' ? (
+        <View style={styles.brand} testID="main-side-rail-brand">
           <Text style={styles.brandName}>fiercon</Text>
         </View>
-      </View>
+      ) : null}
       {header !== undefined ? (
         <View style={styles.header} testID="main-side-rail-header">
           {header}
@@ -94,6 +88,7 @@ export default function SideNavigationRail({
               onPress={() => onSelectTab(tab.key)}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive, disabled: false }}
+              aria-selected={isActive}
               style={state => {
                 const { pressed, hovered } = readInteraction(state);
                 return [
@@ -148,7 +143,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSoft,
   },
-  brandCopy: { flex: 1 },
   brandName: {
     ...typography.title,
     color: colors.accentStrong,

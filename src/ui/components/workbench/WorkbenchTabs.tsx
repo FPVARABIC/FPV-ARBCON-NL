@@ -19,6 +19,7 @@ export function WorkbenchTabs<K extends string>({
           key={item.key}
           accessibilityRole="tab"
           accessibilityState={{ selected: selected === item.key }}
+          aria-selected={selected === item.key}
           onPress={() => onSelect(item.key)}
           testID={`${testID}-${item.key}`}
           style={[styles.tab, selected === item.key && styles.active]}

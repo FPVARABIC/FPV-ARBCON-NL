@@ -377,16 +377,20 @@ function readChunks() {
  * Identified from the HTML rather than by filename convention, so a
  * change in Vite's naming cannot silently make category D vacuous.
  */
-function findEntryChunk(chunks) {
-  const html = readFileSync(join(OUTPUT_DIRECTORY, 'index.html'), 'utf8');
-  const match = html.match(/<script[^>]+src="\/assets\/([^"]+\.js)"/);
-  if (!match) {
-    throw new Error('Could not identify the entry chunk from index.html.');
+function findEntryChunk(chunks, html, publicBase) {
+  const moduleTag = html.match(/<script\b(?=[^>]*\btype=["']module["'])[^>]*\bsrc=["']([^"']+)["']/i);
+  if (!moduleTag) throw new Error('No module entry in index.html.');
+  // Compare browser URLs to the configured deployment directory, then look
+  // up the emitted chunk by name. Pages serves the project in a subdirectory.
+  const base = new URL(publicBase.replace(/\/?$/, '/'), 'https://build.invalid/');
+  const resolved = new URL(moduleTag[1], base);
+  const assets = new URL('assets/', base);
+  if (resolved.origin !== assets.origin || !resolved.pathname.startsWith(assets.pathname)) {
+    throw new Error('Module entry outside the published assets directory: ' + moduleTag[1]);
   }
-  const entry = chunks.find(chunk => chunk.name === match[1]);
-  if (!entry) {
-    throw new Error(`index.html references a missing chunk: ${match[1]}.`);
-  }
+  const name = resolved.pathname.slice(assets.pathname.length);
+  const entry = chunks.find(chunk => chunk.name === name);
+  if (!entry) throw new Error('index.html references a missing chunk: ' + name);
   return entry;
 }
 
@@ -397,7 +401,7 @@ function main() {
     console.log('Building the production web bundle...');
     buildBundle();
     chunks = readChunks();
-    entry = findEntryChunk(chunks);
+    entry = findEntryChunk(chunks, readFileSync(join(OUTPUT_DIRECTORY, 'index.html'), 'utf8'), process.env.FPV_ARBCON_WEB_BASE ?? '/');
   } catch (error) {
     console.error('FAILED to build or read the production web bundle.');
     console.error(error && error.message ? error.message : String(error));
@@ -515,6 +519,7 @@ function main() {
 }
 
 module.exports = {
+  findEntryChunk,
   analyzeHtmlShell,
   analyzeWebBundle,
   REQUIRED_HTML_RULES,

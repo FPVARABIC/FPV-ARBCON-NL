@@ -80,9 +80,8 @@ html,body,input,button,select,textarea{font-family:Lato,Arial,sans-serif}
  [data-workbench=Sensors] [data-wb=traceCards]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px!important}
  [data-workbench=Blackbox]>div{grid-template-columns:1fr 1fr}
  [data-workbench=Blackbox] [data-wb=storageCard]{min-height:240px}
- [data-workbench=Presets]>div{grid-template-columns:340px minmax(0,1fr)}
- [data-workbench=Presets] [data-wb=filters]{grid-column:1;grid-row:span 3}
- [data-workbench=Presets] [data-wb=list]{grid-column:2}
+ [data-workbench=Presets] [data-wb=workspace]{display:grid;grid-template-columns:minmax(250px,2fr) minmax(0,3fr);gap:20px;align-items:start}
+ [data-workbench=Presets] [data-wb=workspace]>*{min-width:0;width:100%}
  [data-workbench=Cli]>div{grid-template-columns:minmax(0,4fr) minmax(250px,1fr)}
  [data-workbench=Cli] [data-wb=terminalCard]{grid-column:1;grid-row:span 3;min-height:560px}
  [data-workbench=Cli] [data-wb=quickCard]{grid-column:2}
@@ -130,6 +129,7 @@ html,body,input,button,select,textarea{font-family:Lato,Arial,sans-serif}
 }
 [data-workbench]>div{align-items:flex-start!important}
 [data-workbench]>div>*{width:100%}
+[data-workbench=Setup]>div>*{width:auto;align-self:stretch}
 [data-workbench]>div>*{min-width:0;max-width:100%}
 @media(min-width:1056px){
  [data-workbench=PidTuning]>div>*{width:100%!important;align-self:flex-start!important}
@@ -169,7 +169,7 @@ html,body,input,button,select,textarea{font-family:Lato,Arial,sans-serif}
  [data-notice=hardware] [dir],[data-wb=hardwareNotice]>[dir]{font-size:13px!important;line-height:19px!important;color:#cbd5e5!important}
  [data-wb=hardwareNotice]{flex-direction:row!important;flex-wrap:wrap;column-gap:12px!important}
 }
-@media(min-width:1440px){[data-workbench=Gps] [data-wb=metricGrid]{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px!important}[data-workbench=Gps] [data-wb=metric]{min-width:0!important;flex-basis:auto!important}}
+@media(min-width:1440px){[data-workbench=Gps] [data-wb=metricGrid]{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px!important}[data-workbench=Gps] [data-wb=metricGrid]>[data-wb=metric]{width:auto;min-width:0!important;flex-basis:auto!important}}
 
 [data-wb=gpsTelemetry]>[data-wb=card]{width:100%!important;flex:0 0 auto!important;min-width:0!important}
 @media(min-width:1056px){
@@ -177,6 +177,7 @@ html,body,input,button,select,textarea{font-family:Lato,Arial,sans-serif}
  [data-wb=osdEditorTools]{display:flex!important;flex-direction:column!important;gap:20px!important}
  [data-workbench=Osd] [data-wb=osdPreviewWorkspace]{grid-column:1;grid-row:auto!important}
 }
-[data-workbench=Gps] [data-wb=metric]{width:100%!important;min-width:0!important}
+[data-workbench=Gps] [data-wb=metricGrid]>[data-wb=metric]{min-width:0}
+@media(max-width:420px){[data-workbench=Gps] [data-wb=coordinateRow]{flex-direction:column}[data-workbench=Gps] [data-wb=coordinateRow]>[data-wb=metric]{width:100%}}
 [data-wb=osdEditorTools]>[data-wb=card]{width:100%!important}
 [data-workbench] [data-wb-panel=true]>[data-wb=numericField]{flex:0 0 auto!important;min-width:0!important;width:100%}

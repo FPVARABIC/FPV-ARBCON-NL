@@ -447,7 +447,7 @@ export default function VideoTransmitterScreen({
         {draft !== undefined && snapshot !== undefined ? (
           <>
             <WorkbenchBlock style={styles.status} section="status">
-              <View>
+              <View style={styles.deviceSummary}>
                 <Text style={styles.sectionTitle}>
                   {vtxDeviceName(snapshot.config.deviceType)}
                 </Text>
@@ -807,8 +807,11 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.md,
   },
+  deviceSummary: { flexGrow: 1, flexShrink: 1, flexBasis: 200, maxWidth: '100%' },
   status: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.surface,

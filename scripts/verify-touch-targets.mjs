@@ -92,7 +92,7 @@ const EXPECTED = {
   ],
   presets: [
     "Alles", 'Tune', 'Rates', 'Filters', 'RC Link',
-    'Modes', 'OSD', 'VTX', 'LEDs', 'BNF', 'Other',
+    'Vliegmodi', 'OSD', 'VTX', 'LEDs', 'BNF', 'Overig',
   ],
   choice: [
     'choice-enabled-online', 'choice-enabled-local',

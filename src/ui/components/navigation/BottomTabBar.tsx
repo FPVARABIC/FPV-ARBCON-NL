@@ -90,6 +90,7 @@ export default function BottomTabBar({
               onPress={() => onSelectTab(tab.key)}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive, disabled: false }}
+              aria-selected={isActive}
               style={state => {
                 const { pressed, hovered } = readInteraction(state);
                 return [

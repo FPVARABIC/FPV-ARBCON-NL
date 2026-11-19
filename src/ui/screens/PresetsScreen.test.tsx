@@ -196,8 +196,8 @@ describe('PresetsScreen', () => {
     ReactTestRenderer.act(() => renderer.unmount());
   });
 
-  it('names the catalogue provenance in Arabic, never as a raw identifier', () => {
-    // OFFICIAL / COMMUNITY / EXPERIMENTAL used to render verbatim on an Arabic
+  it('uses Dutch labels for catalogue provenance', () => {
+    // OFFICIAL / COMMUNITY / EXPERIMENTAL used to render verbatim on the
     // screen. EXPERIMENTAL in particular is a safety signal about a tune that
     // gets written to a flight controller, so it has to read as one.
     const fs = require('fs') as typeof import('fs');
@@ -206,8 +206,8 @@ describe('PresetsScreen', () => {
 
     expect(screen).toContain('STATUS_LABEL');
     expect(screen).not.toContain('{preset.status}');
-    for (const arabic of ["Officiële.", "Van de gemeenschap.", "Experimental."])
-      expect(screen).toContain(arabic);
+    for (const label of ['Officieel', 'Community', 'Experimenteel'])
+      expect(screen).toContain(label);
   });
 
   it('tells the operator when catalogue entries were refused, rather than showing a shorter list', async () => {
