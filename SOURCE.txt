@@ -1,0 +1,3 @@
+fiercon — GPL-3.0-or-later
+Complete corresponding source, build instructions and third-party notices:
+https://github.com/FPVARABIC/FPV-ARBCON-NL/tree/3f28aeeb45a28351bda03f35fdc1e7ba717cac6e

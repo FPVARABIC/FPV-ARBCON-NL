@@ -1,0 +1,1 @@
+import{n as e}from"./react-vendor-BM8O_LXT.js";import{g as t,y as n}from"./interaction-DwAnu7o0.js";function r(r){let{width:i,fontScale:a}=e(),o=n(i,a);return{tier:o,maxWidth:t(o,r)}}export{r as t};

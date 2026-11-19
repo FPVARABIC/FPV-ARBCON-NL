@@ -2,8 +2,9 @@
   "product": "fiercon",
   "edition": "nl",
   "repository": "FPVARABIC/FPV-ARBCON-NL",
-  "application_source_commit": "3a1e45da6625c1cf508a9791f06878cedcadbeca",
+  "application_source_commit": "3f28aeeb45a28351bda03f35fdc1e7ba717cac6e",
   "public_url": "https://fpvarabic.github.io/FPV-ARBCON-NL/",
-  "interface": "compact-workspaces-and-refined-shared-3d",
-  "sourcemaps": false
+  "interface": "betaflight-workspaces",
+  "sourcemaps": false,
+  "entry": "/FPV-ARBCON-NL/assets/index-DSAzDVi3.js"
 }
