@@ -164,6 +164,8 @@ export type DroneSceneRotor = {
 export type DroneSceneSilhouette = 'ROTARY' | 'WING' | 'PLANE';
 
 export type DroneSceneAirframe = {
+  /** Verified mixer identity, retained only to select its matching mesh. */
+  readonly mixerModeRaw?: number;
   readonly rotors: readonly DroneSceneRotor[];
   readonly silhouette: DroneSceneSilhouette;
 };

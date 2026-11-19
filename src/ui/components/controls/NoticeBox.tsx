@@ -22,7 +22,7 @@
  * only the language it speaks has changed. See docs/DESIGN_SYSTEM.md.
  */
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View} from 'react-native';
 
 import {Icon} from '../../icons';
 import type {IconName} from '../../icons';
@@ -103,6 +103,7 @@ export function NoticeBox({
   return (
     <View
       style={[styles.box, {backgroundColor: spec.bg, borderColor: spec.border}]}
+      {...(Platform.OS==='web'?{dataSet:{notice:variant}}:{})}
       accessibilityRole={variant === 'danger' ? 'alert' : undefined}
       testID={testID}>
       <View style={styles.iconSlot}>

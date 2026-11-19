@@ -1,0 +1,182 @@
+/* Layout structure adapted from Betaflight UiBox/SettingRow/tab sources, GPL-3.0-or-later.
+   fiercon adaptation: shared native owners, navy/gold palette, responsive grids. */
+:root{color-scheme:dark;--fc-bg:#11151e;--fc-panel:#1b2230;--fc-line:#323e52;--fc-gold:#f4b917}
+html,body,input,button,select,textarea{font-family:Lato,Arial,sans-serif}
+[data-workbench]{background:var(--fc-bg)}
+[data-workbench]>div{max-width:none!important;width:100%!important;align-self:stretch!important;min-width:0}
+[data-wb-panel=true]{box-shadow:none!important;min-width:0;position:relative}
+[data-wb-heading=true]{grid-column:1/-1!important;border-radius:0!important;box-shadow:none!important;min-height:48px}
+[data-workbench] input,[data-workbench] select{font-variant-numeric:tabular-nums;font-size:14px}
+[data-workbench] [data-wb=fieldsRow],[data-workbench] [data-wb=fields]{gap:12px!important}
+[data-workbench] [data-wb=fields]>[data-wb=field],[data-workbench] [data-wb=fieldsRow]>[data-wb=field]{min-width:140px!important;flex-basis:170px!important;flex-grow:1;max-width:290px}
+[data-workbench] [data-wb=sliderRow]{padding:8px 0!important;border-bottom:1px solid var(--fc-line)}
+[data-workbench] [data-wb=sectionHint]{max-width:65ch}
+.fc-select-field{display:flex;flex-direction:column;gap:6px;min-width:0;width:100%;font-size:14px;color:#cbd5e5;font-weight:600}
+.fc-select-field select{width:100%;height:44px;min-width:0;padding:0 32px 0 10px;border:1px solid #45516a;border-radius:4px;background:#141a25;color:#f3f6fc;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23cbd5e5' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;outline:none}
+.fc-select-field select:focus{border-color:var(--fc-gold);box-shadow:0 0 0 2px #f4b91733}.fc-select-field select:disabled{opacity:.55}.fc-field-help{font-size:13px;color:#a3afc2;font-weight:400}
+[data-testid=main-side-rail]{background:#151a25!important;width:200px!important;border-right:1px solid #323e52!important}
+[data-testid=main-side-rail-brand]{background:none!important;border:0!important;padding:4px 10px!important}
+[data-testid^=main-rail-]{border-radius:4px!important}
+[data-testid=setup-chrome-bar]{border-bottom:1px solid var(--fc-gold)!important;background:var(--fc-bg)!important}
+[data-testid=brand-top-chrome]{background:#121722!important}
+[data-testid^=orientation-hero] canvas{touch-action:none}
+@media(min-width:1056px){
+ [data-workbench]>div{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px!important;align-content:start;align-items:start}
+ [data-workbench]>div>*{grid-column:1/-1;min-width:0}
+ [data-workbench]>div>[data-wb-panel=true]{grid-column:auto}
+ [data-workbench]>div>[data-wb=columns],[data-workbench]>div>[data-wb=twoColumn]{display:contents!important}
+ [data-workbench]>div>[data-wb=columns]>*,[data-workbench]>div>[data-wb=twoColumn]>*{grid-column:auto;min-width:0}
+ [data-workbench=Setup]>div{display:flex!important;gap:10px!important;padding-top:8px!important}
+ [data-workbench=Start]>div{display:flex!important;padding:0!important;gap:0!important}
+ [data-workbench=Start] [data-wb=heroBand]{width:100%}
+ [data-workbench=Gps]>div{grid-template-columns:minmax(300px,2fr) minmax(420px,3fr)}
+ [data-testid=gps-port-integration]{grid-column:1/-1!important}
+ [data-testid=gps-configuration-panel]{grid-column:1!important;grid-row:span 2;order:1}
+ [data-workbench=Gps]>div>[data-wb=twoColumn]{display:flex!important;flex-direction:column!important;grid-column:2;order:2}
+ [data-testid=gps-satellite-panel]{grid-column:1!important;order:3;max-height:520px;overflow-y:auto}
+ [data-workbench=Gps] [data-wb=satellite]{padding:8px!important}
+ [data-workbench=Ports]>div{display:flex!important;gap:12px!important}
+ [data-workbench=Ports] [data-wb=portCard]{display:grid!important;grid-template-columns:100px 110px 110px repeat(3,minmax(0,1fr));gap:12px!important;align-items:start;padding:14px!important;margin:0!important}
+ [data-workbench=Ports] [data-wb=roleColumns]{display:contents!important}
+ [data-workbench=Ports] [data-wb=roleColumn]{grid-row:1;min-width:0}
+ [data-workbench=Ports] [data-wb=roleColumn]:nth-child(1){grid-column:4}
+ [data-workbench=Ports] [data-wb=roleColumn]:nth-child(2){grid-column:5}
+ [data-workbench=Ports] [data-wb=roleColumn]:nth-child(3){grid-column:6}
+ [data-workbench=Ports] [data-wb=primaryControls]{grid-column:2;grid-row:1;flex-direction:column!important;gap:8px!important}
+ [data-workbench=Ports] [data-wb=portCard]>[data-wb=baudSection]{grid-column:3;grid-row:1}
+ [data-workbench=Ports] [data-wb=portCard]>[dir]{grid-column:1/-1}
+ [data-workbench=Ports] [data-wb=portHeaderStatus]{display:none!important}
+ [data-workbench=Ports] [data-wb=portHeader]{grid-column:1;grid-row:1}
+ [data-workbench=Ports] [data-wb=controlGroup]>div:first-child{display:none}
+ [data-workbench=Ports] [data-wb=summaryCard]{display:flex!important;flex-direction:row!important;gap:30px!important}
+ [data-workbench=Motors]>div{display:flex!important;gap:12px!important}
+ [data-testid=motors-primary-workspace]{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px!important}
+ [data-testid=motors-airframe-column],[data-testid=motors-control-column]{width:100%!important;min-width:0}
+ [data-testid=motors-primary-workspace] [data-wb=workspaceColumn]{flex-basis:auto!important;max-width:none!important}
+ [data-workbench=PidTuning]>div{display:flex!important;gap:16px!important}
+ [data-workbench=PidTuning] [data-wb=profileBadges]{align-items:center!important;gap:12px!important;padding:12px!important;border:1px solid var(--fc-line);background:#171d28}
+ [data-workbench=PidTuning] [data-wb=profileBadge]{background:none!important;border:0!important;padding:0!important;flex:1}
+ [data-workbench=PidTuning] [data-wb=axisGrid],[data-workbench=PidTuning] [data-wb=rateGrid]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px!important}
+ [data-workbench=PidTuning] [data-wb=axisCard]{flex-basis:auto!important;min-width:0!important;width:100%!important}
+ [data-workbench=PidTuning] [data-wb=filterGrid]{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px!important}
+ [data-workbench=Modes]>div{display:flex!important}
+ [data-workbench=Receiver]>div{display:flex!important}
+ [data-workbench=Receiver] [data-wb=workspaceRow]{display:grid!important;grid-template-columns:2fr 3fr!important;gap:20px!important}
+ [data-workbench=PowerBattery] [data-wb=livePanel]{grid-column:1/-1;display:flex;flex-direction:row;gap:30px;padding:20px;border:1px solid var(--fc-line);background:var(--fc-panel)}
+ [data-workbench=PowerBattery] [data-wb=metrics]{flex:1;display:grid!important;grid-template-columns:repeat(4,1fr)}
+ [data-workbench=PowerBattery] [data-wb=metricValue]{font-size:28px}
+ [data-workbench=Osd]>div{grid-template-columns:3fr 2fr}
+ [data-testid=osd-preview]{grid-column:1;grid-row:span 3;width:100%!important;align-self:stretch}
+ [data-testid=osd-selected-element]{grid-column:2!important}
+ [data-workbench=VideoTransmitter]>div>[data-wb=status]{grid-column:1/-1}
+ [data-workbench=LedStrip]>div{display:flex!important}
+ [data-workbench=LedStrip] [data-wb=workspace]{display:grid!important;grid-template-columns:minmax(0,3fr) minmax(280px,2fr);gap:20px!important}
+ [data-workbench=Sensors]>div{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ [data-testid=sensors-status]{grid-column:1!important}
+ [data-testid=sensors-calibration]{grid-column:2!important}
+ [data-testid=sensors-traces]{grid-column:1/-1!important}
+ [data-workbench=Sensors] [data-wb=rows]{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important}
+ [data-workbench=Sensors] [data-wb=card]{width:100%!important;min-width:0!important;flex-basis:auto!important}
+ [data-workbench=Sensors] [data-wb=traceCards]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px!important}
+ [data-workbench=Blackbox]>div{grid-template-columns:1fr 1fr}
+ [data-workbench=Blackbox] [data-wb=storageCard]{min-height:240px}
+ [data-workbench=Presets]>div{grid-template-columns:340px minmax(0,1fr)}
+ [data-workbench=Presets] [data-wb=filters]{grid-column:1;grid-row:span 3}
+ [data-workbench=Presets] [data-wb=list]{grid-column:2}
+ [data-workbench=Cli]>div{grid-template-columns:minmax(0,4fr) minmax(250px,1fr)}
+ [data-workbench=Cli] [data-wb=terminalCard]{grid-column:1;grid-row:span 3;min-height:560px}
+ [data-workbench=Cli] [data-wb=quickCard]{grid-column:2}
+ [data-workbench=Cli] [data-wb=terminal]{min-height:400px!important}
+ [data-workbench=FirmwareFlasherSimple]>div,[data-workbench=FirmwareFlasher]>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+ [data-workbench=FlightStyleGuide]>div,[data-workbench=FlightStyleCorner]>div{display:flex!important;max-width:1400px!important;align-self:center!important}
+}
+@media(max-width:1055px){[data-workbench]>div{gap:18px!important;padding:14px!important}[data-wb-panel=true]{margin-top:8px!important}.fc-select-field{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.fc-motor-slider{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;width:100%;padding:12px 0}
+.fc-motor-label{font-size:14px;font-weight:700;color:#e4eaf4}.fc-motor-slider output{display:block;text-align:center;font-size:20px;font-variant-numeric:tabular-nums;background:#293244;border:1px solid #3f4b61;border-radius:5px;padding:16px 4px;width:100%;box-sizing:border-box;color:#f3f6fc}
+.fc-motor-slider input[type=range]{writing-mode:vertical-lr;direction:rtl;height:200px;width:44px;min-height:200px;appearance:none;background:transparent;accent-color:#f4b917;cursor:ns-resize}
+.fc-motor-slider input[type=range]::-webkit-slider-runnable-track{width:4px;background:#47536b;border-radius:3px}.fc-motor-slider input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-left:-6px;background:#f4b917;border:2px solid #171d28;border-radius:50%;box-shadow:0 0 0 1px #f4b917}
+.fc-motor-slider input:disabled{opacity:.45;cursor:default}.fc-motor-scale{font-size:12px;color:#a3afc2}
+[data-testid=motor-slider-grid]{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:12px!important;padding-top:12px;align-items:start}
+[data-testid=motor-slider-grid]>div{min-width:0!important;flex-basis:auto!important;margin:0!important;border:0!important;padding:0!important}
+@media(min-width:1056px){
+ [data-workbench=Gps]>div{display:flex!important}
+ [data-wb=gpsWorkspace]{display:grid!important;grid-template-columns:minmax(300px,2fr) minmax(400px,3fr);gap:20px!important}
+ [data-wb=gpsSettings],[data-wb=gpsTelemetry]{display:flex!important;flex-direction:column!important;gap:20px!important;min-width:0}
+ [data-testid=gps-configuration-panel],[data-testid=gps-satellite-panel]{grid-column:auto!important;grid-row:auto!important;order:0!important;width:100%!important}
+ [data-workbench=Sensors] [data-wb=sensorOrientation]{grid-column:2;grid-row:span 2}
+ [data-testid=sensors-live]{grid-column:1/-1!important}
+ [data-testid=sensors-status] [data-wb=rows]{display:flex!important;flex-direction:column!important}
+ [data-testid^=sensors-row-][data-wb=card]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px!important;padding:10px!important;margin:0!important}
+ [data-testid^=sensors-row-] [data-wb=rowHead]{grid-column:1/-1;flex-direction:row!important}
+ [data-testid$=-headline]{grid-column:1/-1}
+ [data-testid=sensors-live] [data-wb=rows]{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ [data-wb^=pidWorkspace-]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ [data-wb=pidWorkspace-pid]>[data-wb=axisGrid],[data-wb=pidWorkspace-pid]>[data-wb=sectionHeading],[data-wb=pidWorkspace-expert]>*,[data-wb=pidWorkspace-filters]>[data-wb=readOnlyGrid]{grid-column:1/-1}
+ [data-wb=pidWorkspace-filters] [data-wb=readOnlyGrid]{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px!important}
+}
+@media(min-width:1056px){
+ [data-workbench=Ports] [data-wb=portCard]{grid-template-columns:88px 165px 110px repeat(3,minmax(0,1fr))!important}
+ [data-workbench=Ports] [data-wb=portCard]>[dir]{grid-column:1/-1!important;grid-row:auto}
+ [data-workbench=Ports] [data-wb=baudSection]>div:first-child{display:none}
+ [data-workbench=Ports] [data-wb=switchRow]{padding:8px!important;gap:8px!important;flex-wrap:wrap}
+ [data-workbench=Ports] [data-wb=portCard]>[data-wb=preservedNotice]{grid-column:1/-1}
+ [data-testid=gps-satellite-panel]{max-height:none!important;overflow:visible!important}
+ [data-testid=motor-diagnostics-panel]{padding:14px!important;gap:14px!important}
+ [data-testid=motor-diagnostics-panel] [data-wb=header]{flex-wrap:wrap;gap:8px!important}
+ [data-testid=motor-diagnostics-panel] [data-wb=liveBadge]{max-width:100%;align-self:flex-start}
+ [data-testid=motor-diagnostics-panel] [data-wb=outputGrid]{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px!important}
+ [data-testid=motor-diagnostics-panel] [data-wb=outputCard]{min-width:0!important;flex-basis:auto!important;padding:8px!important}
+}
+[data-workbench]>div{align-items:flex-start!important}
+[data-workbench]>div>*{width:100%}
+[data-workbench]>div>*{min-width:0;max-width:100%}
+@media(min-width:1056px){
+ [data-workbench=PidTuning]>div>*{width:100%!important;align-self:flex-start!important}
+ [data-workbench=PidTuning] [data-wb=profileBadges]{width:100%!important}
+ [data-workbench=PidTuning] [data-wb=profileBadge]{min-width:0!important}
+ [data-workbench=Osd] [data-wb=osdPreviewWorkspace]{grid-column:1;grid-row:span 2}
+
+ [data-testid=sensors-status] [data-wb=fact]{flex-direction:column!important;gap:2px!important;align-items:flex-start!important;min-width:0}
+ [data-testid=sensors-status] [data-wb=fact]>div{max-width:100%;overflow-wrap:anywhere;text-align:left!important}
+ [data-testid=sensors-calibration]{grid-column:1!important}
+}
+
+@media(min-width:1056px){[data-workbench=Receiver]>div{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}[data-workbench]>div{align-items:start!important}}
+[data-workbench] [data-wb-panel=true]{height:auto!important;align-self:start!important}
+[data-workbench] [data-wb-panel=true]>div{min-width:0;max-width:100%}
+[data-workbench] [data-wb-panel=true] [data-wb=cardHint],[data-workbench] [data-wb-panel=true] [data-wb=hint]{white-space:normal;overflow-wrap:break-word;max-width:100%!important}
+@media(min-width:1056px){
+ [data-workbench=VideoTransmitter] [data-wb=card]:first-of-type{grid-row:span 2}
+ [data-workbench=Failsafe] [data-wb=column]{min-width:0!important;overflow-wrap:break-word}
+ [data-workbench=Failsafe] [data-wb=column]>div{max-width:100%!important;min-width:0}
+ [data-workbench=Blackbox] [data-wb=flashCard],[data-workbench=Blackbox] [data-wb=sdCard]{grid-column:auto!important}
+ [data-workbench=Blackbox] [data-wb=advancedCard]{align-self:start!important}
+}
+[data-wb-hidden=true]{display:none!important}
+@media(min-width:1056px){[data-workbench=Ports] [data-wb=switchRow]{min-width:0!important;width:100%!important;min-height:44px}[data-workbench=Ports] [data-wb=switchRow]>div:first-child{font-size:14px!important}}
+
+[data-workbench] [data-wb-panel=true]>[data-wb=field],[data-workbench] [data-wb-panel=true]>[data-wb=fieldWide]{flex:0 0 auto!important;width:100%;min-width:0!important}
+@media(min-width:1056px){
+ [data-testid=motor-workspace]{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important;align-items:start}
+ [data-testid=motor-workspace]>div{grid-column:1/-1;min-width:0}
+ [data-testid=motor-workspace]>[data-testid=motor-session-row]{grid-column:1;grid-row:1}
+ [data-testid=motor-workspace]>[data-testid=motor-control-row]{grid-column:2;grid-row:1;border-top:0!important;padding-top:0!important}
+}
+@media(min-width:1056px){
+ [data-notice=hardware],[data-wb=hardwareNotice]{background:transparent!important;border:0!important;border-left:2px solid #f4b917!important;border-radius:0!important;padding:6px 12px!important}
+ [data-notice=hardware]>div:last-child{flex-direction:row!important;flex-wrap:wrap;column-gap:12px!important;align-items:baseline!important}
+ [data-notice=hardware] [dir],[data-wb=hardwareNotice]>[dir]{font-size:13px!important;line-height:19px!important;color:#cbd5e5!important}
+ [data-wb=hardwareNotice]{flex-direction:row!important;flex-wrap:wrap;column-gap:12px!important}
+}
+@media(min-width:1440px){[data-workbench=Gps] [data-wb=metricGrid]{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px!important}[data-workbench=Gps] [data-wb=metric]{min-width:0!important;flex-basis:auto!important}}
+
+[data-wb=gpsTelemetry]>[data-wb=card]{width:100%!important;flex:0 0 auto!important;min-width:0!important}
+@media(min-width:1056px){
+ [data-wb=osdEditorWorkspace]{display:grid!important;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px!important;align-items:start}
+ [data-wb=osdEditorTools]{display:flex!important;flex-direction:column!important;gap:20px!important}
+ [data-workbench=Osd] [data-wb=osdPreviewWorkspace]{grid-column:1;grid-row:auto!important}
+}
+[data-workbench=Gps] [data-wb=metric]{width:100%!important;min-width:0!important}
+[data-wb=osdEditorTools]>[data-wb=card]{width:100%!important}
+[data-workbench] [data-wb-panel=true]>[data-wb=numericField]{flex:0 0 auto!important;min-width:0!important;width:100%}

@@ -1,12 +1,14 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 import React from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
 } from 'react-native';
 import type { RootStackParamList } from '../../navigation/types';
@@ -61,22 +63,25 @@ function ActionCard({
   onPress: () => void;
 }): React.JSX.Element {
   return (
-    <View style={[styles.actionCard, desktop && styles.actionCardShare]}>
-      <View style={styles.cardHeading}>
-        <View style={styles.cardIcon}>
+    <WorkbenchBlock
+      style={[styles.actionCard, desktop && styles.actionCardShare]}
+      section="actionCard"
+    >
+      <WorkbenchBlock style={styles.cardHeading} section="cardHeading">
+        <WorkbenchBlock style={styles.cardIcon} section="cardIcon">
           <Icon name={icon} size={28} color={colors.accentStrong} />
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.cardTitle}>{title}</Text>
-      </View>
+      </WorkbenchBlock>
       <Text style={styles.body}>{description}</Text>
-      <View style={styles.bullets}>
+      <WorkbenchBlock style={styles.bullets} section="bullets">
         {bullets.map(item => (
-          <View key={item} style={styles.bullet}>
+          <WorkbenchBlock key={item} style={styles.bullet} section="bullet">
             <Icon name="check" size={17} color={colors.accentStrong} />
             <Text style={styles.bulletText}>{item}</Text>
-          </View>
+          </WorkbenchBlock>
         ))}
-      </View>
+      </WorkbenchBlock>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
@@ -102,7 +107,7 @@ function ActionCard({
           color={secondary ? colors.accentStrong : colors.accentText}
         />
       </Pressable>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -130,42 +135,56 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
   };
 
   return (
-    <ScrollView
+    <WorkbenchScrollView
       testID="start-screen"
       style={styles.root}
       contentContainerStyle={styles.page}
       keyboardShouldPersistTaps="handled"
+      workspace="Start"
     >
-      <View style={styles.heroBand} testID="start-identity">
-        <View style={[styles.container, styles.hero, {maxWidth: contentCap}]}>
+      <WorkbenchBlock
+        style={styles.heroBand}
+        testID="start-identity"
+        section="heroBand"
+      >
+        <WorkbenchBlock
+          style={[styles.container, styles.hero, { maxWidth: contentCap }]}
+          section="container"
+        >
           {Platform.OS !== 'web' ? (
-            <View style={styles.nativeBrand}>
+            <WorkbenchBlock style={styles.nativeBrand} section="nativeBrand">
               <BrandLogo height={64} testID="start-brand-logo" />
-              <View style={styles.brandCopy}>
+              <WorkbenchBlock style={styles.brandCopy} section="brandCopy">
                 <Text style={styles.brandName}>{BRAND_PRODUCT_NAME}</Text>
                 <Text style={styles.body}>{BRAND_PRODUCT_TAGLINE}</Text>
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
           ) : null}
           <Text style={styles.eyebrow}>WERKBANK</Text>
           <Text style={[styles.heroTitle, desktop && styles.heroTitleDesktop]}>
             Vluchtcontroller configureren
           </Text>
-        </View>
-      </View>
-      <View style={[styles.container, {maxWidth: contentCap}]}>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
+      <WorkbenchBlock
+        style={[styles.container, { maxWidth: contentCap }]}
+        section="container"
+      >
         <HomeConnectNotice
           phase={phase}
           notice={notice}
           onRetry={openConfiguration}
           onDismiss={dismissConnection}
         />
-        <View style={styles.sectionHeading}>
-          <View style={styles.sectionCopy}>
-
+        <WorkbenchBlock style={styles.sectionHeading} section="sectionHeading">
+          <WorkbenchBlock style={styles.sectionCopy} section="sectionCopy">
             <Text style={styles.sectionTitle}>Verbinding & firmware</Text>
-          </View>
-          <View style={styles.connectionBadge} testID="start-connection-state">
+          </WorkbenchBlock>
+          <WorkbenchBlock
+            style={styles.connectionBadge}
+            testID="start-connection-state"
+            section="connectionBadge"
+          >
             <Icon
               name={connection.kind === 'CONNECTED' ? 'check' : 'cable'}
               size={17}
@@ -180,11 +199,12 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
                 ? 'Vluchtcontroller verbonden'
                 : 'Geen vluchtcontroller verbonden'}
             </Text>
-          </View>
-        </View>
-        <View
+          </WorkbenchBlock>
+        </WorkbenchBlock>
+        <WorkbenchBlock
           style={desktop ? styles.actionRow : styles.actionColumn}
           testID="start-route-group"
+          section="actionRow"
         >
           <ActionCard
             title="Drone configureren"
@@ -215,42 +235,49 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
             secondary
             onPress={() => navigation.navigate('FirmwareFlasher')}
           />
-        </View>
+        </WorkbenchBlock>
         <HomeConnectStatus
           phase={phase}
           onRetry={openConfiguration}
           onDismiss={dismissConnection}
         />
-        <View style={styles.safety}>
+        <WorkbenchBlock style={styles.safety} section="safety">
           <Icon name="shield" size={20} color={colors.accentStrong} />
           <Text style={styles.safetyText}>
             Instellingen worden pas geschreven na de vereiste controles.
             Verwijder de propellers vóór motortests.
           </Text>
-        </View>
-      </View>
-      <View style={styles.directoryBand}>
-        <View style={[styles.container, {maxWidth: contentCap}]}>
-          <View style={styles.sectionCopy}>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
+      <WorkbenchBlock style={styles.directoryBand} section="directoryBand">
+        <WorkbenchBlock
+          style={[styles.container, { maxWidth: contentCap }]}
+          section="container"
+        >
+          <WorkbenchBlock style={styles.sectionCopy} section="sectionCopy">
             <Text style={styles.eyebrow}>ALLE GEREEDSCHAPPEN</Text>
-            <Text style={styles.sectionTitle}>
-              Configuratieonderdelen
-            </Text>
-
-          </View>
+            <Text style={styles.sectionTitle}>Configuratieonderdelen</Text>
+          </WorkbenchBlock>
           <ToolDirectory />
-        </View>
-      </View>
-      <View style={[styles.container, {maxWidth: contentCap}]} testID="start-guide-section">
-        <View style={[styles.guide, desktop && styles.guideRow]}>
-          <View style={styles.guideCopy}>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
+      <WorkbenchBlock
+        style={[styles.container, { maxWidth: contentCap }]}
+        testID="start-guide-section"
+        section="container"
+      >
+        <WorkbenchBlock
+          style={[styles.guide, desktop && styles.guideRow]}
+          section="guide"
+        >
+          <WorkbenchBlock style={styles.guideCopy} section="guideCopy">
             <Text style={styles.eyebrow}>VLIEGSTIJLGIDSEN</Text>
             <Text style={styles.sectionTitle}>Vliegstijl & afstelling</Text>
 
             <Text style={styles.caption}>
               Cinematic · Freestyle · Racing · Tiny Whoop · Long Range
             </Text>
-          </View>
+          </WorkbenchBlock>
           <Pressable
             testID="start-flight-style-guide"
             accessibilityRole="button"
@@ -272,16 +299,16 @@ export default function StartScreen({ navigation }: Props): React.JSX.Element {
               color={colors.accentStrong}
             />
           </Pressable>
-        </View>
-        <View style={styles.footer}>
+        </WorkbenchBlock>
+        <WorkbenchBlock style={styles.footer} section="footer">
           <Text style={styles.footerName}>{BRAND_PRODUCT_NAME}</Text>
           <Text style={styles.caption}>
             Nederlandse editie · Configuratie, firmware en diagnose
           </Text>
-        </View>
-      </View>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
       <HomeConnectPicker phase={phase} onChoose={choose} onDismiss={dismiss} />
-    </ScrollView>
+    </WorkbenchScrollView>
   );
 }
 

@@ -1,174 +1,262 @@
-/**
- * THE BROWSER'S ORIENTATION RENDERER - SVG, not CanvasKit.
- *
- * SAME MODEL, SAME MATHS, DIFFERENT BRUSH. This file is the exact
- * counterpart of OrientationRenderer.tsx: it calls the same
- * computeDroneScene(), consumes the same already-depth-sorted primitive
- * list, and paints it with the same shared colour/opacity table from
- * orientationAppearance.ts. It contains no rotation maths, no camera
- * maths, no geometry constants and no colour decisions of its own - all
- * of that is covered GPU-free by droneSceneGeometry.test.ts and is
- * identical on both platforms by construction.
- *
- * WHY NOT SKIA ON WEB. @shopify/react-native-skia's browser build works
- * by downloading and instantiating CanvasKit-WASM - about 7.8 MB before
- * a single frame is drawn. This app's model is 38 flat polygons that are
- * already projected to 2D by the time any renderer sees them; there is
- * nothing left for a GPU scene graph to do. Making an operator download
- * a WASM canvas engine to draw 38 polygons - on a page they may have
- * opened to flash firmware in a hurry - is the wrong trade. SVG draws
- * the same polygons natively.
- *
- * WHY PLAIN <svg> AND NOT react-native-svg. react-native-web renders to
- * the DOM through React DOM, so SVG elements are ordinary JSX here. A
- * react-native-svg dependency would add a package to the Android build
- * that nothing on Android uses.
- *
- * The painter's-algorithm ordering is preserved for free: SVG paints in
- * document order and computeDroneScene() already returns farthest-first,
- * which is the same contract the Skia renderer relies on.
- */
-
-import React, {useMemo} from 'react';
-import {View} from 'react-native';
-
-import {computeDroneScene} from './droneSceneGeometry';
-import type {
-  DroneOrientationDeg,
-  DroneSceneAirframe,
-  DroneScenePrimitive,
-} from './droneSceneGeometry';
-import {orientationLatencyTracker} from './orientationLatencyDebugLog';
-import type {OrientationLatencySampleIdentity} from './orientationLatencyDebugLog';
-import {orientationRenderObserver} from './orientationRenderObserver';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
-  OUTLINE_STROKE_WIDTH,
-  appearanceFor,
-  effectiveOpacity,
-} from './orientationAppearance';
+  ACESFilmicToneMapping,
+  Box3,
+  DirectionalLight,
+  GridHelper,
+  Group,
+  HemisphereLight,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  SRGBColorSpace,
+  Scene,
+  Sphere,
+  Vector3,
+  WebGLRenderer,
+} from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OrientationRenderer as ProjectedOrientation } from './OrientationFallback.web';
+import type { OrientationRendererProps } from './OrientationFallback.web';
+import { rotateBodyPoint } from './droneSceneGeometry';
+import { modelAssetFor } from './modelAssets.web';
+import { CanvasMeshRenderer } from './CanvasMeshRenderer.web';
+import { meshForAirframe } from './meshProjection';
+import { colors } from '../theme';
+import { orientationRenderObserver } from './orientationRenderObserver';
+import { orientationLatencyTracker } from './orientationLatencyDebugLog';
+export type { OrientationRendererProps } from './OrientationFallback.web';
 
-/** The SVG `points` attribute for one polygon. */
-function toPointsAttribute(points: DroneScenePrimitive['points']): string {
-  return points.map(point => `${point.x},${point.y}`).join(' ');
-}
-
-export type OrientationRendererProps = {
-  orientation: DroneOrientationDeg;
-  width: number;
-  height: number;
-  /** True while Region 2 is showing a STALE (frozen) reading. */
-  stale?: boolean;
-  /** Development-only diagnostics: which genuine sample this pose came
-   * from. Never affects what is drawn - the pose alone decides that. */
-  sampleIdentity?: OrientationLatencySampleIdentity;
-  presentationScale?: number;
-  /**
-   * THE AIRCRAFT THIS BOARD ACTUALLY IS - M-F3F P0-B.
-   *
-   * Passed in, never assumed. `undefined` renders the orientation model
-   * with NO rotors rather than a stand-in quadcopter (§17), which is the
-   * defect this prop exists to end: a Y6, a tricopter and a flying wing
-   * were all drawn as an X quad on the screen an operator uses to decide
-   * how the flight controller is mounted.
-   */
-  airframe?: DroneSceneAirframe;
+type SceneHandle = {
+  renderer: WebGLRenderer;
+  scene: Scene;
+  camera: PerspectiveCamera;
+  body: Group;
+  controls: OrbitControls;
+  render: () => void;
 };
 
-/**
- * One build per genuine pose. Memoized for the same reason the Skia
- * renderer memoizes: telemetry arrives ~4.5 times per second while React
- * may re-render this subtree far more often, and rebuilding 38 polygons'
- * worth of point strings on every unrelated render is pure waste.
- */
-function buildDrawables(
-  orientation: DroneOrientationDeg,
-  width: number,
-  height: number,
-  presentationScale: number,
-  airframe: DroneSceneAirframe | undefined,
-) {
-  const scene = computeDroneScene(orientation, {width, height}, presentationScale, airframe);
-  return scene.primitives.map(primitive => ({
-    points: toPointsAttribute(primitive.points),
-    ...appearanceFor(primitive.material),
-  }));
-}
-
-export function OrientationRenderer({
-  orientation,
-  width,
-  height,
-  stale = false,
-  sampleIdentity,
-  presentationScale = 1,
-  airframe,
-}: OrientationRendererProps): React.JSX.Element {
-  const {rollDeg, pitchDeg, yawDeg} = orientation;
-  const sessionToken = sampleIdentity?.sessionToken;
-  const sampleSeq = sampleIdentity?.sampleSeq;
-
-  // Depends on the POSE, not on the sample identity: two consecutive
-  // samples reporting an identical attitude must reuse the built scene
-  // rather than rebuild an identical one. Same rule as Android.
-  const drawables = useMemo(
-    () =>
-      buildDrawables({rollDeg, pitchDeg, yawDeg}, width, height, presentationScale, airframe),
-    [rollDeg, pitchDeg, yawDeg, width, height, presentationScale, airframe],
-  );
-
-  // Checkpoint F: the pose THIS renderer was handed, recorded before any
-  // identity gate below - "the SVG received a changed orientation prop"
-  // must stay provable even for a sample with no sequence number.
-  orientationRenderObserver.noteRendererPose({rollDeg, pitchDeg, yawDeg});
-
-  if (sessionToken !== undefined && sampleSeq !== undefined) {
-    const identity = {sessionToken, sampleSeq};
-    orientationLatencyTracker.noteRendererSample(identity);
-    orientationLatencyTracker.noteSceneBuilt(identity);
+/** Real glTF mesh rendering, event-driven by the same genuine pose as the readouts.
+ * Camera interaction changes only the view. It never writes attitude or FC state. */
+export function OrientationRenderer(
+  props: OrientationRendererProps,
+): React.JSX.Element {
+  const {
+    orientation,
+    width,
+    height,
+    stale = false,
+    airframe,
+    sampleIdentity,
+  } = props;
+  const asset = modelAssetFor(airframe);
+  const mount = useRef<HTMLDivElement>(null);
+  const engine = useRef<SceneHandle | undefined>(undefined);
+  const latest = useRef(props);
+  latest.current = props;
+  const [ready, setReady] = useState(false);
+  const applyPose = useCallback(() => {
+    const h = engine.current;
+    if (!h) return;
+    const p = latest.current;
+    const x = rotateBodyPoint({ x: 1, y: 0, z: 0 }, p.orientation);
+    const y = rotateBodyPoint({ x: 0, y: 1, z: 0 }, p.orientation);
+    const z = rotateBodyPoint({ x: 0, y: 0, z: 1 }, p.orientation);
+    h.body.matrix.set(
+      x.x,
+      y.x,
+      z.x,
+      0,
+      x.y,
+      y.y,
+      z.y,
+      0,
+      x.z,
+      y.z,
+      z.z,
+      0,
+      0,
+      0,
+      0,
+      1,
+    );
+    h.body.matrixWorldNeedsUpdate = true;
+    h.body.traverse(node => {
+      if (node instanceof Mesh) {
+        const materials = Array.isArray(node.material)
+          ? node.material
+          : [node.material];
+        materials.forEach(material => {
+          material.transparent = Boolean(p.stale);
+          material.opacity = p.stale ? 0.4 : 1;
+        });
+      }
+    });
+    h.render();
+  }, []);
+  useEffect(() => {
+    setReady(false);
+    if (!asset || !mount.current) return;
+    let cancelled = false;
+    let renderer: WebGLRenderer;
+    try {
+      renderer = new WebGLRenderer({
+        alpha: false,
+        antialias: true,
+        powerPreference: 'low-power',
+      });
+    } catch {
+      return;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setSize(latest.current.width, latest.current.height, false);
+    renderer.setClearColor(colors.backgroundRaised);
+    renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    renderer.domElement.style.display = 'block';
+    mount.current.appendChild(renderer.domElement);
+    const scene = new Scene();
+    scene.add(new HemisphereLight(0xffffff, 0x252c3b, 2.5));
+    const key = new DirectionalLight(0xffffff, 3);
+    key.position.set(-100, 180, 100);
+    scene.add(key);
+    const rim = new DirectionalLight(0xf4c95e, 1.5);
+    rim.position.set(80, 40, -90);
+    scene.add(rim);
+    const body = new Group();
+    body.matrixAutoUpdate = false;
+    scene.add(body);
+    const camera = new PerspectiveCamera(
+      42,
+      latest.current.width / latest.current.height,
+      0.1,
+      10000,
+    );
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = false;
+    controls.enablePan = false;
+    controls.autoRotate = false;
+    const render = () => {
+      if (!cancelled) renderer.render(scene, camera);
+    };
+    controls.addEventListener('change', render);
+    engine.current = { renderer, scene, camera, body, controls, render };
+    new GLTFLoader().load(
+      asset,
+      gltf => {
+        if (cancelled) {
+          gltf.scene.traverse(n => {
+            if (n instanceof Mesh) n.geometry.dispose();
+          });
+          return;
+        }
+        const craft = gltf.scene;
+        // glTF is Y-up, forward -Z. Convert to our tested +X-forward space.
+        craft.rotation.y = -Math.PI / 2;
+        craft.updateMatrixWorld(true);
+        const box = new Box3().setFromObject(craft),
+          center = box.getCenter(new Vector3());
+        craft.position.sub(center);
+        const radius = box.getBoundingSphere(new Sphere()).radius;
+        craft.traverse(n => {
+          if (n instanceof Mesh) {
+            n.castShadow = false;
+            const mats = Array.isArray(n.material) ? n.material : [n.material];
+            n.material = mats.map(m => {
+              const copy = m.clone() as MeshStandardMaterial;
+              if (copy.color) {
+                const c = copy.color;
+                if (c.g > c.r * 1.35 && c.g > c.b * 1.2) c.set(colors.accent);
+                else if (c.r > c.g * 1.7 && c.r > c.b * 1.3) c.set('#e75965');
+              }
+              return copy;
+            });
+          }
+        });
+        body.add(craft);
+        const grid = new GridHelper(radius * 3.4, 24, 0x555b72, 0x303448);
+        grid.position.y = -radius * 0.4;
+        scene.add(grid);
+        camera.position.set(-radius * 2.9, radius * 1.05, 0);
+        camera.lookAt(0, 0, 0);
+        controls.target.set(0, 0, 0);
+        controls.minDistance = radius * 1.6;
+        controls.maxDistance = radius * 6;
+        controls.update();
+        applyPose();
+        setReady(true);
+      },
+      undefined,
+      () => {
+        if (!cancelled) setReady(false);
+      },
+    );
+    return () => {
+      cancelled = true;
+      controls.removeEventListener('change', render);
+      controls.dispose();
+      scene.traverse(n => {
+        if (n instanceof Mesh) {
+          n.geometry.dispose();
+          const mats = Array.isArray(n.material) ? n.material : [n.material];
+          mats.forEach(m => m.dispose());
+        }
+      });
+      renderer.dispose();
+      renderer.domElement.remove();
+      if (engine.current?.renderer === renderer) engine.current = undefined;
+    };
+  }, [asset, applyPose]);
+  useEffect(() => {
+    const h = engine.current;
+    if (!h) return;
+    h.renderer.setSize(width, height, false);
+    h.camera.aspect = width / height;
+    h.camera.updateProjectionMatrix();
+    h.render();
+  }, [width, height]);
+  useEffect(() => {
+    applyPose();
+  }, [
+    orientation.rollDeg,
+    orientation.pitchDeg,
+    orientation.yawDeg,
+    stale,
+    applyPose,
+  ]);
+  orientationRenderObserver.noteRendererPose(orientation);
+  if (sampleIdentity) {
+    orientationLatencyTracker.noteRendererSample(sampleIdentity);
+    orientationLatencyTracker.noteSceneBuilt(sampleIdentity);
   }
-
   return (
-    <View style={{width, height}} testID="orientation-renderer">
-      <svg
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        // The model is decoration for the numeric attitude readout that
-        // sits beside it; screen readers must not announce 38 polygons.
-        aria-hidden="true"
-        focusable="false"
-        /* eslint-disable-next-line react-native/no-inline-styles -- this
-           is a DOM <svg>, not a React Native component: StyleSheet.create
-           produces a class-name registry id that a real SVG element
-           cannot consume. An inline DOM style is the correct form here.
-           `display: block` removes the inline-element baseline gap that
-           would otherwise add a few stray pixels under the model. */
-        style={{display: 'block'}}>
-        {drawables.map((drawable, index) => {
-          const opacity = effectiveOpacity(drawable.baseOpacity, stale);
-          // The scene is rebuilt in the same deterministic primitive
-          // order every render (see computeDroneScene()'s own doc
-          // comment), so a plain index is a stable, correct key here.
-          // The optional outline is a SECOND draw of the SAME polygon -
-          // no extra geometry is built for it.
-          return (
-            <React.Fragment key={index}>
-              {drawable.filled && <polygon points={drawable.points} fill={drawable.color} fillOpacity={opacity} />}
-              {drawable.outlined && (
-                <polygon
-                  points={drawable.points}
-                  fill="none"
-                  stroke={drawable.color}
-                  strokeOpacity={opacity}
-                  strokeWidth={OUTLINE_STROKE_WIDTH}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </svg>
+    <View
+      style={[styles.root, { width, height }]}
+      testID="orientation-renderer"
+    >
+      {asset ? (
+        <div
+          ref={mount}
+          data-testid="orientation-webgl"
+          style={{ position: 'absolute', inset: 0, opacity: ready ? 1 : 0 }}
+        />
+      ) : null}
+      {!ready ? (
+        <View pointerEvents="none">
+          {meshForAirframe(airframe) ? (
+            <CanvasMeshRenderer {...props} />
+          ) : (
+            <ProjectedOrientation {...props} />
+          )}
+        </View>
+      ) : null}
     </View>
   );
 }
+const styles = StyleSheet.create({
+  root: { overflow: 'hidden', position: 'relative' },
+});

@@ -1,0 +1,50 @@
+[
+  {
+    "scene": "OSD",
+    "width": "320",
+    "scroll": 320,
+    "w": 320
+  },
+  {
+    "scene": "GPS",
+    "width": "320",
+    "scroll": 320,
+    "w": 320
+  },
+  {
+    "scene": "PID",
+    "width": "320",
+    "scroll": 320,
+    "w": 320
+  },
+  {
+    "scene": "Motors",
+    "width": "320",
+    "scroll": 320,
+    "w": 320
+  },
+  {
+    "scene": "OSD",
+    "width": "1920",
+    "scroll": 1920,
+    "w": 1920
+  },
+  {
+    "scene": "GPS",
+    "width": "1920",
+    "scroll": 1920,
+    "w": 1920
+  },
+  {
+    "scene": "PID",
+    "width": "1920",
+    "scroll": 1920,
+    "w": 1920
+  },
+  {
+    "scene": "Motors",
+    "width": "1920",
+    "scroll": 1920,
+    "w": 1920
+  }
+]

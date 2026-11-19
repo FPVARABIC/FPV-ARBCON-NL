@@ -1,5 +1,6 @@
+import { WorkbenchBlock } from '../components/workbench/Workbench';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { deriveMotorOutputOrder } from '../../core';
@@ -9,7 +10,7 @@ import {
   type MotorOutputOrderLoadOutcome,
   type MotorOutputOrderSaveOutcome,
 } from '../../platforms/react-native/protocol';
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../theme';
+import { PROSE_MEASURE, colors, radii, spacing, typography } from '../theme';
 import { Icon } from '../icons';
 
 export interface MotorOutputOrderControllerPort {
@@ -152,7 +153,7 @@ export function MotorOutputReorderPanel({
     try {
       outcome = await controller.saveOutputOrder(sessionId, original, desired);
     } catch (error) {
-      outcome = {kind: 'FAILED', error};
+      outcome = { kind: 'FAILED', error };
     }
     const message = outcomeMessage(t, outcome);
     setResult(message);
@@ -164,24 +165,36 @@ export function MotorOutputReorderPanel({
   }, [controller, desired, original, phase, sessionId, t]);
 
   return (
-    <View style={styles.root} testID="motor-output-reorder-panel">
+    <WorkbenchBlock
+      style={styles.root}
+      testID="motor-output-reorder-panel"
+      section="root"
+    >
       <Text style={styles.eyebrow}>{t('motorOutputReorder.eyebrow')}</Text>
       <Text style={styles.title}>{t('motorOutputReorder.title')}</Text>
       <Text style={styles.caption}>{t('motorOutputReorder.subtitle')}</Text>
 
       {!ready ? (
-        <View style={styles.notice} testID="motor-output-reorder-incomplete">
+        <WorkbenchBlock
+          style={styles.notice}
+          testID="motor-output-reorder-incomplete"
+          section="notice"
+        >
           <Text style={styles.noticeTitle}>
             {t('motorOutputReorder.incomplete')}
           </Text>
           <Text style={styles.caption}>
             {t('motorOutputReorder.incompleteDetail')}
           </Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
 
       {phase === 'REVIEW' && original !== undefined && desired !== undefined ? (
-        <View style={styles.review} testID="motor-output-reorder-review">
+        <WorkbenchBlock
+          style={styles.review}
+          testID="motor-output-reorder-review"
+          section="review"
+        >
           <Text style={styles.noticeTitle}>
             {t('motorOutputReorder.reviewTitle')}
           </Text>
@@ -199,20 +212,28 @@ export function MotorOutputReorderPanel({
           <Text style={styles.caption} testID="motor-output-reorder-reboot">
             {t('motorOutputReorder.rebootRequired')}
           </Text>
-          <View style={styles.mapRow}>
+          <WorkbenchBlock style={styles.mapRow} section="mapRow">
             {desired.map((resource, index) => (
-              <View key={index} style={styles.mapCell}>
+              <WorkbenchBlock
+                key={index}
+                style={styles.mapCell}
+                section="mapCell"
+              >
                 <Text style={styles.mapMotor}>{`M${index + 1}`}</Text>
                 {/* "M1 is fed BY resource": the arrow points at the
                     motor, so it must follow reading order - arrow-back
                     resolves to right under RTL and left under LTR. */}
-                <Icon name="arrow-back" size={18} color={colors.textSecondary} />
+                <Icon
+                  name="arrow-back"
+                  size={18}
+                  color={colors.textSecondary}
+                />
                 <Text style={styles.mapResource}>
                   {t('motorOutputReorder.resource', { value: resource + 1 })}
                 </Text>
-              </View>
+              </WorkbenchBlock>
             ))}
-          </View>
+          </WorkbenchBlock>
           <Pressable
             onPress={save}
             accessibilityRole="button"
@@ -223,7 +244,7 @@ export function MotorOutputReorderPanel({
               {t('motorOutputReorder.confirmSave')}
             </Text>
           </Pressable>
-        </View>
+        </WorkbenchBlock>
       ) : null}
 
       {result !== undefined ? (
@@ -257,7 +278,7 @@ export function MotorOutputReorderPanel({
             : t('motorOutputReorder.saving')}
         </Text>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -273,15 +294,19 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   caption: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   notice: {
     gap: spacing.xs,
     padding: spacing.md,
@@ -292,7 +317,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   review: { gap: spacing.md },
   mapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   mapCell: {
@@ -315,7 +341,9 @@ const styles = StyleSheet.create({
   mapResource: {
     ...typography.caption,
     color: colors.textPrimary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   primaryButton: {
     minHeight: 48,
     alignSelf: 'flex-start',
@@ -334,17 +362,22 @@ const styles = StyleSheet.create({
        effectively invisible. accentText is the theme's designated
        text-on-accent colour and clears AA. */
     color: colors.accentText,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   resultDanger: {
     ...typography.body,
     color: colors.error,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   resultGood: {
     ...typography.body,
     color: colors.success,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   progress: {
     ...typography.body,
     color: colors.accentStrong,

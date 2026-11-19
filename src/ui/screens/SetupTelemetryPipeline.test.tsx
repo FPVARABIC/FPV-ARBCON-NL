@@ -27,7 +27,7 @@ jest.mock('../../platforms/react-native/transport/native/NativeUsbSerialTranspor
  * useTelemetryValue/useSyncExternalStore binding, the real
  * deriveOrientationViewState, the real OrientationHero, the real
  * FlightInstruments, and - unlike every other screen suite in this repo
- * - THE REAL BROWSER SVG RENDERER. The barrel is mocked to
+ * - THE REAL BROWSER UNKNOWN-MIXER REFERENCE RENDERER. The barrel is mocked to
  * OrientationRenderer.web.tsx rather than to `() => null`, precisely so
  * the final boundary ("did the SVG receive changed orientation props")
  * is exercised rather than asserted away.
@@ -42,6 +42,13 @@ jest.mock('../../platforms/react-native/transport/native/NativeUsbSerialTranspor
  * REQUIRES HARDWARE RETEST BY USER regardless of this file passing.
  */
 
+// GPU adapters are external to this Node test. The board fixture reports
+// no mixer, so production correctly uses its real neutral SVG reference.
+// Known-airframe triangle projection is covered by meshProjection.test.ts.
+jest.mock('three',()=>({}));
+jest.mock('three/examples/jsm/loaders/GLTFLoader.js',()=>({GLTFLoader:jest.fn()}));
+jest.mock('three/examples/jsm/controls/OrbitControls.js',()=>({OrbitControls:jest.fn()}));
+jest.mock('../orientation3d/modelAssets.web',()=>({modelAssetFor:()=>undefined}));
 jest.mock('../orientation3d', () => ({
   // THE REAL browser renderer, loaded through require() because the
   // Android tsconfig deliberately excludes `.web.tsx` from typechecking

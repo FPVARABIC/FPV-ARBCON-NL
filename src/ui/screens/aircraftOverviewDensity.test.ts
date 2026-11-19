@@ -111,12 +111,12 @@ describe('the fixed chrome is a toolbar, not a masthead', () => {
 describe('the information grid uses width, not height', () => {
   it('is a wrapping row that becomes three columns on a desktop', () => {
     expect(INFO_GRID).toMatch(/grid:\s*\{[\s\S]{0,200}flexWrap:\s*'wrap'/);
-    expect(INFO_GRID).toMatch(/columnThird:\s*\{flexBasis:\s*'3\d%'\}/);
-    expect(INFO_GRID).toMatch(/columnHalf:\s*\{flexBasis:\s*'4\d%'\}/);
+    expect(INFO_GRID).toMatch(/columnThird:\s*\{\s*flexBasis:\s*320/);
+    expect(INFO_GRID).toMatch(/columnHalf:\s*\{\s*flexBasis:\s*320/);
   });
 
   it('rows are a single dense line, not a card', () => {
-    expect(INFO_GRID).toMatch(/row:\s*\{[\s\S]{0,300}minHeight:\s*22/);
+    expect(INFO_GRID).toMatch(/row:\s*\{[\s\S]{0,300}minHeight:\s*28/);
     for (const cardism of ['shadowRadius', 'shadowOpacity', 'elevation:']) {
       expect(`${cardism} in SetupInfoGrid`).toBe(
         `${cardism} in SetupInfoGrid${INFO_GRID.includes(cardism) ? ' (present)' : ''}`,

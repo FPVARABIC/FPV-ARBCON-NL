@@ -59,10 +59,11 @@ function sourceOf(filename: string): string {
 
 describe('responsive shell', () => {
   it.each(READING_COLUMN_SCREENS)(
-    '%s stays a reading column at the shared 1180px cap',
+    '%s uses the shared workbench without a fixed desktop cap',
     filename => {
       const source = sourceOf(filename);
-      expect(source).toContain('maxWidth: 1180');
+      expect(source).not.toContain('maxWidth: 1180');
+      expect(source).toContain('WorkbenchScrollView');
       expect(source).not.toContain('maxWidth: 760');
     },
   );

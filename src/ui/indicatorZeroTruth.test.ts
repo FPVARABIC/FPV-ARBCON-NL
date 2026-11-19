@@ -185,7 +185,8 @@ describe('the unavailable placeholder means unavailable, never zero', () => {
 
   it('the rule has real subjects - it is not passing because it found none', () => {
     const {sites} = audit();
-    expect(sites.length).toBeGreaterThanOrEqual(20);
+    // The motor-count placeholder is now a descriptive unavailable message.
+    expect(sites.length).toBeGreaterThanOrEqual(19);
   });
 
   it('detects a reading whose zero would be drawn as "no data"', () => {

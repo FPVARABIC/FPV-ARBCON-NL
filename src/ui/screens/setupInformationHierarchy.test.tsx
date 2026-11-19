@@ -391,8 +391,8 @@ describe('the 139px system bar cannot return as Setup chrome', () => {
  * 2. SENSORS AND BATTERY COME BEFORE THE MODEL
  * ================================================================== */
 
-describe('the critical status precedes the 3D model in reading order', () => {
-  it('places the battery and every sensor chip before the hero', async () => {
+describe('the model leads and the complete status follows in reading order', () => {
+  it('places the battery and every sensor chip after the hero', async () => {
     const sessionId = 'r9-order-before-hero';
     const {renderer} = await mount(sessionId);
     const order = hostOrder(renderer);
@@ -402,12 +402,12 @@ describe('the critical status precedes the 3D model in reading order', () => {
 
     const battery = indexOfId(order, 'setup-status-battery-live');
     expect(battery).toBeGreaterThan(-1);
-    expect(battery).toBeLessThan(hero);
+    expect(battery).toBeGreaterThan(hero);
 
     for (const token of SETUP_SENSOR_TOKENS) {
       const chip = indexOfId(order, `setup-status-sensor-${token}`);
-      expect({token, found: chip > -1, beforeHero: chip > -1 && chip < hero}).toEqual(
-        {token, found: true, beforeHero: true},
+      expect({token, found: chip > -1, afterHero: chip > hero}).toEqual(
+        {token, found: true, afterHero: true},
       );
     }
 
@@ -419,9 +419,9 @@ describe('the critical status precedes the 3D model in reading order', () => {
       'setup-status-api',
       'setup-status-arming',
     ]) {
-      expect({id, beforeHero: indexOfId(order, id) < hero}).toEqual({
+      expect({id, afterHero: indexOfId(order, id) > hero}).toEqual({
         id,
-        beforeHero: true,
+        afterHero: true,
       });
     }
 
@@ -458,8 +458,8 @@ describe('the critical status precedes the 3D model in reading order', () => {
  * 3. NOTHING IS REPORTED TWICE
  * ================================================================== */
 
-describe('no battery or sensor section is duplicated after the 3D', () => {
-  it('renders exactly one battery chip and one set of sensor chips, all above the model', async () => {
+describe('the model is followed by one complete battery and sensor strip', () => {
+  it('renders exactly one battery chip and one set of sensor chips, all below the model', async () => {
     const sessionId = 'r9-no-duplicates';
     const {renderer} = await mount(sessionId);
     const order = hostOrder(renderer);
@@ -473,7 +473,7 @@ describe('no battery or sensor section is duplicated after the 3D', () => {
     expect(new Set(sensorChips).size).toBe(SETUP_SENSOR_TOKENS.length);
     for (const [index, id] of order.entries()) {
       if (id.startsWith('setup-status-sensor-') || id.startsWith('setup-status-battery')) {
-        expect({id, aboveHero: index < hero}).toEqual({id, aboveHero: true});
+        expect({id, belowHero: index > hero}).toEqual({id, belowHero: true});
       }
     }
 
@@ -658,14 +658,14 @@ describe('the sensor chips follow the flight controller own presence mask', () =
    * single most consequential thing a flight controller can report about
    * itself, and it used to live three screens down behind a disclosure.
    */
-  it('a board with no gyro says so, at the top, before the model', async () => {
+  it('a board with no gyro says so in the status strip', async () => {
     const sessionId = 'r9-mask-no-gyro';
     const {renderer} = await mount(sessionId, {sensorMask: 0x01}); // ACC only
     expect(textIn(renderer, 'setup-status-sensor-GYRO')).toBe(
       `GYRO|${NOT_DETECTED}`,
     );
     const order = hostOrder(renderer);
-    expect(indexOfId(order, 'setup-status-sensor-GYRO')).toBeLessThan(
+    expect(indexOfId(order, 'setup-status-sensor-GYRO')).toBeGreaterThan(
       indexOfId(order, 'orientation-hero'),
     );
     await teardown(sessionId, renderer);
@@ -756,12 +756,12 @@ describe('the layout answers the four measured widths', () => {
       path.join(__dirname, '..', 'components', 'setup', 'SetupInfoGrid.tsx'),
       'utf8',
     );
-    const third = /columnThird:\s*\{flexBasis:\s*'(\d+)%'\}/.exec(grid);
-    const half = /columnHalf:\s*\{flexBasis:\s*'(\d+)%'\}/.exec(grid);
+    const third = /columnThird:\s*\{\s*flexBasis:\s*(\d+)/.exec(grid);
+    const half = /columnHalf:\s*\{\s*flexBasis:\s*(\d+)/.exec(grid);
     expect(third).not.toBeNull();
     expect(half).not.toBeNull();
-    expect(Number(third?.[1]) * 3).toBeLessThan(100);
-    expect(Number(half?.[1]) * 2).toBeLessThan(100);
+    expect(Number(third?.[1]) * 3 + 24).toBeLessThanOrEqual(1044);
+    expect(Number(half?.[1]) * 2 + 12).toBeLessThanOrEqual(732);
   });
 
   it('declares no fixed width that could overflow the narrowest viewport', () => {

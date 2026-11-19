@@ -474,7 +474,6 @@ const DIRECTION_MEANING: Record<string, Direction> = {
   'PID::pid-advanced-groups-ITERM-toggle::chevron-down': 'UI_DIRECTION',
   'PID::pid-advanced-groups-LIMITS-toggle::chevron-down': 'UI_DIRECTION',
   'PID::pid-advanced-groups-TPA-toggle::chevron-down': 'UI_DIRECTION',
-  'PID::pid-advanced-toggle::chevron-up': 'UI_DIRECTION',
   'PID::pid-profile-management-toggle::chevron-down': 'UI_DIRECTION',
   'PID::pid-rpm-filter-detail-toggle::chevron-down': 'UI_DIRECTION',
   'PID::pid-simplified-explanation-toggle::chevron-down': 'UI_DIRECTION',

@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * ONE FLIGHT STYLE'S CORNER - and only one, on purpose.
  *
@@ -26,18 +30,16 @@
  * caption promises.
  */
 import React from 'react';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Image,
   PixelRatio,
-  ScrollView,
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
 } from 'react-native';
 
-import type {RootStackParamList} from '../../navigation/types';
+import type { RootStackParamList } from '../../navigation/types';
 import {
   FLIGHT_STYLE_HERO_FIT,
   FLIGHT_STYLE_HERO_IMAGES,
@@ -47,8 +49,22 @@ import {
   StyleCover,
   findCorner,
 } from '../flight-guides';
-import type {GuideCorner, GuideDecisionKind, GuideStep} from '../flight-guides';
-import {PROSE_MEASURE, colors, contentEnvelope, isDesktopTier, noticeSurface, radii, resolveLayoutTier, spacing, typography} from '../theme';
+import type {
+  GuideCorner,
+  GuideDecisionKind,
+  GuideStep,
+} from '../flight-guides';
+import {
+  PROSE_MEASURE,
+  colors,
+  contentEnvelope,
+  isDesktopTier,
+  noticeSurface,
+  radii,
+  resolveLayoutTier,
+  spacing,
+  typography,
+} from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FlightStyleCorner'>;
 
@@ -56,11 +72,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'FlightStyleCorner'>;
 const CORNER_MAX_WIDTH = 760;
 
 const DECISION_LABEL: Readonly<Record<GuideDecisionKind, string>> = {
-  STEP: "Stap",
-  ACTION: "Actie",
-  PILOT_PREFERENCE: "Voorkeur van de piloot",
-  KEEP_DEFAULT: "Ongewijzigd laten",
-  NOT_APPLICABLE: "Niet van toepassing",
+  STEP: 'Stap',
+  ACTION: 'Actie',
+  PILOT_PREFERENCE: 'Voorkeur van de piloot',
+  KEEP_DEFAULT: 'Ongewijzigd laten',
+  NOT_APPLICABLE: 'Niet van toepassing',
 };
 
 /**
@@ -98,7 +114,9 @@ const STEP_BADGE_BASE_SIZE = 26;
  * picked up the next time the screen is drawn.
  */
 function stepBadgeSize(): number {
-  return Math.ceil(STEP_BADGE_BASE_SIZE * Math.max(1, PixelRatio.getFontScale()));
+  return Math.ceil(
+    STEP_BADGE_BASE_SIZE * Math.max(1, PixelRatio.getFontScale()),
+  );
 }
 
 function StepBlock({
@@ -111,24 +129,33 @@ function StepBlock({
   const image = GUIDE_STEP_IMAGES[`${corner.id}/${step.n}`];
   const badge = stepBadgeSize();
   return (
-    <View style={styles.step} testID={`guide-step-${corner.id}-${step.n}`}>
-      <View style={styles.stepHead}>
-        <View
+    <WorkbenchBlock
+      style={styles.step}
+      testID={`guide-step-${corner.id}-${step.n}`}
+      section="step"
+    >
+      <WorkbenchBlock style={styles.stepHead} section="stepHead">
+        <WorkbenchBlock
           style={[
             styles.stepBadge,
-            {minWidth: badge, minHeight: badge, borderRadius: badge / 2},
-          ]}>
+            { minWidth: badge, minHeight: badge, borderRadius: badge / 2 },
+          ]}
+          section="stepBadge"
+        >
           <Text style={styles.stepBadgeText}>{step.n}</Text>
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.stepTitle}>{step.titleAr}</Text>
-      </View>
+      </WorkbenchBlock>
 
       <Text style={styles.stepWhere}>{step.screen}</Text>
 
       {step.recommended.length > 0 ? (
-        <View style={styles.recommend}>
-          <Text style={styles.recommendLabel}>{"De aanbevolen."}</Text>
-          <View style={styles.recommendValues}>
+        <WorkbenchBlock style={styles.recommend} section="recommend">
+          <Text style={styles.recommendLabel}>{'De aanbevolen.'}</Text>
+          <WorkbenchBlock
+            style={styles.recommendValues}
+            section="recommendValues"
+          >
             {/* KEYED BY POSITION, NOT BY VALUE.
                 A step can recommend the same number twice - Freestyle's
                 receiver step is ['50','50'], one per smoothing field -
@@ -140,15 +167,22 @@ function StepBlock({
                 staying true. Position IS the identity here: the list is
                 static content and the nth chip is the nth field. */}
             {step.recommended.map((value, index) => (
-              <View key={`${index}:${value}`} style={styles.valueChip}>
+              <WorkbenchBlock
+                key={`${index}:${value}`}
+                style={styles.valueChip}
+                section="valueChip"
+              >
                 <Text style={styles.valueChipText}>{value}</Text>
-              </View>
+              </WorkbenchBlock>
             ))}
-          </View>
+          </WorkbenchBlock>
           {step.sources.length > 0 ? (
-            <Text style={styles.sources}>{"De bron:"}{step.sources.join(' · ')}</Text>
+            <Text style={styles.sources}>
+              {'De bron:'}
+              {step.sources.join(' · ')}
+            </Text>
           ) : null}
-        </View>
+        </WorkbenchBlock>
       ) : null}
 
       {image === undefined ? null : (
@@ -156,7 +190,7 @@ function StepBlock({
           source={image}
           /* The capture's OWN ratio, so the frame is exactly its shape:
              no crop, no letterbox, and no reflow when it decodes. */
-          style={[styles.shot, {aspectRatio: step.width / step.height}]}
+          style={[styles.shot, { aspectRatio: step.width / step.height }]}
           resizeMode="contain"
           accessible
           accessibilityLabel={`${step.n}: ${step.titleAr}`}
@@ -166,7 +200,7 @@ function StepBlock({
       {step.note === null ? null : (
         <GuideText style={styles.note}>{step.note}</GuideText>
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -174,7 +208,7 @@ export default function FlightStyleCornerScreen({
   navigation,
   route,
 }: Props): React.JSX.Element {
-  const {width, fontScale} = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const tier = resolveLayoutTier(width, fontScale);
   /**
    * WHERE THE HEADER SPLITS IN TWO. Not isDesktopTier: that starts at
@@ -191,28 +225,39 @@ export default function FlightStyleCornerScreen({
     // but a typed route can still be entered by a deep link, and a blank
     // screen would be the worst possible answer.
     return (
-      <View style={styles.root} testID="flight-style-corner-screen">
+      <WorkbenchBlock
+        style={styles.root}
+        testID="flight-style-corner-screen"
+        section="root"
+      >
         <GuideHeader
-          eyebrow={"Vliegpatroon handleiding."}
-          title={"Onbekend patroon."}
+          eyebrow={'Vliegpatroon handleiding.'}
+          title={'Onbekend patroon.'}
           onBack={() => navigation.goBack()}
         />
-        <View style={styles.missing}>
+        <WorkbenchBlock style={styles.missing} section="missing">
           <Text style={styles.missingText}>
-            {"Er is geen hoek met die naam. Ga terug naar de index en kies een stijl uit de lijst."}</Text>
-        </View>
-      </View>
+            {
+              'Er is geen hoek met die naam. Ga terug naar de index en kies een stijl uit de lijst.'
+            }
+          </Text>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
     );
   }
 
   return (
-    <View style={styles.root} testID="flight-style-corner-screen">
+    <WorkbenchBlock
+      style={styles.root}
+      testID="flight-style-corner-screen"
+      section="root"
+    >
       <GuideHeader
         eyebrow={corner.titleEn}
         title={corner.titleAr}
         onBack={() => navigation.goBack()}
       />
-      <ScrollView
+      <WorkbenchScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.content,
@@ -226,7 +271,9 @@ export default function FlightStyleCornerScreen({
               CORNER_MAX_WIDTH,
             ),
           },
-        ]}>
+        ]}
+        workspace="FlightStyleCorner"
+      >
         {/*
           ONE COMPACT HEADER, not a poster followed by a caption.
 
@@ -241,9 +288,15 @@ export default function FlightStyleCornerScreen({
           side, so it stays stacked - and it was never the problem
           there: the hero measured 182px of an 844px screen.
         */}
-        <View style={[styles.hero, heroSideBySide && styles.heroWide]}>
-          <View
-            style={heroSideBySide ? styles.heroCoverWide : styles.heroCover}>
+        <WorkbenchBlock
+          style={[styles.hero, heroSideBySide && styles.heroWide]}
+          section="hero"
+          heading
+        >
+          <WorkbenchBlock
+            style={heroSideBySide ? styles.heroCoverWide : styles.heroCover}
+            section="heroCoverWide"
+          >
             <StyleCover
               source={FLIGHT_STYLE_HERO_IMAGES[corner.id]}
               fit={FLIGHT_STYLE_HERO_FIT[corner.id]}
@@ -251,29 +304,38 @@ export default function FlightStyleCornerScreen({
               titleEn={corner.titleEn}
               testID={`corner-cover-${corner.id}`}
             />
-          </View>
+          </WorkbenchBlock>
 
-          <View style={styles.heroCopy}>
+          <WorkbenchBlock style={styles.heroCopy} section="heroCopy">
             <Text style={styles.description}>{corner.descriptionAr}</Text>
 
-            <View style={styles.metaRow}>
-              <View style={styles.chip}>
+            <WorkbenchBlock style={styles.metaRow} section="metaRow">
+              <WorkbenchBlock style={styles.chip} section="chip">
                 <Text style={styles.chipText}>{corner.difficultyAr}</Text>
-              </View>
+              </WorkbenchBlock>
               {corner.aircraft.map(aircraft => (
-                <View key={aircraft} style={styles.chipQuiet}>
+                <WorkbenchBlock
+                  key={aircraft}
+                  style={styles.chipQuiet}
+                  section="chipQuiet"
+                >
                   <Text style={styles.chipQuietText}>{aircraft}</Text>
-                </View>
+                </WorkbenchBlock>
               ))}
-            </View>
-          </View>
-        </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
-        <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>{"De aanpassingsstappen in volgorde"}</Text>
+        <WorkbenchBlock style={styles.sectionHead} section="sectionHead">
+          <Text style={styles.sectionTitle}>
+            {'De aanpassingsstappen in volgorde'}
+          </Text>
           <Text style={styles.sectionHint}>
-            {"Volg haar van het eerste tot het laatste. Elke foto van de bouw van de huidige app, Alleen de aanbevolen waarden in deze handleiding."}</Text>
-        </View>
+            {
+              'Volg haar van het eerste tot het laatste. Elke foto van de bouw van de huidige app, Alleen de aanbevolen waarden in deze handleiding.'
+            }
+          </Text>
+        </WorkbenchBlock>
 
         {corner.steps.map(step => (
           <StepBlock key={step.n} corner={corner} step={step} />
@@ -281,63 +343,101 @@ export default function FlightStyleCornerScreen({
 
         {corner.decisions.length === 0 ? null : (
           <>
-            <View style={styles.sectionHead}>
+            <WorkbenchBlock style={styles.sectionHead} section="sectionHead">
               <Text style={styles.sectionTitle}>
-                {"De rest van de instellingen is een keuze voor iedereen."}</Text>
+                {'De rest van de instellingen is een keuze voor iedereen.'}
+              </Text>
               <Text style={styles.sectionHint}>
-                {"Alles wat de stappen hierboven niet veranderen, heeft een schriftelijk besluit, zodat je niet blijft. Je vraagt je af of we hem vergeten zijn. Beslissingen zijn alleen voor deze stijl."}</Text>
-            </View>
-            <View style={styles.decisions} testID="guide-decisions">
+                {
+                  'Alles wat de stappen hierboven niet veranderen, heeft een schriftelijk besluit, zodat je niet blijft. Je vraagt je af of we hem vergeten zijn. Beslissingen zijn alleen voor deze stijl.'
+                }
+              </Text>
+            </WorkbenchBlock>
+            <WorkbenchBlock
+              style={styles.decisions}
+              testID="guide-decisions"
+              section="decisions"
+            >
               {corner.decisions.map(decision => (
-                <View key={decision.what} style={styles.decision}>
-                  <View style={styles.decisionHead}>
+                <WorkbenchBlock
+                  key={decision.what}
+                  style={styles.decision}
+                  section="decision"
+                >
+                  <WorkbenchBlock
+                    style={styles.decisionHead}
+                    section="decisionHead"
+                  >
                     <Text style={styles.decisionWhat}>{decision.what}</Text>
-                    <View style={styles.verdict}>
+                    <WorkbenchBlock style={styles.verdict} section="verdict">
                       <Text style={styles.verdictText}>
                         {DECISION_LABEL[decision.kind]}
                       </Text>
-                    </View>
-                  </View>
+                    </WorkbenchBlock>
+                  </WorkbenchBlock>
                   <GuideText style={styles.decisionDetail}>
                     {decision.detail}
                   </GuideText>
                   {decision.source === null ? null : (
-                    <Text style={styles.sources}>{"De bron:"}{decision.source}</Text>
+                    <Text style={styles.sources}>
+                      {'De bron:'}
+                      {decision.source}
+                    </Text>
                   )}
-                </View>
+                </WorkbenchBlock>
               ))}
-            </View>
+            </WorkbenchBlock>
           </>
         )}
 
         {corner.warnings.length === 0 ? null : (
-          <View style={styles.warnings} testID="guide-warnings">
-            <Text style={styles.warningsTitle}>{"Waarschuwingen"}</Text>
+          <WorkbenchBlock
+            style={styles.warnings}
+            testID="guide-warnings"
+            section="warnings"
+          >
+            <Text style={styles.warningsTitle}>{'Waarschuwingen'}</Text>
             {corner.warnings.map(warning => (
-              <View key={warning.slice(0, 40)} style={styles.warningRow}>
-                <View style={styles.warningBar} />
-                <View style={styles.warningBody}>
+              <WorkbenchBlock
+                key={warning.slice(0, 40)}
+                style={styles.warningRow}
+                section="warningRow"
+              >
+                <WorkbenchBlock
+                  style={styles.warningBar}
+                  section="warningBar"
+                />
+                <WorkbenchBlock
+                  style={styles.warningBody}
+                  section="warningBody"
+                >
                   <GuideText style={styles.warningText}>{warning}</GuideText>
-                </View>
-              </View>
+                </WorkbenchBlock>
+              </WorkbenchBlock>
             ))}
-          </View>
+          </WorkbenchBlock>
         )}
 
-        <View style={styles.status}>
-          <Text style={styles.statusTitle}>{"De status van de verificatie"}</Text>
-          <Text style={styles.statusText}>
-            {corner.verification} {"—  de waarden van officiële bronnen, en de mogelijkheid van toepassing op Ze is getest. Gewone toestand:"}{corner.hardwareStatus}.
+        <WorkbenchBlock style={styles.status} section="status">
+          <Text style={styles.statusTitle}>
+            {'De status van de verificatie'}
           </Text>
-        </View>
-      </ScrollView>
-    </View>
+          <Text style={styles.statusText}>
+            {corner.verification}{' '}
+            {
+              '—  de waarden van officiële bronnen, en de mogelijkheid van toepassing op Ze is getest. Gewone toestand:'
+            }
+            {corner.hardwareStatus}.
+          </Text>
+        </WorkbenchBlock>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
-  scroll: {flex: 1},
+  root: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
   content: {
     width: '100%',
     alignSelf: 'center',
@@ -349,42 +449,54 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   /* Stacked on a phone, side by side once there is room for it. */
-  hero: {gap: spacing.sm},
-  heroWide: {flexDirection: 'row', alignItems: 'center', gap: spacing.lg},
-  heroCover: {width: '100%'},
+  hero: { gap: spacing.sm },
+  heroWide: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  heroCover: { width: '100%' },
   /* A fixed, modest column rather than the whole width: 300px at 16:9 is
      a 169px photograph, against 407px before. */
-  heroCoverWide: {width: 300, flexShrink: 0},
-  heroCopy: {flex: 1, gap: spacing.sm, justifyContent: 'center'},
+  heroCoverWide: { width: 300, flexShrink: 0 },
+  heroCopy: { flex: 1, gap: spacing.sm, justifyContent: 'center' },
   description: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  metaRow: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     borderRadius: radii.pill,
     backgroundColor: colors.accentSoft,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  chipText: {...typography.caption, color: colors.accentStrong, fontWeight: '600'},
+  chipText: {
+    ...typography.caption,
+    color: colors.accentStrong,
+    fontWeight: '600',
+  },
   chipQuiet: {
     borderRadius: radii.pill,
     backgroundColor: colors.surfaceAlt,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  chipQuietText: {...typography.caption, color: colors.textMuted},
+  chipQuietText: { ...typography.caption, color: colors.textMuted },
   /* Was spacing.lg. A section heading needs separation, not a gap
    the size of a paragraph. */
-  sectionHead: {paddingTop: spacing.md, gap: 2},
-  sectionTitle: {...typography.sectionTitle, color: colors.textPrimary, textAlign: 'left'},
+  sectionHead: { paddingTop: spacing.md, gap: 2 },
+  sectionTitle: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   sectionHint: {
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   step: {
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
@@ -395,7 +507,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: 6,
   },
-  stepHead: {flexDirection: 'row', alignItems: 'center', gap: spacing.sm},
+  stepHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   // The circle, the centring and the colour live here; the three
   // dimensions come per render from stepBadgeSize() - see its note. At the
   // default text size it computes 26, so this badge looks exactly as it
@@ -413,20 +525,31 @@ const styles = StyleSheet.create({
   },
   /* Was typography.heading - the size a SCREEN title uses. A step
    inside a numbered list is one level down from that. */
-  stepTitle: {...typography.bodyStrong, color: colors.textPrimary, flex: 1, textAlign: 'left'},
+  stepTitle: {
+    ...typography.bodyStrong,
+    color: colors.textPrimary,
+    flex: 1,
+    textAlign: 'left',
+  },
   stepWhere: {
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   recommend: {
     backgroundColor: colors.surfaceRaised,
     borderRadius: radii.md,
     padding: spacing.sm,
     gap: 4,
   },
-  recommendLabel: {...typography.label, color: colors.accentStrong, textAlign: 'left'},
-  recommendValues: {flexDirection: 'row', flexWrap: 'wrap', gap: 6},
+  recommendLabel: {
+    ...typography.label,
+    color: colors.accentStrong,
+    textAlign: 'left',
+  },
+  recommendValues: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   valueChip: {
     borderRadius: radii.sm,
     backgroundColor: colors.surface,
@@ -447,7 +570,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   shot: {
     width: '100%',
     /*
@@ -469,8 +594,12 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSoft,
     backgroundColor: colors.white,
   },
-  note: {...typography.caption, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  decisions: {gap: spacing.sm},
+  note: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  decisions: { gap: spacing.sm },
   decision: {
     backgroundColor: colors.surface,
     borderRadius: radii.md,
@@ -484,34 +613,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  decisionWhat: {...typography.bodyStrong, color: colors.textPrimary, flex: 1, textAlign: 'left'},
+  decisionWhat: {
+    ...typography.bodyStrong,
+    color: colors.textPrimary,
+    flex: 1,
+    textAlign: 'left',
+  },
   verdict: {
     borderRadius: radii.pill,
     backgroundColor: colors.surfaceAlt,
     paddingHorizontal: spacing.md,
     paddingVertical: 3,
   },
-  verdictText: {...typography.caption, color: colors.textSecondary, fontWeight: '700'},
-  decisionDetail: {...typography.caption, maxWidth: PROSE_MEASURE},
+  verdictText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '700',
+  },
+  decisionDetail: { ...typography.caption, maxWidth: PROSE_MEASURE },
   warnings: {
     ...noticeSurface,
     backgroundColor: colors.warningSoft,
     borderColor: colors.warning,
     gap: spacing.sm,
   },
-  warningsTitle: {...typography.label, color: colors.warning, textAlign: 'left'},
-  warningRow: {flexDirection: 'row', gap: spacing.sm},
-  warningBar: {width: 3, borderRadius: 2, backgroundColor: colors.warning},
-  warningBody: {flex: 1},
-  warningText: {...typography.caption, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  status: {...noticeSurface, backgroundColor: colors.successSoft, borderColor: colors.success, gap: 4},
-  statusTitle: {...typography.label, color: colors.textPrimary, textAlign: 'left'},
+  warningsTitle: {
+    ...typography.label,
+    color: colors.warning,
+    textAlign: 'left',
+  },
+  warningRow: { flexDirection: 'row', gap: spacing.sm },
+  warningBar: { width: 3, borderRadius: 2, backgroundColor: colors.warning },
+  warningBody: { flex: 1 },
+  warningText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  status: {
+    ...noticeSurface,
+    backgroundColor: colors.successSoft,
+    borderColor: colors.success,
+    gap: 4,
+  },
+  statusTitle: {
+    ...typography.label,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   statusText: {
     ...typography.caption,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  missing: {flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  missing: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
   missingText: {
     ...typography.body,
     color: colors.textSecondary,

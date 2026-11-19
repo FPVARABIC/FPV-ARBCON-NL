@@ -1,3 +1,4 @@
+import { WorkbenchBlock } from '../components/workbench/Workbench';
 /**
  * THE MAIN TAB SHELL.
  *
@@ -32,14 +33,14 @@
  * fires one event and the bridge decides everything else.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { Alert, StyleSheet, Text, useWindowDimensions } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { colors } from '../theme';
@@ -127,12 +128,13 @@ const TabPanel = React.memo(function TabPanelContent({
 }): React.JSX.Element {
   const Component = Screen as React.ComponentType<Record<string, unknown>>;
   return (
-    <View
+    <WorkbenchBlock
       style={active ? styles.visible : styles.hidden}
       testID={`main-tab-panel-${tabKey}`}
+      section="visible"
     >
       <Component {...screenProps} active={active} />
-    </View>
+    </WorkbenchBlock>
   );
 });
 
@@ -283,9 +285,9 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
       // making the navigation look broken. Keep the operator in place and
       // explain why; never hide a potentially live motor surface.
       Alert.alert(
-        "Het is onmogelijk om veilig over te stappen.",
+        'Het is onmogelijk om veilig over te stappen.',
         "motoren's stopbaan is niet voltooid. Gebruik de noodstop en probeer opnieuw.",
-        [{ text: "OK" }],
+        [{ text: 'OK' }],
       );
       return false;
     }
@@ -352,9 +354,9 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
         // Genuinely unconfirmed: stay on Motors and say why. Failing
         // closed is the only acceptable default here.
         Alert.alert(
-          "motoren is nog niet bevestigd.",
+          'motoren is nog niet bevestigd.',
           "vluchtcontroller's stopconfirmation is niet binnen de deadline. Sluit accu LiPo nu af voordat je het vliegtuig nadert. Het motoren-scherm blijft een fenomeen tot je het zelf bevestigt.",
-          [{ text: "OK" }],
+          [{ text: 'OK' }],
         );
       };
       const check = () => {
@@ -389,8 +391,8 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
       ) {
         if (rawCliBusy) {
           Alert.alert(
-            "CLI is actief.",
-            "Bewaar of verwijder de sessie van het huidige scherm voordat je overgaat.",
+            'CLI is actief.',
+            'Bewaar of verwijder de sessie van het huidige scherm voordat je overgaat.',
           );
         }
         return;
@@ -403,14 +405,14 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
           return;
         }
         Alert.alert(
-          "Niet-opgeslagen wijzigingen",
+          'Niet-opgeslagen wijzigingen',
           activeTab === 'MOTORS'
-            ? "De motoren-zitting wordt onmiddellijk beëindigd. Je hebt niet opgeslagen veranderingen. Ga terug om ze te bewaren of ga verder na het bevestigen van de stop zonder bewaren."
-            : "Je hebt nog niet opgeslagen veranderingen. Ga terug om het te bewaren of ga naar het gewenste scherm zonder te bewaren.",
+            ? 'De motoren-zitting wordt onmiddellijk beëindigd. Je hebt niet opgeslagen veranderingen. Ga terug om ze te bewaren of ga verder na het bevestigen van de stop zonder bewaren.'
+            : 'Je hebt nog niet opgeslagen veranderingen. Ga terug om het te bewaren of ga naar het gewenste scherm zonder te bewaren.',
           [
-            { text: "Terug naar het behoud.", style: 'cancel' },
+            { text: 'Terug naar het behoud.', style: 'cancel' },
             {
-              text: "Verhuizen zonder te bewaren.",
+              text: 'Verhuizen zonder te bewaren.',
               // The stop request was already sent before opening this
               // prompt. Reuse the SAME bounded result path as an ordinary
               // departure without emitting a second motor command.
@@ -484,7 +486,13 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
       // the screen must not add it a second time.
       bottomInset: 0,
     }),
-    [props.navigation, registerDepartureGate, reportMotorsDirty, sessionKey, subscribeTabBlur],
+    [
+      props.navigation,
+      registerDepartureGate,
+      reportMotorsDirty,
+      sessionKey,
+      subscribeTabBlur,
+    ],
   );
   const portsProps = useMemo(
     () => ({
@@ -607,11 +615,11 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
     [sessionKey],
   );
 
-
   return (
-    <View
+    <WorkbenchBlock
       style={[styles.root, useSideRail && styles.rootDesktop]}
       testID="main-tabs"
+      section="root"
     >
       {useSideRail ? (
         <SideNavigationRail
@@ -619,7 +627,7 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
           onSelectTab={handleSelectTab}
         />
       ) : null}
-      <View style={styles.content}>
+      <WorkbenchBlock style={styles.content} section="content">
         {mountedTabs.includes('SETUP') ? (
           <TabPanel
             tabKey="SETUP"
@@ -756,17 +764,22 @@ export default function MainTabsScreen(props: Props): React.JSX.Element {
             screenProps={cliProps}
           />
         ) : null}
-      </View>
+      </WorkbenchBlock>
       {awaitingMotorStop ? (
-        <View style={styles.awaitingStop} testID="main-tabs-awaiting-stop">
+        <WorkbenchBlock
+          style={styles.awaitingStop}
+          testID="main-tabs-awaiting-stop"
+          section="awaitingStop"
+        >
           <Text style={styles.awaitingStopText}>
-            {"Wachtend tot de motoren wordt uitgeschakeld..."}</Text>
-        </View>
+            {'Wachtend tot de motoren wordt uitgeschakeld...'}
+          </Text>
+        </WorkbenchBlock>
       ) : null}
       {useSideRail ? null : (
         <BottomTabBar activeTab={activeTab} onSelectTab={handleSelectTab} />
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 

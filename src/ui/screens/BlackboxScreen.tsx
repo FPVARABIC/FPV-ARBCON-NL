@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * تسجيل الرحلات - ONBOARD FLIGHT LOGGING.
  *
@@ -76,18 +80,16 @@
  * without reading, which is the opposite of a safeguard.
  */
 
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
 } from 'react-native';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import {
   blackboxFieldIncluded,
@@ -134,10 +136,15 @@ import {
   blackboxPendingSave,
   useBlackboxPendingSave,
 } from '../session/blackboxPendingSave';
-import {Button, NoticeBox, SelectField, ToggleSwitch} from '../components/controls';
-import {MIN_TOUCH_TARGET} from '../components/controls';
-import {StickyActionBar} from '../components/editing';
-import {Icon} from '../icons';
+import {
+  Button,
+  NoticeBox,
+  SelectField,
+  ToggleSwitch,
+} from '../components/controls';
+import { MIN_TOUCH_TARGET } from '../components/controls';
+import { StickyActionBar } from '../components/editing';
+import { Icon } from '../icons';
 import {
   PROSE_MEASURE,
   colors,
@@ -185,7 +192,14 @@ export interface BlackboxScreenProps {
  * SCREEN STATE
  * ================================================================== */
 
-type Phase = 'IDLE' | 'LOADING' | 'READY' | 'SAVING' | 'VERIFYING' | 'ERASING' | 'ERROR';
+type Phase =
+  | 'IDLE'
+  | 'LOADING'
+  | 'READY'
+  | 'SAVING'
+  | 'VERIFYING'
+  | 'ERASING'
+  | 'ERROR';
 
 /** The four save captions §20 requires, in the order they can occur. */
 type SaveStage = BlackboxSaveProgress | 'VERIFYING_AFTER_REBOOT';
@@ -226,7 +240,10 @@ function elapsedLabel(millis: number): string {
   const total = Math.max(0, Math.floor(millis / 1000));
   const minutes = Math.floor(total / 60);
   const seconds = total % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(
+    2,
+    '0',
+  )}`;
 }
 
 /* ================================================================== *
@@ -245,11 +262,13 @@ function Section({
   testID?: string;
 }): React.JSX.Element {
   return (
-    <View style={styles.card} testID={testID}>
+    <WorkbenchBlock style={styles.card} testID={testID} section="card" panel>
       <Text style={styles.sectionTitle}>{title}</Text>
-      {hint === undefined ? null : <Text style={styles.sectionHint}>{hint}</Text>}
+      {hint === undefined ? null : (
+        <Text style={styles.sectionHint}>{hint}</Text>
+      )}
       {children}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -276,14 +295,16 @@ function Fact({
   testID?: string;
 }): React.JSX.Element {
   return (
-    <View
+    <WorkbenchBlock
       style={inline ? styles.factInline : styles.factRow}
       accessible
       accessibilityLabel={accessibilityLabel ?? `${label}: ${value}`}
-      testID={testID}>
+      testID={testID}
+      section="factInline"
+    >
       <Text style={styles.factLabel}>{label}</Text>
       <Text style={styles.factValue}>{value}</Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -304,14 +325,16 @@ function Chip({
   testID?: string;
 }): React.JSX.Element {
   return (
-    <View
+    <WorkbenchBlock
       style={[styles.chip, styles[`chip_${tone}` as const]]}
       accessible
       accessibilityLabel={label}
-      testID={testID}>
+      testID={testID}
+      section="chip"
+    >
       <Icon name={icon} size={14} color={CHIP_FG[tone]} />
-      <Text style={[styles.chipText, {color: CHIP_FG[tone]}]}>{label}</Text>
-    </View>
+      <Text style={[styles.chipText, { color: CHIP_FG[tone] }]}>{label}</Text>
+    </WorkbenchBlock>
   );
 }
 
@@ -337,9 +360,19 @@ function UsageBar({
 }): React.JSX.Element | null {
   if (fraction === undefined) return null;
   return (
-    <View style={styles.barTrack} testID={testID} accessibilityRole="progressbar" accessibilityLabel="Geheugengebruik" accessibilityValue={{min: 0, max: 100, now: Math.round(fraction * 100)}}>
-      <View style={[styles.barFill, {width: `${Math.round(fraction * 100)}%`}]} />
-    </View>
+    <WorkbenchBlock
+      style={styles.barTrack}
+      testID={testID}
+      accessibilityRole="progressbar"
+      accessibilityLabel="Geheugengebruik"
+      accessibilityValue={{ min: 0, max: 100, now: Math.round(fraction * 100) }}
+      section="barTrack"
+    >
+      <WorkbenchBlock
+        style={[styles.barFill, { width: `${Math.round(fraction * 100)}%` }]}
+        section="barFill"
+      />
+    </WorkbenchBlock>
   );
 }
 
@@ -354,10 +387,10 @@ export default function BlackboxScreen({
   controller = blackboxConfigurationController,
   now = Date.now,
 }: BlackboxScreenProps): React.JSX.Element {
-  const {t} = useTranslation();
-  const {width, fontScale} = useWindowDimensions();
+  const { t } = useTranslation();
+  const { width, fontScale } = useWindowDimensions();
   const wide = isDesktopTier(resolveLayoutTier(width, fontScale));
-  const {maxWidth} = useContentEnvelope(true);
+  const { maxWidth } = useContentEnvelope(true);
 
   const [phase, setPhase] = useState<Phase>('IDLE');
   const [snapshot, setSnapshot] = useState<BlackboxSnapshot>();
@@ -417,7 +450,7 @@ export default function BlackboxScreen({
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        setLoadOutcome({kind: 'FAILED', error});
+        setLoadOutcome({ kind: 'FAILED', error });
         setPhase('ERROR');
       });
     return () => {
@@ -463,7 +496,7 @@ export default function BlackboxScreen({
       .catch((error: unknown) => {
         if (cancelled) return;
         blackboxPendingSave.clear();
-        setPersistence({kind: 'FAILED', error});
+        setPersistence({ kind: 'FAILED', error });
         setSaveStage(undefined);
         setPhase('READY');
       });
@@ -518,16 +551,21 @@ export default function BlackboxScreen({
     snapshot !== undefined && snapshot.configuration.device.device !== 'NONE';
   const persisted = snapshot === undefined ? undefined : draftOf(snapshot);
   const dirty =
-    persisted !== undefined && draft !== undefined && !draftsEqual(persisted, draft);
+    persisted !== undefined &&
+    draft !== undefined &&
+    !draftsEqual(persisted, draft);
   useEffect(() => onDirtyChange?.(dirty), [dirty, onDirtyChange]);
   useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
 
-  const busy = phase === 'SAVING' || phase === 'VERIFYING' || phase === 'ERASING';
+  const busy =
+    phase === 'SAVING' || phase === 'VERIFYING' || phase === 'ERASING';
   const saving = phase === 'SAVING' || phase === 'VERIFYING';
   const erasing = phase === 'ERASING';
 
   const update = useCallback((change: Partial<BlackboxOwnedDraft>) => {
-    setDraft(current => (current === undefined ? current : {...current, ...change}));
+    setDraft(current =>
+      current === undefined ? current : { ...current, ...change },
+    );
     setSaveOutcome(undefined);
     setPersistence(undefined);
   }, []);
@@ -537,15 +575,25 @@ export default function BlackboxScreen({
    * ---------------------------------------------------------------- */
 
   const save = useCallback(async () => {
-    if (sessionKey === undefined || snapshot === undefined || draft === undefined) return;
+    if (
+      sessionKey === undefined ||
+      snapshot === undefined ||
+      draft === undefined
+    )
+      return;
     setPhase('SAVING');
     setSaveStage('SENDING');
     setPersistence(undefined);
     let outcome: BlackboxSaveOutcome;
     try {
-      outcome = await controller.save(sessionKey, snapshot, draft, setSaveStage);
+      outcome = await controller.save(
+        sessionKey,
+        snapshot,
+        draft,
+        setSaveStage,
+      );
     } catch (error) {
-      outcome = {kind: 'FAILED', error};
+      outcome = { kind: 'FAILED', error };
     }
     setSaveOutcome(outcome);
     if (outcome.kind === 'AWAITING_REBOOT_VERIFICATION') {
@@ -578,12 +626,16 @@ export default function BlackboxScreen({
     setConfirmingErase(false);
     setEraseOutcome(undefined);
     setPhase('ERASING');
-    setEraseState({progress: 'REQUESTED', startedAt: now()});
-    const observation = controller.eraseDataflash(sessionKey, snapshot, progress => {
-      setEraseState(current =>
-        current === undefined ? current : {...current, progress},
-      );
-    });
+    setEraseState({ progress: 'REQUESTED', startedAt: now() });
+    const observation = controller.eraseDataflash(
+      sessionKey,
+      snapshot,
+      progress => {
+        setEraseState(current =>
+          current === undefined ? current : { ...current, progress },
+        );
+      },
+    );
     eraseRef.current = observation;
     observation.result
       .then(outcome => {
@@ -596,13 +648,15 @@ export default function BlackboxScreen({
              controller only returns SUCCEEDED on a READY_EMPTY reading,
              and that reading is what the card now shows. */
           setSnapshot(current =>
-            current === undefined ? current : {...current, dataflash: outcome.dataflash},
+            current === undefined
+              ? current
+              : { ...current, dataflash: outcome.dataflash },
           );
         }
       })
       .catch((error: unknown) => {
         eraseRef.current = undefined;
-        setEraseOutcome({kind: 'FAILED', error});
+        setEraseOutcome({ kind: 'FAILED', error });
         setEraseState(undefined);
         setPhase('READY');
       });
@@ -628,7 +682,11 @@ export default function BlackboxScreen({
     }
     if (snapshot === undefined || draft === undefined) {
       return (
-        <NoticeBox variant="warning" title={t('blackbox.loadFailedTitle')} testID="blackbox-load-failed">
+        <NoticeBox
+          variant="warning"
+          title={t('blackbox.loadFailedTitle')}
+          testID="blackbox-load-failed"
+        >
           <Text style={styles.noticeBody}>
             {loadOutcome?.kind === 'REJECTED'
               ? t(`blackbox.blockReason.${loadOutcome.reason}` as const)
@@ -658,7 +716,8 @@ export default function BlackboxScreen({
         <NoticeBox
           variant="info"
           title={t('blackbox.unsupportedTitle')}
-          testID="blackbox-unsupported">
+          testID="blackbox-unsupported"
+        >
           <Text style={styles.noticeBody}>{t('blackbox.unsupportedBody')}</Text>
         </NoticeBox>
       );
@@ -685,32 +744,40 @@ export default function BlackboxScreen({
     const deviceText =
       device.raw === undefined
         ? translate(device.key)
-        : translate(device.key, {raw: device.raw});
+        : translate(device.key, { raw: device.raw });
     const rateText =
       rate.key === 'blackbox.rate.fraction'
-        ? translate(rate.key, {divider: rate.divider})
+        ? translate(rate.key, { divider: rate.divider })
         : rate.key === 'blackbox.rate.unknown'
-          ? translate(rate.key, {raw: rate.raw})
-          : translate(rate.key);
+        ? translate(rate.key, { raw: rate.raw })
+        : translate(rate.key);
 
     return (
       <Section
         title={translate('blackbox.statusTitle')}
-        testID="blackbox-status">
+        testID="blackbox-status"
+      >
         {/* NOTHING IS BEING LOGGED IS NOT THE SAME AS NOT SUPPORTED, and
             the difference is the device byte. The firmware writes nothing
             when the destination is NONE and writes when it is anything
             else; there is no separate feature bit to consult, so there is
             no separate fact to state. */}
         {current.configuration.device.device === 'NONE' ? (
-          <View style={styles.inlineNotice} testID="blackbox-feature-disabled">
+          <WorkbenchBlock
+            style={styles.inlineNotice}
+            testID="blackbox-feature-disabled"
+            section="inlineNotice"
+          >
             <Icon name="circle-alert" size={16} color={colors.warning} />
             <Text style={styles.inlineNoticeText}>
               {translate('blackbox.featureDisabled')}
             </Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
-        <View style={wide ? styles.factsRow : undefined}>
+        <WorkbenchBlock
+          style={wide ? styles.factsRow : undefined}
+          section="factsRow"
+        >
           <Fact
             label={translate('blackbox.destinationLabel')}
             value={deviceText}
@@ -724,21 +791,27 @@ export default function BlackboxScreen({
             label={translate('blackbox.rateLabel')}
             value={rateText}
             inline={wide}
-            accessibilityLabel={translate('blackbox.rateAccessible', {value: rateText})}
+            accessibilityLabel={translate('blackbox.rateAccessible', {
+              value: rateText,
+            })}
             testID="blackbox-persisted-rate"
           />
-        </View>
+        </WorkbenchBlock>
         {/* THE DRAFT NOTE. The status above keeps showing what the board
             HOLDS; this says what a save would change it to. */}
         {dirty && draft !== undefined ? (
-          <View style={styles.draftNotice} testID="blackbox-draft-notice">
+          <WorkbenchBlock
+            style={styles.draftNotice}
+            testID="blackbox-draft-notice"
+            section="draftNotice"
+          >
             <Icon name="pencil" size={14} color={colors.accentStrong} />
             <Text style={styles.draftText}>
               {translate('blackbox.draftPending', {
                 value: labelForDevice(draft.deviceRaw, translate),
               })}
             </Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
       </Section>
     );
@@ -748,7 +821,7 @@ export default function BlackboxScreen({
 
   const storageSections = (): React.ReactNode => {
     if (snapshot === undefined) return null;
-    const {dataflash, sdcard} = snapshot;
+    const { dataflash, sdcard } = snapshot;
     if (onlySerialRemains(dataflash, sdcard)) {
       return (
         <Section title={t('blackbox.storageTitle')} testID="blackbox-storage">
@@ -759,10 +832,13 @@ export default function BlackboxScreen({
       );
     }
     return (
-      <View style={wide ? styles.storageRow : undefined}>
+      <WorkbenchBlock
+        style={wide ? styles.storageRow : undefined}
+        section="storageRow"
+      >
         {dataflashSectionVisible(dataflash) ? flashCard(dataflash) : null}
         {sdcardSectionVisible(sdcard) ? sdCard(sdcard) : null}
-      </View>
+      </WorkbenchBlock>
     );
   };
 
@@ -780,14 +856,20 @@ export default function BlackboxScreen({
       snapshot !== undefined &&
       dataflashEraseWouldApply(snapshot.configuration, storage);
     const draftOnlyFlash =
-      draft?.deviceRaw === 1 && snapshot?.configuration.device.device !== 'FLASH';
+      draft?.deviceRaw === 1 &&
+      snapshot?.configuration.device.device !== 'FLASH';
 
     return (
-      <View style={[styles.card, wide && styles.storageColumn]} testID="blackbox-flash">
-        <View style={styles.cardHead}>
+      <WorkbenchBlock
+        style={[styles.card, wide && styles.storageColumn]}
+        testID="blackbox-flash"
+        section="card"
+        panel
+      >
+        <WorkbenchBlock style={styles.cardHead} section="cardHead">
           <Icon name="hard-drive" size={18} color={colors.accentStrong} />
           <Text style={styles.sectionTitle}>{t('blackbox.flashTitle')}</Text>
-        </View>
+        </WorkbenchBlock>
         {/* THE HEADLINE GOES TOO, for the same reason the numbers do.
             "Contains logs" was true when the erase started and is being
             unmade as it runs; leaving it up beside a spinner states a
@@ -822,7 +904,11 @@ export default function BlackboxScreen({
           </>
         ) : null}
         {erasing ? (
-          <View style={styles.eraseLive} testID="blackbox-erase-progress">
+          <WorkbenchBlock
+            style={styles.eraseLive}
+            testID="blackbox-erase-progress"
+            section="eraseLive"
+          >
             <ActivityIndicator color={colors.accentStrong} />
             <Text style={styles.eraseText}>
               {eraseState?.progress === 'REQUESTED'
@@ -832,7 +918,7 @@ export default function BlackboxScreen({
             <Text style={styles.eraseClock} testID="blackbox-erase-elapsed">
               {elapsedLabel(elapsed)}
             </Text>
-          </View>
+          </WorkbenchBlock>
         ) : eraseApplies ? (
           <Button
             label={t('blackbox.eraseAction')}
@@ -852,13 +938,16 @@ export default function BlackboxScreen({
         {eraseOutcome === undefined ? null : (
           <Text
             style={
-              eraseOutcome.kind === 'SUCCEEDED' ? styles.successText : styles.warningText
+              eraseOutcome.kind === 'SUCCEEDED'
+                ? styles.successText
+                : styles.warningText
             }
-            testID="blackbox-erase-outcome">
+            testID="blackbox-erase-outcome"
+          >
             {eraseOutcomeText(eraseOutcome, t)}
           </Text>
         )}
-      </View>
+      </WorkbenchBlock>
     );
   };
 
@@ -878,15 +967,22 @@ export default function BlackboxScreen({
         : totalBytes - freeBytes;
 
     return (
-      <View style={[styles.card, wide && styles.storageColumn]} testID="blackbox-sd">
-        <View style={styles.cardHead}>
+      <WorkbenchBlock
+        style={[styles.card, wide && styles.storageColumn]}
+        testID="blackbox-sd"
+        section="card"
+        panel
+      >
+        <WorkbenchBlock style={styles.cardHead} section="cardHead">
           <Icon name="layers" size={18} color={colors.accentStrong} />
           <Text style={styles.sectionTitle}>{t('blackbox.sdTitle')}</Text>
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.stateHeadline} testID="blackbox-sd-state">
           {t(copy.headlineKey)}
         </Text>
-        {copy.showsMeasurements && totalBytes !== undefined && freeBytes !== undefined ? (
+        {copy.showsMeasurements &&
+        totalBytes !== undefined &&
+        freeBytes !== undefined ? (
           <>
             {/* FREE, NOT USED, is the headline - and that is the
                 firmware's own meaning. msp.c fills freeSpace from
@@ -909,7 +1005,9 @@ export default function BlackboxScreen({
               })}
               testID="blackbox-sd-bar"
             />
-            <Text style={styles.hintText}>{t('blackbox.sdFreeIsContiguous')}</Text>
+            <Text style={styles.hintText}>
+              {t('blackbox.sdFreeIsContiguous')}
+            </Text>
           </>
         ) : null}
         {storage.state === 'FATAL' || storage.state === 'UNKNOWN' ? (
@@ -920,7 +1018,7 @@ export default function BlackboxScreen({
             })}
           </Text>
         ) : null}
-      </View>
+      </WorkbenchBlock>
     );
   };
 
@@ -929,7 +1027,11 @@ export default function BlackboxScreen({
   const settingsSection = (): React.ReactNode => {
     if (draft === undefined || snapshot === undefined) return null;
     const rateOptions = [];
-    for (let raw = BLACKBOX_SAMPLE_RATE_MIN; raw <= BLACKBOX_SAMPLE_RATE_MAX; raw += 1) {
+    for (
+      let raw = BLACKBOX_SAMPLE_RATE_MIN;
+      raw <= BLACKBOX_SAMPLE_RATE_MAX;
+      raw += 1
+    ) {
       const label = describeBlackboxRate({
         raw,
         divider: Math.pow(2, raw),
@@ -940,7 +1042,7 @@ export default function BlackboxScreen({
         label:
           label.key === 'blackbox.rate.full'
             ? t(label.key)
-            : t(label.key, {divider: label.divider}),
+            : t(label.key, { divider: label.divider }),
       });
     }
     /* A board reporting a rate this build cannot name keeps it as a
@@ -950,7 +1052,9 @@ export default function BlackboxScreen({
     if (rateUnmodelled) {
       rateOptions.push({
         key: String(snapshot.config.sampleRateRaw),
-        label: t('blackbox.rate.unknown', {raw: snapshot.config.sampleRateRaw}),
+        label: t('blackbox.rate.unknown', {
+          raw: snapshot.config.sampleRateRaw,
+        }),
       });
     }
 
@@ -961,19 +1065,21 @@ export default function BlackboxScreen({
     if (!snapshot.configuration.device.modelled) {
       deviceOptions.push({
         key: String(snapshot.config.deviceRaw),
-        label: t('blackbox.device.UNKNOWN', {raw: snapshot.config.deviceRaw}),
+        label: t('blackbox.device.UNKNOWN', { raw: snapshot.config.deviceRaw }),
       });
     }
 
-    const debugOptions = offerableDebugModes(snapshot.debugModeCount).map(raw => ({
-      key: String(raw),
-      label: describeDebugMode(raw).name ?? String(raw),
-    }));
+    const debugOptions = offerableDebugModes(snapshot.debugModeCount).map(
+      raw => ({
+        key: String(raw),
+        label: describeDebugMode(raw).name ?? String(raw),
+      }),
+    );
     const debugUnnamed = describeDebugMode(draft.debugMode).name === undefined;
     if (debugUnnamed) {
       debugOptions.push({
         key: String(draft.debugMode),
-        label: t('blackbox.debugModeUnknown', {raw: draft.debugMode}),
+        label: t('blackbox.debugModeUnknown', { raw: draft.debugMode }),
       });
     }
 
@@ -981,41 +1087,42 @@ export default function BlackboxScreen({
       <Section
         title={t('blackbox.settingsTitle')}
         hint={t('blackbox.settingsHint')}
-        testID="blackbox-settings">
-        <View style={styles.fieldsRow}>
-          <View style={styles.field}>
+        testID="blackbox-settings"
+      >
+        <WorkbenchBlock style={styles.fieldsRow} section="fieldsRow">
+          <WorkbenchBlock style={styles.field} section="field">
             <SelectField
               label={t('blackbox.deviceField')}
               options={deviceOptions}
               selectedKey={String(draft.deviceRaw)}
-              onSelect={key => update({deviceRaw: Number(key)})}
+              onSelect={key => update({ deviceRaw: Number(key) })}
               disabled={busy}
               testID="blackbox-device-select"
             />
-          </View>
-          <View style={styles.field}>
+          </WorkbenchBlock>
+          <WorkbenchBlock style={styles.field} section="field">
             <SelectField
               label={t('blackbox.rateField')}
               options={rateOptions}
               selectedKey={String(draft.sampleRateRaw)}
-              onSelect={key => update({sampleRateRaw: Number(key)})}
+              onSelect={key => update({ sampleRateRaw: Number(key) })}
               disabled={busy}
               helper={t('blackbox.rateHelper')}
               testID="blackbox-rate-select"
             />
-          </View>
-          <View style={styles.field}>
+          </WorkbenchBlock>
+          <WorkbenchBlock style={styles.field} section="field">
             <SelectField
               label={t('blackbox.debugModeField')}
               options={debugOptions}
               selectedKey={String(draft.debugMode)}
-              onSelect={key => update({debugMode: Number(key)})}
+              onSelect={key => update({ debugMode: Number(key) })}
               disabled={busy}
               helper={t('blackbox.debugModeHelper')}
               testID="blackbox-debug-select"
             />
-          </View>
-        </View>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
       </Section>
     );
   };
@@ -1025,14 +1132,20 @@ export default function BlackboxScreen({
   const advancedSection = (): React.ReactNode => {
     if (draft === undefined) return null;
     return (
-      <View style={styles.card} testID="blackbox-advanced">
+      <WorkbenchBlock
+        style={styles.card}
+        testID="blackbox-advanced"
+        section="card"
+        panel
+      >
         <Pressable
           onPress={() => setAdvancedOpen(open => !open)}
           accessibilityRole="button"
-          accessibilityState={{expanded: advancedOpen}}
+          accessibilityState={{ expanded: advancedOpen }}
           accessibilityLabel={t('blackbox.advancedTitle')}
           style={styles.disclosure}
-          testID="blackbox-advanced-toggle">
+          testID="blackbox-advanced-toggle"
+        >
           <Text style={styles.sectionTitle}>{t('blackbox.advancedTitle')}</Text>
           <Icon
             name={advancedOpen ? 'chevron-up' : 'chevron-down'}
@@ -1041,11 +1154,21 @@ export default function BlackboxScreen({
           />
         </Pressable>
         {advancedOpen ? (
-          <View style={styles.fieldsGrid} testID="blackbox-fields">
+          <WorkbenchBlock
+            style={styles.fieldsGrid}
+            testID="blackbox-fields"
+            section="fieldsGrid"
+          >
             <Text style={styles.sectionHint}>{t('blackbox.fieldsHint')}</Text>
             {BLACKBOX_FIELD_BITS.map(field => (
-              <View style={styles.fieldToggle} key={field}>
-                <Text style={styles.factLabel}>{t(`blackbox.field.${field}` as const)}</Text>
+              <WorkbenchBlock
+                style={styles.fieldToggle}
+                key={field}
+                section="fieldToggle"
+              >
+                <Text style={styles.factLabel}>
+                  {t(`blackbox.field.${field}` as const)}
+                </Text>
                 <ToggleSwitch
                   value={blackboxFieldIncluded(draft.disabledFieldsMask, field)}
                   onValueChange={included =>
@@ -1063,19 +1186,22 @@ export default function BlackboxScreen({
                   })}
                   testID={`blackbox-field-${field}`}
                 />
-              </View>
+              </WorkbenchBlock>
             ))}
-          </View>
+          </WorkbenchBlock>
         ) : null}
-      </View>
+      </WorkbenchBlock>
     );
   };
 
   /* ---- outcome copy ---------------------------------------------- */
 
-  const statusLine = ((): {text: string; warning: boolean} | undefined => {
+  const statusLine = ((): { text: string; warning: boolean } | undefined => {
     if (saveStage !== undefined) {
-      return {text: t(`blackbox.saveStage.${saveStage}` as const), warning: false};
+      return {
+        text: t(`blackbox.saveStage.${saveStage}` as const),
+        warning: false,
+      };
     }
     if (persistence !== undefined) {
       return persistenceText(persistence, t);
@@ -1087,9 +1213,12 @@ export default function BlackboxScreen({
   })();
 
   return (
-    <View style={styles.root} testID="blackbox-screen">
-      <ScrollView contentContainerStyle={[styles.content, {maxWidth}]}>
-        <View style={styles.header}>
+    <WorkbenchBlock style={styles.root} testID="blackbox-screen" section="root">
+      <WorkbenchScrollView
+        contentContainerStyle={[styles.content, { maxWidth }]}
+        workspace="Blackbox"
+      >
+        <WorkbenchBlock style={styles.header} section="header" heading>
           <Text style={styles.title}>{t('blackbox.title')}</Text>
 
           {/* ONE CHIP, AND ONLY ONE.
@@ -1101,7 +1230,11 @@ export default function BlackboxScreen({
               selector below it, and a third copy in the header is noise
               rather than hierarchy. */}
           {snapshot !== undefined && snapshot.config.supported ? (
-            <View style={styles.chips} testID="blackbox-chips">
+            <WorkbenchBlock
+              style={styles.chips}
+              testID="blackbox-chips"
+              section="chips"
+            >
               <Chip
                 tone={loggingConfigured ? 'good' : 'idle'}
                 icon={loggingConfigured ? 'circle-check' : 'circle-x'}
@@ -1112,15 +1245,21 @@ export default function BlackboxScreen({
                 }
                 testID="blackbox-chip-feature"
               />
-            </View>
+            </WorkbenchBlock>
           ) : null}
-        </View>
+        </WorkbenchBlock>
 
         {statusLine === undefined ? null : (
-          <View
+          <WorkbenchBlock
             style={statusLine.warning ? styles.warning : styles.success}
-            testID="blackbox-status-line">
-            <Text style={statusLine.warning ? styles.warningText : styles.successText}>
+            testID="blackbox-status-line"
+            section="warning"
+          >
+            <Text
+              style={
+                statusLine.warning ? styles.warningText : styles.successText
+              }
+            >
               {statusLine.text}
             </Text>
             {persistence?.kind === 'PERSISTENCE_MISMATCH' ||
@@ -1134,12 +1273,12 @@ export default function BlackboxScreen({
                 testID="blackbox-reread"
               />
             ) : null}
-          </View>
+          </WorkbenchBlock>
         )}
 
         {body()}
-        <View style={styles.bottomSpace} />
-      </ScrollView>
+        <WorkbenchBlock style={styles.bottomSpace} section="bottomSpace" />
+      </WorkbenchScrollView>
 
       <StickyActionBar
         visible={dirty && !erasing}
@@ -1164,13 +1303,27 @@ export default function BlackboxScreen({
         visible={confirmingErase}
         transparent
         animationType="fade"
-        onRequestClose={() => setConfirmingErase(false)}>
-        <View style={styles.backdrop}>
-          <View style={styles.dialog} testID="blackbox-erase-dialog">
-            <Text style={styles.dialogTitle}>{t('blackbox.eraseConfirmTitle')}</Text>
-            <Text style={styles.dialogBody}>{t('blackbox.eraseConfirmBody')}</Text>
-            <Text style={styles.dialogHint}>{t('blackbox.eraseConfirmHint')}</Text>
-            <View style={styles.dialogActions}>
+        onRequestClose={() => setConfirmingErase(false)}
+      >
+        <WorkbenchBlock style={styles.backdrop} section="backdrop">
+          <WorkbenchBlock
+            style={styles.dialog}
+            testID="blackbox-erase-dialog"
+            section="dialog"
+          >
+            <Text style={styles.dialogTitle}>
+              {t('blackbox.eraseConfirmTitle')}
+            </Text>
+            <Text style={styles.dialogBody}>
+              {t('blackbox.eraseConfirmBody')}
+            </Text>
+            <Text style={styles.dialogHint}>
+              {t('blackbox.eraseConfirmHint')}
+            </Text>
+            <WorkbenchBlock
+              style={styles.dialogActions}
+              section="dialogActions"
+            >
               <Button
                 label={t('blackbox.eraseConfirmCancel')}
                 onPress={() => setConfirmingErase(false)}
@@ -1184,11 +1337,11 @@ export default function BlackboxScreen({
                 icon="trash-2"
                 testID="blackbox-erase-confirm"
               />
-            </View>
-          </View>
-        </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
       </Modal>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1206,22 +1359,35 @@ function sizeText(bytes: number, t: Translate): string {
 function labelForDevice(raw: number, t: Translate): string {
   const label = describeBlackboxDevice({
     device:
-      raw === 0 ? 'NONE' : raw === 1 ? 'FLASH' : raw === 2 ? 'SDCARD' : raw === 3 ? 'SERIAL' : 'UNKNOWN',
+      raw === 0
+        ? 'NONE'
+        : raw === 1
+        ? 'FLASH'
+        : raw === 2
+        ? 'SDCARD'
+        : raw === 3
+        ? 'SERIAL'
+        : 'UNKNOWN',
     raw,
     modelled: raw >= 0 && raw <= 3,
   });
-  return label.raw === undefined ? t(label.key) : t(label.key, {raw: label.raw});
+  return label.raw === undefined
+    ? t(label.key)
+    : t(label.key, { raw: label.raw });
 }
 
 function saveOutcomeText(
   outcome: BlackboxSaveOutcome,
   t: Translate,
-): {text: string; warning: boolean} {
+): { text: string; warning: boolean } {
   switch (outcome.kind) {
     case 'NO_CHANGES':
-      return {text: t('blackbox.outcome.noChanges'), warning: false};
+      return { text: t('blackbox.outcome.noChanges'), warning: false };
     case 'AWAITING_REBOOT_VERIFICATION':
-      return {text: t('blackbox.saveStage.VERIFYING_AFTER_REBOOT'), warning: false};
+      return {
+        text: t('blackbox.saveStage.VERIFYING_AFTER_REBOOT'),
+        warning: false,
+      };
     /**
      * THE ACK-WITHOUT-APPLY CASE. The known firmware cause is a write
      * refused while logging is active, and the secondary line says so as
@@ -1229,36 +1395,42 @@ function saveOutcomeText(
      * the board was logging.
      */
     case 'READBACK_MISMATCH':
-      return {text: t('blackbox.outcome.readbackMismatch'), warning: true};
+      return { text: t('blackbox.outcome.readbackMismatch'), warning: true };
     case 'REJECTED':
-      return {text: t(`blackbox.blockReason.${outcome.reason}` as const), warning: true};
+      return {
+        text: t(`blackbox.blockReason.${outcome.reason}` as const),
+        warning: true,
+      };
     case 'UNCONFIRMED':
-      return {text: t('blackbox.outcome.unconfirmed'), warning: true};
+      return { text: t('blackbox.outcome.unconfirmed'), warning: true };
     case 'SESSION_ENDED':
-      return {text: t('blackbox.outcome.sessionEnded'), warning: true};
+      return { text: t('blackbox.outcome.sessionEnded'), warning: true };
     case 'FAILED':
-      return {text: t('blackbox.outcome.failed'), warning: true};
+      return { text: t('blackbox.outcome.failed'), warning: true };
   }
 }
 
 function persistenceText(
   outcome: BlackboxPersistenceOutcome,
   t: Translate,
-): {text: string; warning: boolean} {
+): { text: string; warning: boolean } {
   switch (outcome.kind) {
     case 'SUCCEEDED':
-      return {text: t('blackbox.outcome.saved'), warning: false};
+      return { text: t('blackbox.outcome.saved'), warning: false };
     case 'PERSISTENCE_MISMATCH':
-      return {text: t('blackbox.outcome.persistenceMismatch'), warning: true};
+      return { text: t('blackbox.outcome.persistenceMismatch'), warning: true };
     /** A distinct sentence: this is not a failure, it is a wrong moment. */
     case 'STALE_SESSION':
-      return {text: t('blackbox.outcome.staleSession'), warning: true};
+      return { text: t('blackbox.outcome.staleSession'), warning: true };
     case 'REJECTED':
-      return {text: t(`blackbox.blockReason.${outcome.reason}` as const), warning: true};
+      return {
+        text: t(`blackbox.blockReason.${outcome.reason}` as const),
+        warning: true,
+      };
     case 'SESSION_ENDED':
-      return {text: t('blackbox.outcome.sessionEnded'), warning: true};
+      return { text: t('blackbox.outcome.sessionEnded'), warning: true };
     case 'FAILED':
-      return {text: t('blackbox.outcome.failed'), warning: true};
+      return { text: t('blackbox.outcome.failed'), warning: true };
   }
 }
 
@@ -1284,29 +1456,34 @@ function eraseOutcomeText(outcome: BlackboxEraseOutcome, t: Translate): string {
 }
 
 /** Re-exported for the block-reason catalogue gate. */
-export type {BlackboxBlockReason};
+export type { BlackboxBlockReason };
 
 /* ================================================================== *
  * STYLE
  * ================================================================== */
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
+  root: { flex: 1, backgroundColor: colors.background },
   content: {
     width: '100%',
     alignSelf: 'center',
     padding: spacing.lg,
     gap: spacing.md,
   },
-  header: {gap: spacing.xs},
-  title: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
+  header: { gap: spacing.xs },
+  title: { ...typography.title, color: colors.textPrimary, textAlign: 'left' },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
     maxWidth: PROSE_MEASURE,
   },
-  chips: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs},
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1316,10 +1493,16 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     borderWidth: 1,
   },
-  chip_good: {borderColor: colors.success, backgroundColor: colors.successSoft},
-  chip_idle: {borderColor: colors.border, backgroundColor: colors.surfaceAlt},
-  chip_warn: {borderColor: colors.warning, backgroundColor: colors.warningSoft},
-  chipText: {...typography.caption, fontWeight: '600'},
+  chip_good: {
+    borderColor: colors.success,
+    backgroundColor: colors.successSoft,
+  },
+  chip_idle: { borderColor: colors.border, backgroundColor: colors.surfaceAlt },
+  chip_warn: {
+    borderColor: colors.warning,
+    backgroundColor: colors.warningSoft,
+  },
+  chipText: { ...typography.caption, fontWeight: '600' },
 
   card: {
     backgroundColor: colors.surface,
@@ -1329,8 +1512,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  cardHead: {flexDirection: 'row', alignItems: 'center', gap: spacing.sm},
-  sectionTitle: {...typography.sectionTitle, color: colors.textPrimary, textAlign: 'left'},
+  cardHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  sectionTitle: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   sectionHint: {
     ...typography.caption,
     color: colors.textMuted,
@@ -1339,8 +1526,8 @@ const styles = StyleSheet.create({
   },
   /* Two storage cards side by side only where there is genuinely room;
      on a phone they stack at full width rather than being squeezed. */
-  storageRow: {flexDirection: 'row', gap: spacing.md},
-  storageColumn: {flex: 1},
+  storageRow: { flexDirection: 'row', gap: spacing.md },
+  storageColumn: { flex: 1 },
 
   factRow: {
     flexDirection: 'row',
@@ -1352,16 +1539,28 @@ const styles = StyleSheet.create({
   /* Wide layouts only: the facts sit beside each other and each label
      hugs its own value, instead of two words at opposite ends of a
      1366px card. */
-  factsRow: {flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl},
+  factsRow: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl },
   factInline: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     minHeight: 26,
   },
-  factLabel: {...typography.label, color: colors.textSecondary, textAlign: 'left'},
-  factValue: {...typography.bodyStrong, color: colors.textPrimary, textAlign: 'left'},
-  stateHeadline: {...typography.bodyStrong, color: colors.textPrimary, textAlign: 'left'},
+  factLabel: {
+    ...typography.label,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
+  factValue: {
+    ...typography.bodyStrong,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  stateHeadline: {
+    ...typography.bodyStrong,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   measurement: {
     ...typography.value,
     color: colors.textPrimary,
@@ -1387,7 +1586,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     overflow: 'hidden',
   },
-  barFill: {height: 8, borderRadius: radii.pill, backgroundColor: colors.accent},
+  barFill: {
+    height: 8,
+    borderRadius: radii.pill,
+    backgroundColor: colors.accent,
+  },
 
   inlineNotice: {
     flexDirection: 'row',
@@ -1425,8 +1628,8 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
 
-  eraseLive: {flexDirection: 'row', alignItems: 'center', gap: spacing.sm},
-  eraseText: {...typography.body, color: colors.textPrimary, flexShrink: 1},
+  eraseLive: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  eraseText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
   eraseClock: {
     ...typography.value,
     color: colors.textSecondary,
@@ -1434,9 +1637,9 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
 
-  fieldsRow: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md},
-  field: {flexGrow: 1, flexBasis: 220},
-  fieldsGrid: {gap: spacing.xs},
+  fieldsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  field: { flexGrow: 1, flexBasis: 220 },
+  fieldsGrid: { gap: spacing.xs },
   fieldToggle: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1481,15 +1684,19 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     maxWidth: PROSE_MEASURE,
   },
-  noticeBody: {...typography.body, color: colors.textPrimary, textAlign: 'left'},
-  inlineAction: {alignSelf: 'flex-start'},
+  noticeBody: {
+    ...typography.body,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  inlineAction: { alignSelf: 'flex-start' },
   loading: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'center',
     padding: spacing.xl,
   },
-  bottomSpace: {height: spacing.xl},
+  bottomSpace: { height: spacing.xl },
 
   backdrop: {
     flex: 1,
@@ -1508,9 +1715,21 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
-  dialogTitle: {...typography.heading, color: colors.error, textAlign: 'left'},
-  dialogBody: {...typography.body, color: colors.textPrimary, textAlign: 'left'},
-  dialogHint: {...typography.caption, color: colors.textMuted, textAlign: 'left'},
+  dialogTitle: {
+    ...typography.heading,
+    color: colors.error,
+    textAlign: 'left',
+  },
+  dialogBody: {
+    ...typography.body,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  dialogHint: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'left',
+  },
   dialogActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

@@ -1,4 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   Pressable,
@@ -6,7 +16,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,9 +31,16 @@ import {
   type LoadedFirmwarePreset,
   type SetupUiSessionKey,
 } from '../../platforms/react-native/protocol';
-import {PROSE_MEASURE, colors, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {MIN_TOUCH_TARGET} from '../components/controls';
-import {Icon} from '../icons';
+import {
+  PROSE_MEASURE,
+  colors,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { MIN_TOUCH_TARGET } from '../components/controls';
+import { Icon } from '../icons';
 
 export type PresetsRepositoryPort = Pick<
   typeof firmwarePresetRepository,
@@ -69,9 +85,9 @@ const CATEGORY_LABEL: Record<FirmwarePresetCategory, string> = {
  * different from the other two, not to be a grey pill in another language.
  */
 const STATUS_LABEL: Record<FirmwarePresetStatus, string> = {
-  OFFICIAL: "Officiële.",
-  COMMUNITY: "Van de gemeenschap.",
-  EXPERIMENTAL: "Experimental.",
+  OFFICIAL: 'Officiële.',
+  COMMUNITY: 'Van de gemeenschap.',
+  EXPERIMENTAL: 'Experimental.',
 };
 const ALL_CATEGORIES: readonly FirmwarePresetCategory[] = [
   'TUNE',
@@ -117,7 +133,7 @@ export default function PresetsScreen({
   const [batch, setBatch] = useState<CliBatchResult>();
   const [cliOpen, setCliOpen] = useState(false);
   const [status, setStatus] = useState(
-    "Laad de officiële index op en kies een geschikt pakket.",
+    'Laad de officiële index op en kies een geschikt pakket.',
   );
   const setBusy = useCallback(
     (busy: boolean) => onCliBusyChange(busy),
@@ -207,7 +223,7 @@ export default function PresetsScreen({
     setFirmwareVersion(undefined);
     setSelected(undefined);
     setLoaded(undefined);
-    setStatus("Laad de officiële index op en kies een geschikt pakket.");
+    setStatus('Laad de officiële index op en kies een geschikt pakket.');
     loadCatalog().catch(() => undefined);
   }, [active, loadCatalog, sessionKey]);
   useEffect(
@@ -247,7 +263,9 @@ export default function PresetsScreen({
               .map(option => option.name),
           ),
         );
-        setStatus("De vingerafdruk is gecontroleerd. Bekijk de beschrijving en keuzes voordat u de aanvraag indient.");
+        setStatus(
+          'De vingerafdruk is gecontroleerd. Bekijk de beschrijving en keuzes voordat u de aanvraag indient.',
+        );
       } catch (error) {
         setFailure(errorText(error));
       } finally {
@@ -282,7 +300,7 @@ export default function PresetsScreen({
     if (!sessionKey) return;
     setBusy(true);
     setFailure(undefined);
-    setStatus("Het maken van een diff all versie van de controller...");
+    setStatus('Het maken van een diff all versie van de controller...');
     try {
       await cli.begin(sessionKey);
       const backup = await cli.captureDiffAll();
@@ -290,11 +308,12 @@ export default function PresetsScreen({
         `fpv-arbcon-backup-${firmwareVersion ?? 'unknown'}.txt`,
         backup,
       );
-      if (!saved)
-        throw new Error("Het back-up is nog niet voltooid.");
+      if (!saved) throw new Error('Het back-up is nog niet voltooid.');
       await cli.exitWithoutSave();
       setBackupReady(true);
-      setStatus("diff all. is opgeslagen. Je kunt het pakket nu tijdelijk toepassen.");
+      setStatus(
+        'diff all. is opgeslagen. Je kunt het pakket nu tijdelijk toepassen.',
+      );
     } catch (error) {
       await cli.exitWithoutSave().catch(() => undefined);
       setFailure(errorText(error));
@@ -308,7 +327,7 @@ export default function PresetsScreen({
     setFailure(undefined);
     setBatch(undefined);
     setProgress({ done: 0, total: commands.length });
-    setStatus("Bevelen toepassen binnen CLI zonder save...");
+    setStatus('Bevelen toepassen binnen CLI zonder save...');
     try {
       await cli.begin(sessionKey);
       setCliOpen(true);
@@ -319,7 +338,7 @@ export default function PresetsScreen({
       setStatus(
         result.errors.length
           ? `Ze is aangekomen. ${result.errors.length} Fouten. CLI. Opslaan is geblokkeerd; Ga weg zonder te behouden.`
-          : "De tijdelijke applicatie is foutloos afgerond. Controleer het resultaat en dan save of exit without saving.",
+          : 'De tijdelijke applicatie is foutloos afgerond. Controleer het resultaat en dan save of exit without saving.',
       );
     } catch (error) {
       setCliOpen(false);
@@ -331,12 +350,14 @@ export default function PresetsScreen({
     if (!loaded) return;
     const warning = loaded.completeWarning.trim();
     Alert.alert(
-      "Preset app is tijdelijk.",
-      `${warning ? `${warning}\n\n` : ''} Hij zal worden gestuurd. ${commands.length} Een bevel aan mij. CLI Don. save. Houd propellers gescheiden.`,
+      'Preset app is tijdelijk.',
+      `${warning ? `${warning}\n\n` : ''} Hij zal worden gestuurd. ${
+        commands.length
+      } Een bevel aan mij. CLI Don. save. Houd propellers gescheiden.`,
       [
-        { text: "Annuleren", style: 'cancel' },
+        { text: 'Annuleren', style: 'cancel' },
         {
-          text: "Een tijdelijke toepassing",
+          text: 'Een tijdelijke toepassing',
           style: 'destructive',
           onPress: () => applyNow().catch(() => undefined),
         },
@@ -346,7 +367,9 @@ export default function PresetsScreen({
   const closeWithoutSave = useCallback(async () => {
     try {
       await cli.exitWithoutSave();
-      setStatus("Ik kwam uit CLI zonder save; Het pakket is nog niet bevestigd.");
+      setStatus(
+        'Ik kwam uit CLI zonder save; Het pakket is nog niet bevestigd.',
+      );
     } catch (error) {
       setFailure(errorText(error));
     } finally {
@@ -358,7 +381,7 @@ export default function PresetsScreen({
     try {
       await cli.saveAndClose();
       setStatus(
-        "Stuur save en zet de controller weer op. Bel me terug als het niet meer automatisch is.",
+        'Stuur save en zet de controller weer op. Bel me terug als het niet meer automatisch is.',
       );
       setBackupReady(false);
     } catch (error) {
@@ -370,28 +393,33 @@ export default function PresetsScreen({
     }
   }, [cli, setBusy]);
   return (
-    <View style={styles.root} testID="presets-screen">
-      <ScrollView contentContainerStyle={[styles.content, { maxWidth }]}>
-        <View style={styles.hero}>
-          <Text style={styles.title}>{"Presets"}</Text>
+    <WorkbenchBlock style={styles.root} testID="presets-screen" section="root">
+      <WorkbenchScrollView
+        contentContainerStyle={[styles.content, { maxWidth }]}
+        workspace="Presets"
+      >
+        <WorkbenchBlock style={styles.hero} section="hero" heading>
+          <Text style={styles.title}>{'Presets'}</Text>
 
-          <View style={styles.identityRow}>
+          <WorkbenchBlock style={styles.identityRow} section="identityRow">
             <Text style={styles.identity}>
               Firmware: {firmwareVersion ?? '—'}
             </Text>
-            <Text style={styles.identity}>{"De officiële pakkettenruimte."}</Text>
-          </View>
-        </View>
+            <Text style={styles.identity}>
+              {'De officiële pakkettenruimte.'}
+            </Text>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
         {failure ? (
-          <View style={styles.error}>
+          <WorkbenchBlock style={styles.error} section="error">
             <Text style={styles.errorText}>{failure}</Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
-        <View style={styles.toolbar}>
+        <WorkbenchBlock style={styles.toolbar} section="toolbar">
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder={"Zoek naar de naam, de auteur of het woord."}
+            placeholder={'Zoek naar de naam, de auteur of het woord.'}
             placeholderTextColor={colors.textMuted}
             style={styles.search}
             editable={!cliOpen}
@@ -403,10 +431,10 @@ export default function PresetsScreen({
             disabled={loading || cliOpen}
           >
             <Text style={styles.reloadText}>
-              {loading ? "Loading..." : "Update van de index"}
+              {loading ? 'Loading...' : 'Update van de index'}
             </Text>
           </Pressable>
-        </View>
+        </WorkbenchBlock>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -416,7 +444,7 @@ export default function PresetsScreen({
             onPress={() => setCategory('ALL')}
             style={[styles.chip, category === 'ALL' && styles.chipOn]}
           >
-            <Text style={styles.chipText}>{"Alles"}</Text>
+            <Text style={styles.chipText}>{'Alles'}</Text>
           </Pressable>
           {ALL_CATEGORIES.map(item => (
             <Pressable
@@ -428,10 +456,11 @@ export default function PresetsScreen({
             </Pressable>
           ))}
         </ScrollView>
-        <View style={styles.workspace}>
-          <View style={styles.list}>
+        <WorkbenchBlock style={styles.workspace} section="workspace">
+          <WorkbenchBlock style={styles.list} section="list">
             <Text style={styles.sectionTitle}>
-              {"Compatibele presets ("}{filtered.length})
+              {'Compatibele presets ('}
+              {filtered.length})
             </Text>
             {filtered.slice(0, 160).map(preset => (
               <Pressable
@@ -443,7 +472,7 @@ export default function PresetsScreen({
                   selected?.fullPath === preset.fullPath && styles.presetOn,
                 ]}
               >
-                <View style={styles.badges}>
+                <WorkbenchBlock style={styles.badges} section="badges">
                   <Text style={styles.badge}>
                     {CATEGORY_LABEL[preset.category]}
                   </Text>
@@ -455,23 +484,30 @@ export default function PresetsScreen({
                   >
                     {STATUS_LABEL[preset.status]}
                   </Text>
-                </View>
+                </WorkbenchBlock>
                 <Text style={styles.presetTitle}>{preset.title}</Text>
                 <Text style={styles.meta}>
-                  {preset.author ?? "De samenleving van verpakkingen."} ·{' '}
+                  {preset.author ?? 'De samenleving van verpakkingen.'} ·{' '}
                   {preset.firmwareVersions.join(', ')}
                 </Text>
               </Pressable>
             ))}
-          </View>
-          <View style={styles.detail}>
-            <Text style={styles.sectionTitle}>{"Reviews voor de aanvraag"}</Text>
+          </WorkbenchBlock>
+          <WorkbenchBlock style={styles.detail} section="detail">
+            <Text style={styles.sectionTitle}>
+              {'Reviews voor de aanvraag'}
+            </Text>
             {detailsLoading ? (
-              <Text style={styles.hint}>{"Het downloaden van het dossier en het testen van zijn vingerafdrukken..."}</Text>
+              <Text style={styles.hint}>
+                {
+                  'Het downloaden van het dossier en het testen van zijn vingerafdrukken...'
+                }
+              </Text>
             ) : null}
             {!loaded ? (
               <Text style={styles.hint}>
-                {"Kies Preset uit de lijst om te zien wat er verandert."}</Text>
+                {'Kies Preset uit de lijst om te zien wat er verandert.'}
+              </Text>
             ) : (
               <>
                 <Text style={styles.detailTitle}>{loaded.summary.title}</Text>
@@ -481,15 +517,15 @@ export default function PresetsScreen({
                   </Text>
                 ))}
                 {loaded.completeWarning ? (
-                  <View style={styles.warning}>
+                  <WorkbenchBlock style={styles.warning} section="warning">
                     <Text style={styles.warningText}>
                       {loaded.completeWarning}
                     </Text>
-                  </View>
+                  </WorkbenchBlock>
                 ) : null}
                 {loaded.document.options.length ? (
-                  <View style={styles.options}>
-                    <Text style={styles.subhead}>{"Keuzes."}</Text>
+                  <WorkbenchBlock style={styles.options} section="options">
+                    <Text style={styles.subhead}>{'Keuzes.'}</Text>
                     {loaded.document.options.map(option => (
                       <Pressable
                         key={option.name}
@@ -522,24 +558,31 @@ export default function PresetsScreen({
                               : colors.textMuted
                           }
                         />
-                        <View style={styles.optionCopy}>
+                        <WorkbenchBlock
+                          style={styles.optionCopy}
+                          section="optionCopy"
+                        >
                           <Text style={styles.optionName}>{option.name}</Text>
                           {option.group ? (
                             <Text style={styles.meta}>
                               {option.group}
-                              {option.exclusive ? "• Eén keuze" : ''}
+                              {option.exclusive ? '• Eén keuze' : ''}
                             </Text>
                           ) : null}
-                        </View>
+                        </WorkbenchBlock>
                       </Pressable>
                     ))}
-                  </View>
+                  </WorkbenchBlock>
                 ) : null}
-                <View style={styles.commandSummary}>
+                <WorkbenchBlock
+                  style={styles.commandSummary}
+                  section="commandSummary"
+                >
                   <Text style={styles.commandCount}>{commands.length}</Text>
                   <Text style={styles.hint}>
-                    {"CLI na de opties en INCLUDE."}</Text>
-                </View>
+                    {'CLI na de opties en INCLUDE.'}
+                  </Text>
+                </WorkbenchBlock>
                 <Pressable
                   testID="presets-backup"
                   style={[styles.primary, cliOpen && styles.disabled]}
@@ -548,8 +591,8 @@ export default function PresetsScreen({
                 >
                   <Text style={styles.primaryText}>
                     {backupReady
-                      ? "diff all is opgeslagen."
-                      : "1 · diff all maken en bewaren"}
+                      ? 'diff all is opgeslagen.'
+                      : '1 · diff all maken en bewaren'}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -562,15 +605,17 @@ export default function PresetsScreen({
                   disabled={!backupReady || cliOpen || !commands.length}
                   onPress={confirmApply}
                 >
-                  <Text style={styles.applyText}>{"2 wordt tijdelijk zonder save toegepast."}</Text>
+                  <Text style={styles.applyText}>
+                    {'2 wordt tijdelijk zonder save toegepast.'}
+                  </Text>
                 </Pressable>
               </>
             )}
-          </View>
-        </View>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
         {progress.total ? (
-          <View style={styles.progress}>
-            <View
+          <WorkbenchBlock style={styles.progress} section="progress">
+            <WorkbenchBlock
               style={[
                 styles.progressFill,
                 {
@@ -579,18 +624,23 @@ export default function PresetsScreen({
                   )}%`,
                 },
               ]}
+              section="progressFill"
             />
             <Text style={styles.progressText}>
               {progress.done}/{progress.total}
             </Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
         {cliOpen ? (
-          <View style={styles.decision} accessibilityRole="alert">
+          <WorkbenchBlock
+            style={styles.decision}
+            accessibilityRole="alert"
+            section="decision"
+          >
             <Text style={styles.decisionTitle}>
               {batch?.errors.length
-                ? "CLI-fouten  —  Bewaring verboden"
-                : "Het pakket is tijdelijk."}
+                ? 'CLI-fouten  —  Bewaring verboden'
+                : 'Het pakket is tijdelijk.'}
             </Text>
             {batch?.errors.map((item, index) => (
               <Text key={index} style={styles.cliError}>
@@ -598,13 +648,18 @@ export default function PresetsScreen({
                 {item.response.replace(/\s+/g, ' ').slice(0, 240)}
               </Text>
             ))}
-            <View style={styles.decisionActions}>
+            <WorkbenchBlock
+              style={styles.decisionActions}
+              section="decisionActions"
+            >
               <Pressable
                 testID="presets-discard"
                 style={styles.cancel}
                 onPress={() => closeWithoutSave().catch(() => undefined)}
               >
-                <Text style={styles.cancelText}>{"Afzeggen en uitgaan zonder te behouden."}</Text>
+                <Text style={styles.cancelText}>
+                  {'Afzeggen en uitgaan zonder te behouden.'}
+                </Text>
               </Pressable>
               <Pressable
                 testID="presets-save"
@@ -615,18 +670,24 @@ export default function PresetsScreen({
                 disabled={Boolean(batch?.errors.length)}
                 onPress={() => save().catch(() => undefined)}
               >
-                <Text style={styles.saveText}>{"FC opslaan en herstarten"}</Text>
+                <Text style={styles.saveText}>
+                  {'FC opslaan en herstarten'}
+                </Text>
               </Pressable>
-            </View>
-          </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
         ) : null}
-        <View style={styles.status}>
+        <WorkbenchBlock style={styles.status} section="status">
           <Text style={styles.statusText}>{status}</Text>
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.hardware}>
-          {t('hardwareVerification.behaviourTitle')} {"Een geslaagde CLI-overdracht bewijst de kwaliteit van de afstelling of de vliegveiligheid niet. test op de werkbank zonder propellers."}</Text>
-      </ScrollView>
-    </View>
+          {t('hardwareVerification.behaviourTitle')}{' '}
+          {
+            'Een geslaagde CLI-overdracht bewijst de kwaliteit van de afstelling of de vliegveiligheid niet. test op de werkbank zonder propellers.'
+          }
+        </Text>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
@@ -655,11 +716,14 @@ const styles = StyleSheet.create({
   title: {
     ...typography.title,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   identityRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -686,7 +750,8 @@ const styles = StyleSheet.create({
     // rendered in the system fallback font. Measured in a browser.
     ...typography.bodyStrong,
     color: colors.error,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   toolbar: { flexDirection: 'row', gap: spacing.sm },
   search: {
     flex: 1,
@@ -706,7 +771,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     backgroundColor: colors.accentSoft,
   },
-  reloadText: {...typography.label, color: colors.accentStrong},
+  reloadText: { ...typography.label, color: colors.accentStrong },
   categories: { gap: spacing.xs, paddingVertical: spacing.xs },
   chip: {
     /* The eleven category chips. These declared NO height at all - their
@@ -727,8 +792,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSoft,
   },
-  chipOn: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong },
-  chipText: {...typography.label, color: colors.textPrimary},
+  chipOn: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accentStrong,
+  },
+  chipText: { ...typography.label, color: colors.textPrimary },
   workspace: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -749,7 +817,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   preset: {
     padding: spacing.md,
     borderRadius: radii.md,
@@ -776,19 +845,28 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontWeight: '700',
   },
-  meta: { ...typography.caption, color: colors.textMuted, maxWidth: PROSE_MEASURE},
+  meta: {
+    ...typography.caption,
+    color: colors.textMuted,
+    maxWidth: PROSE_MEASURE,
+  },
   hint: {
     ...typography.body,
     color: colors.textMuted,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   detailTitle: {
     ...typography.sectionTitle,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   description: {
     ...typography.body,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   warning: {
     padding: spacing.md,
     borderRadius: radii.md,
@@ -802,7 +880,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   option: {
     minHeight: 48,
     flexDirection: 'row',
@@ -828,7 +908,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  commandCount: {...typography.display, color: colors.accentStrong},
+  commandCount: { ...typography.display, color: colors.accentStrong },
   primary: {
     minHeight: 48,
     alignItems: 'center',
@@ -838,7 +918,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.accentStrong,
   },
-  primaryText: {...typography.label, color: colors.accentStrong},
+  primaryText: { ...typography.label, color: colors.accentStrong },
   apply: {
     minHeight: 50,
     alignSelf: 'flex-start',
@@ -848,7 +928,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     backgroundColor: colors.accent,
   },
-  applyText: {...typography.label, color: colors.textPrimary},
+  applyText: { ...typography.label, color: colors.textPrimary },
   disabled: { opacity: 0.4 },
   progress: {
     height: 28,
@@ -880,7 +960,8 @@ const styles = StyleSheet.create({
   decisionTitle: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   cliError: {
     ...typography.caption,
     color: colors.error,
@@ -921,5 +1002,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.warning,
     textAlign: 'center',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
 });

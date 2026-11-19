@@ -621,12 +621,12 @@ describe('M-F3 §38-§40/§42 - one reason, one block, full-width telemetry', ()
     expect(view.text()).not.toContain("De motor kan nu niet worden getest");
   });
 
-  it('the live telemetry panel sits OUTSIDE the workspace columns, full width', async () => {
+  it('the live telemetry panel sits with the motor controls in the workspace', async () => {
     const operator = new ReadyOperator();
     const view = mountView(configPort(), operator);
     await flush();
     expect(view.has('motor-diagnostics-panel')).toBe(true);
-    expect(view.within('motors-control-column', 'motor-diagnostics-panel')).toBe(false);
+    expect(view.within('motors-control-column', 'motor-diagnostics-panel')).toBe(true);
     expect(view.within('motors-airframe-column', 'motor-diagnostics-panel')).toBe(false);
   });
 });

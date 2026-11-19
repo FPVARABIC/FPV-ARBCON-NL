@@ -1,5 +1,6 @@
+import { WorkbenchBlock } from '../components/workbench/Workbench';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import type {
@@ -32,7 +33,7 @@ import {
   type MotorDiagnosticsAvailability,
   type MotorDiagnosticsChannelState,
 } from '../../platforms/react-native/protocol';
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../theme';
+import { PROSE_MEASURE, colors, radii, spacing, typography } from '../theme';
 
 const MAX_VISIBLE_MOTOR_COUNT = 8;
 const OUTPUT_STOP_VALUE = 1000;
@@ -135,7 +136,7 @@ function visibleValue<T>(value: TelemetryValue<T>): T | undefined {
 }
 
 function leasedAvailability(
-  channel: {readonly state: ControllerDiagnosticsChannelState} | undefined,
+  channel: { readonly state: ControllerDiagnosticsChannelState } | undefined,
 ): MotorDiagnosticsChannelState {
   if (channel === undefined || channel.state === 'WAITING') {
     return 'WAITING_FOR_SESSION';
@@ -145,15 +146,16 @@ function leasedAvailability(
 
 function Meter({ percent, danger }: { percent: number; danger?: boolean }) {
   return (
-    <View style={styles.meterTrack}>
-      <View
+    <WorkbenchBlock style={styles.meterTrack} section="meterTrack">
+      <WorkbenchBlock
         style={[
           styles.meterFill,
           danger && styles.meterFillDanger,
           { width: `${percent}%` },
         ]}
+        section="meterFill"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -249,33 +251,31 @@ export function MotorDiagnosticsPanel({
   const outputsAvailability: MotorDiagnosticsChannelState = activeMotorTest
     ? leasedAvailability(leasedOutputs)
     : availability.outputs;
-  const escAvailability: MotorDiagnosticsChannelState =
-    sourceProvenUnavailable
-      ? 'NOT_ENABLED'
-      : activeMotorTest
-        ? leasedAvailability(leasedEsc)
-        : availability.escTelemetry;
+  const escAvailability: MotorDiagnosticsChannelState = sourceProvenUnavailable
+    ? 'NOT_ENABLED'
+    : activeMotorTest
+    ? leasedAvailability(leasedEsc)
+    : availability.escTelemetry;
   const outputsStatus: TelemetryValue<unknown>['status'] = activeMotorTest
     ? leasedOutputsFresh
       ? 'FRESH'
       : leasedOutputs?.state === 'FRESH'
-        ? 'STALE'
-        : leasedOutputs?.state === 'WAITING' || leasedOutputs === undefined
-          ? 'WAITING'
-          : 'ERROR'
+      ? 'STALE'
+      : leasedOutputs?.state === 'WAITING' || leasedOutputs === undefined
+      ? 'WAITING'
+      : 'ERROR'
     : outputsValue.status;
-  const escStatus: TelemetryValue<unknown>['status'] =
-    sourceProvenUnavailable
-      ? 'UNAVAILABLE'
-      : activeMotorTest
-        ? leasedEscFresh
-          ? 'FRESH'
-          : leasedEsc?.state === 'FRESH'
-            ? 'STALE'
-            : leasedEsc?.state === 'WAITING' || leasedEsc === undefined
-              ? 'WAITING'
-              : 'ERROR'
-        : escValue.status;
+  const escStatus: TelemetryValue<unknown>['status'] = sourceProvenUnavailable
+    ? 'UNAVAILABLE'
+    : activeMotorTest
+    ? leasedEscFresh
+      ? 'FRESH'
+      : leasedEsc?.state === 'FRESH'
+      ? 'STALE'
+      : leasedEsc?.state === 'WAITING' || leasedEsc === undefined
+      ? 'WAITING'
+      : 'ERROR'
+    : escValue.status;
 
   /**
    * M-D §4 - THIS USED TO FALL BACK TO FOUR.
@@ -364,43 +364,54 @@ export function MotorDiagnosticsPanel({
   );
 
   return (
-    <View style={styles.root} testID="motor-diagnostics-panel">
-      <View style={styles.header}>
-        <View style={styles.headerCopy}>
+    <WorkbenchBlock
+      style={styles.root}
+      testID="motor-diagnostics-panel"
+      section="root"
+    >
+      <WorkbenchBlock style={styles.header} section="header">
+        <WorkbenchBlock style={styles.headerCopy} section="headerCopy">
           <Text style={styles.eyebrow}>{t('motorDiagnostics.eyebrow')}</Text>
           <Text style={styles.title}>{t('motorDiagnostics.title')}</Text>
           <Text style={styles.caption}>{t('motorDiagnostics.subtitle')}</Text>
-        </View>
-        <View style={styles.liveBadge}>
-          <View
+        </WorkbenchBlock>
+        <WorkbenchBlock style={styles.liveBadge} section="liveBadge">
+          <WorkbenchBlock
             style={[
               styles.statusDot,
               outputsAvailability === 'ACTIVE' && outputsStatus === 'FRESH'
                 ? styles.statusDotLive
                 : styles.statusDotIdle,
             ]}
+            section="statusDot"
           />
           <Text style={styles.badgeText}>
             {channelText(t, outputsAvailability, outputsStatus)}
           </Text>
-        </View>
-      </View>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
 
-      <View style={styles.section} testID="motor-output-readings">
+      <WorkbenchBlock
+        style={styles.section}
+        testID="motor-output-readings"
+        section="section"
+        panel
+      >
         <Text style={styles.sectionTitle}>
           {t('motorDiagnostics.outputsHeading')}
         </Text>
         <Text style={styles.caption}>
           {t('motorDiagnostics.outputsDisclaimer')}
         </Text>
-        <View style={styles.outputGrid}>
+        <WorkbenchBlock style={styles.outputGrid} section="outputGrid">
           {outputSlots.map(output => (
-            <View
+            <WorkbenchBlock
               key={output.slot}
               style={styles.outputCard}
               testID={`motor-output-reading-${output.slot}`}
+              section="outputCard"
             >
-              <View style={styles.valueRow}>
+              <WorkbenchBlock style={styles.valueRow} section="valueRow">
                 <Text style={styles.slotName}>{`M${output.slot}`}</Text>
                 <Text style={styles.numericValue}>
                   {/* M-D §46: a slot with no reading says so. */}
@@ -408,7 +419,7 @@ export function MotorDiagnosticsPanel({
                     ? t('motorsScreen.valueNotRead')
                     : output.value}
                 </Text>
-              </View>
+              </WorkbenchBlock>
               <Meter
                 percent={
                   output.value === undefined
@@ -416,18 +427,26 @@ export function MotorDiagnosticsPanel({
                     : motorOutputPercent(output.value)
                 }
               />
-            </View>
+            </WorkbenchBlock>
           ))}
-        </View>
-      </View>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
 
-      <View style={styles.section} testID="esc-telemetry-readings">
-        <View style={styles.sectionHeadingRow}>
-          <View style={styles.headerCopy}>
+      <WorkbenchBlock
+        style={styles.section}
+        testID="esc-telemetry-readings"
+        section="section"
+        panel
+      >
+        <WorkbenchBlock
+          style={styles.sectionHeadingRow}
+          section="sectionHeadingRow"
+        >
+          <WorkbenchBlock style={styles.headerCopy} section="headerCopy">
             <Text style={styles.sectionTitle}>
               {t('motorDiagnostics.escHeading')}
             </Text>
-          </View>
+          </WorkbenchBlock>
           <Text
             style={styles.channelState}
             testID="esc-telemetry-channel-state"
@@ -441,7 +460,7 @@ export function MotorDiagnosticsPanel({
               ? t('motorDiagnostics.awaitingEscData')
               : channelText(t, escAvailability, escStatus)}
           </Text>
-        </View>
+        </WorkbenchBlock>
 
         {/* THE SOURCE, WHERE THE SOURCE MATTERS.
             When the controller PROVED there is no source, that sentence
@@ -463,7 +482,7 @@ export function MotorDiagnosticsPanel({
             <Pressable
               onPress={() => setSourceOpen(open => !open)}
               accessibilityRole="button"
-              accessibilityState={{expanded: sourceOpen}}
+              accessibilityState={{ expanded: sourceOpen }}
               accessibilityLabel={t('motorDiagnostics.escHeading')}
               style={styles.sourceToggle}
               testID="esc-telemetry-source-toggle"
@@ -473,16 +492,21 @@ export function MotorDiagnosticsPanel({
               </Text>
             </Pressable>
             {sourceOpen ? (
-              <View style={styles.sourceDetails}>
+              <WorkbenchBlock
+                style={styles.sourceDetails}
+                section="sourceDetails"
+              >
                 <Text style={styles.sourceText} testID="esc-telemetry-source">
                   {support === undefined
                     ? t('motorDiagnostics.sourceUnknown')
-                    : t(`motorDiagnostics.source.${support.escTelemetrySource}`)}
+                    : t(
+                        `motorDiagnostics.source.${support.escTelemetrySource}`,
+                      )}
                 </Text>
                 <Text style={styles.caption}>
                   {t('motorDiagnostics.escDetail')}
                 </Text>
-              </View>
+              </WorkbenchBlock>
             ) : null}
           </>
         )}
@@ -506,10 +530,7 @@ export function MotorDiagnosticsPanel({
           </Text>
         ) : null}
         {noDshotPacketsAtAll ? (
-          <Text
-            style={styles.qualityWarning}
-            testID="esc-telemetry-no-packets"
-          >
+          <Text style={styles.qualityWarning} testID="esc-telemetry-no-packets">
             {t('motorDiagnostics.rpmUnprovenHint')}
           </Text>
         ) : null}
@@ -542,7 +563,7 @@ export function MotorDiagnosticsPanel({
         ) : null}
 
         {escTelemetry !== undefined && escTelemetry.motors.length > 0 ? (
-          <View style={styles.escList}>
+          <WorkbenchBlock style={styles.escList} section="escList">
             {(visibleMotorCount === undefined
               ? // Each record is an OBSERVED telemetry reading. With no
                 // runtime count to bound them by, showing what actually
@@ -551,9 +572,9 @@ export function MotorDiagnosticsPanel({
                 escTelemetry.motors
               : escTelemetry.motors.slice(0, visibleMotorCount)
             ).map((motor, index) => {
-                const metrics = visibleMotorTelemetryMetrics(motor, support);
-                return (
-                  /* ONE ROW PER OUTPUT.
+              const metrics = visibleMotorTelemetryMetrics(motor, support);
+              return (
+                /* ONE ROW PER OUTPUT.
                      Each reading used to be a filled card holding a value
                      row, a progress bar and a five-cell metric grid - four
                      of them, stacked. The bar is gone: RPM has no
@@ -561,37 +582,35 @@ export function MotorDiagnosticsPanel({
                      50,000 constant this file invented), so a bar computed
                      against it could not help anyone decide anything. The
                      NUMBERS are all still here, and none of them changed. */
-                  <View
-                    key={index}
-                    style={styles.escRow}
-                    testID={`esc-telemetry-${index + 1}`}
-                  >
-                    <Text style={styles.slotName}>{`M${index + 1}`}</Text>
-                    <Text style={styles.escReading}>
-                      {metrics.rpm === undefined
-                        ? '— RPM'
-                        : t('motorDiagnostics.rpmValue', {rpm: metrics.rpm})}
-                    </Text>
-                    {noMetricsAnywhere ? null : (
-                      <EscMetrics metrics={metrics} />
-                    )}
-                    {/* A DASH WITHOUT A REASON IS A RIDDLE - but the
+                <WorkbenchBlock
+                  key={index}
+                  style={styles.escRow}
+                  testID={`esc-telemetry-${index + 1}`}
+                  section="escRow"
+                >
+                  <Text style={styles.slotName}>{`M${index + 1}`}</Text>
+                  <Text style={styles.escReading}>
+                    {metrics.rpm === undefined
+                      ? '— RPM'
+                      : t('motorDiagnostics.rpmValue', { rpm: metrics.rpm })}
+                  </Text>
+                  {noMetricsAnywhere ? null : <EscMetrics metrics={metrics} />}
+                  {/* A DASH WITHOUT A REASON IS A RIDDLE - but the
                         reason is said once for the section when it is
                         true of every output, and only here when it is
                         true of this one alone. */}
-                    {rpmIsUnprovenZero(motor, support) &&
-                    !noDshotPacketsAtAll ? (
-                      <Text
-                        style={styles.caption}
-                        testID={`esc-telemetry-${index + 1}-rpm-unproven`}
-                      >
-                        {t('motorDiagnostics.rpmUnproven')}
-                      </Text>
-                    ) : null}
-                  </View>
-                );
-              })}
-          </View>
+                  {rpmIsUnprovenZero(motor, support) && !noDshotPacketsAtAll ? (
+                    <Text
+                      style={styles.caption}
+                      testID={`esc-telemetry-${index + 1}-rpm-unproven`}
+                    >
+                      {t('motorDiagnostics.rpmUnproven')}
+                    </Text>
+                  ) : null}
+                </WorkbenchBlock>
+              );
+            })}
+          </WorkbenchBlock>
         ) : (
           /* NOT ENABLED IS A KNOWN ANSWER, NOT AN AMBIGUITY, so it gets
              the smallest surface on the screen: what is off, and what to
@@ -615,13 +634,13 @@ export function MotorDiagnosticsPanel({
               sourceProvenUnavailable
                 ? 'motorDiagnostics.enableEscTelemetry'
                 : support === undefined
-                  ? 'motorDiagnostics.sourceUnknown'
-                  : 'motorDiagnostics.awaitingEscData',
+                ? 'motorDiagnostics.sourceUnknown'
+                : 'motorDiagnostics.awaitingEscData',
             )}
           </Text>
         )}
-      </View>
-    </View>
+      </WorkbenchBlock>
+    </WorkbenchBlock>
   );
 }
 
@@ -638,7 +657,7 @@ function EscMetrics({
 }: {
   readonly metrics: MotorTelemetryVisibleMetrics;
 }): React.JSX.Element | null {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   /* ONE LINE, AND ONLY THE PARTS THAT EXIST.
      A grid of five cells - four of them "—" on a DShot-only bench - is a
      large object saying one small thing five times. Each metric is
@@ -652,16 +671,22 @@ function EscMetrics({
         }),
     metrics.temperatureCelsius === undefined
       ? undefined
-      : t('motorDiagnostics.temperature', {value: metrics.temperatureCelsius}),
+      : t('motorDiagnostics.temperature', {
+          value: metrics.temperatureCelsius,
+        }),
     metrics.voltageVolts === undefined
       ? undefined
-      : t('motorDiagnostics.voltage', {value: metrics.voltageVolts.toFixed(2)}),
+      : t('motorDiagnostics.voltage', {
+          value: metrics.voltageVolts.toFixed(2),
+        }),
     metrics.currentAmps === undefined
       ? undefined
-      : t('motorDiagnostics.current', {value: metrics.currentAmps.toFixed(2)}),
+      : t('motorDiagnostics.current', {
+          value: metrics.currentAmps.toFixed(2),
+        }),
     metrics.consumptionMah === undefined
       ? undefined
-      : t('motorDiagnostics.consumption', {value: metrics.consumptionMah}),
+      : t('motorDiagnostics.consumption', { value: metrics.consumptionMah }),
   ].filter((part): part is string => part !== undefined);
 
   if (parts.length === 0) {
@@ -692,15 +717,19 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   caption: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -717,7 +746,8 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   section: { gap: spacing.sm },
   sectionHeadingRow: {
     flexDirection: 'row',
@@ -728,16 +758,21 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   channelState: {
     ...typography.caption,
     color: colors.accentStrong,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   sourceText: {
     ...typography.caption,
     color: colors.textMuted,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   sourceToggle: {
     minHeight: 44,
     justifyContent: 'center',
@@ -749,7 +784,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     writingDirection: 'ltr',
   },
-  sourceDetails: {gap: spacing.xs},
+  sourceDetails: { gap: spacing.xs },
   outputGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   outputCard: {
     flexGrow: 1,
@@ -811,10 +846,14 @@ const styles = StyleSheet.create({
   metric: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   qualityWarning: {
     ...typography.caption,
     color: colors.warning,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
 });

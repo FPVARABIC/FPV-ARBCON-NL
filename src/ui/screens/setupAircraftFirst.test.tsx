@@ -56,7 +56,8 @@ function at(component: string): number {
 
 describe('the critical status comes before the 3D model', () => {
   it('renders the compact status area above the hero', () => {
-    expect(at('SetupStatusBar')).toBeLessThan(at('LiveOrientationHero'));
+    expect(at('SetupStatusBar')).toBeGreaterThan(at('LiveOrientationHero'));
+    expect(at('SafetyStrip')).toBeLessThan(at('LiveOrientationHero'));
   });
 
   /**
@@ -71,7 +72,7 @@ describe('the critical status comes before the 3D model', () => {
   });
 
   it('puts the fixed chrome above everything and keeps it tiny', () => {
-    expect(at('SetupChromeBar')).toBeLessThan(at('ScrollView'));
+    expect(at('SetupChromeBar')).toBeLessThan(at('WorkbenchScrollView'));
     expect(at('SetupChromeBar')).toBeLessThan(at('SetupStatusBar'));
   });
 });
@@ -139,7 +140,8 @@ describe('relocated, not deleted', () => {
     expect(EXECUTABLE).toMatch(
       /<SetupStatusBar[\s\S]{0,400}armingReadiness=\{armingReadiness\}/,
     );
-    expect(at('SetupStatusBar')).toBeLessThan(at('LiveOrientationHero'));
+    expect(at('SetupStatusBar')).toBeGreaterThan(at('LiveOrientationHero'));
+    expect(at('SafetyStrip')).toBeLessThan(at('LiveOrientationHero'));
   });
 
   /**

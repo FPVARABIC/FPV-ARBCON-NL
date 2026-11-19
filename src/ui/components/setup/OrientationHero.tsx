@@ -58,7 +58,7 @@ import { orientationRenderObserver } from '../../orientation3d/orientationRender
 import type { OrientationViewState } from '../../../core';
 import { describeOrientationForAccessibility } from '../../../core';
 import { colors, radii, spacing, typography } from '../../theme';
-import {PROSE_MEASURE} from '../../theme';
+import { PROSE_MEASURE } from '../../theme';
 import FlightInstruments, { roundHeadingDegrees } from './FlightInstruments';
 import { ORIENTATION_DESKTOP_WORKSPACE_ENABLED } from './orientationHeroDesktopWorkspace';
 
@@ -106,9 +106,11 @@ export function shouldUseOrientationSidebar(
   windowWidth: number,
   fontScale = 1,
 ): boolean {
-  const safeScale =
-    Number.isFinite(fontScale) && fontScale > 0 ? fontScale : 1;
-  return Number.isFinite(windowWidth) && windowWidth / safeScale >= SIDEBAR_LAYOUT_MIN_WIDTH;
+  const safeScale = Number.isFinite(fontScale) && fontScale > 0 ? fontScale : 1;
+  return (
+    Number.isFinite(windowWidth) &&
+    windowWidth / safeScale >= SIDEBAR_LAYOUT_MIN_WIDTH
+  );
 }
 
 export function computeOrientationHeroSize(
@@ -141,19 +143,50 @@ export function computeOrientationWorkspaceLayout(
   const effective = Number.isFinite(windowWidth) ? windowWidth / safeScale : 0;
   const sidebar = shouldUseOrientationSidebar(windowWidth, fontScale);
   const compactSize = computeOrientationHeroSize(windowWidth, sidebar);
-  const estimatedWidth = Math.min(1540, Math.max(0, Number.isFinite(windowWidth) ? windowWidth - 60 : 0));
-  const measured = measuredVisualsWidth !== undefined && Number.isFinite(measuredVisualsWidth) && measuredVisualsWidth > 0
-    ? Math.min(measuredVisualsWidth, estimatedWidth)
-    : estimatedWidth;
-  const minimumRowWidth = HERO_TABLET_MAX_SIZE + DESKTOP_INSTRUMENT_RAIL_WIDTH + DESKTOP_WORKSPACE_GAP;
-  if (!desktopEnabled || effective < DESKTOP_WORKSPACE_MIN_WIDTH || measured < minimumRowWidth) {
+  const estimatedWidth = Math.min(
+    1540,
+    Math.max(0, Number.isFinite(windowWidth) ? windowWidth - 60 : 0),
+  );
+  const measured =
+    measuredVisualsWidth !== undefined &&
+    Number.isFinite(measuredVisualsWidth) &&
+    measuredVisualsWidth > 0
+      ? Math.min(measuredVisualsWidth, estimatedWidth)
+      : estimatedWidth;
+  const minimumRowWidth =
+    HERO_TABLET_MAX_SIZE +
+    DESKTOP_INSTRUMENT_RAIL_WIDTH +
+    DESKTOP_WORKSPACE_GAP;
+  if (
+    !desktopEnabled ||
+    effective < DESKTOP_WORKSPACE_MIN_WIDTH ||
+    measured < minimumRowWidth
+  ) {
     // Fit the actual card, including the instrument column. Window width
     // alone overestimates space when the hero sits inside another panel.
-    const fittedSize = Math.max(1, Math.min(compactSize, measured - (sidebar ? 156 + DESKTOP_WORKSPACE_GAP : 0)));
-    return { expanded: false, stageWidth: fittedSize, stageHeight: fittedSize, presentationScale: undefined };
+    const fittedSize = Math.max(
+      1,
+      Math.min(
+        compactSize,
+        measured - (sidebar ? 156 + DESKTOP_WORKSPACE_GAP : 0),
+      ),
+    );
+    return {
+      expanded: false,
+      stageWidth: fittedSize,
+      stageHeight: fittedSize,
+      presentationScale: undefined,
+    };
   }
-  const stageWidth = Math.floor(measured - DESKTOP_INSTRUMENT_RAIL_WIDTH - DESKTOP_WORKSPACE_GAP);
-  return { expanded: true, stageWidth, stageHeight: Math.min(stageWidth, DESKTOP_STAGE_MAX_HEIGHT), presentationScale: DESKTOP_MODEL_SCALE };
+  const stageWidth = Math.floor(
+    measured - DESKTOP_INSTRUMENT_RAIL_WIDTH - DESKTOP_WORKSPACE_GAP,
+  );
+  return {
+    expanded: true,
+    stageWidth,
+    stageHeight: Math.min(stageWidth, DESKTOP_STAGE_MAX_HEIGHT),
+    presentationScale: DESKTOP_MODEL_SCALE,
+  };
 }
 
 /** Roll/pitch arrive in 0.1 degree units. Keeping that one decimal makes
@@ -229,33 +262,29 @@ export default function OrientationHero({
 }: OrientationHeroProps): React.JSX.Element {
   const { t } = useTranslation();
   const { width: windowWidth, fontScale } = useWindowDimensions();
-  const sidebar = shouldUseOrientationSidebar(windowWidth, fontScale);
   const [measuredCardWidth, setMeasuredCardWidth] = useState<number>();
-  const innerWidth = measuredCardWidth === undefined ? undefined : Math.max(1, measuredCardWidth - 2 * spacing.lg - 2);
-  const desktopFits = ORIENTATION_DESKTOP_WORKSPACE_ENABLED && windowWidth / fontScale >= DESKTOP_WORKSPACE_MIN_WIDTH &&
-    innerWidth !== undefined && innerWidth >= HERO_TABLET_MAX_SIZE + DESKTOP_INSTRUMENT_RAIL_WIDTH + DESKTOP_WORKSPACE_GAP + 320 + spacing.lg;
-  const measuredVisualsWidth = innerWidth === undefined ? undefined : desktopFits ? innerWidth - 320 - spacing.lg : innerWidth;
-  const workspace = computeOrientationWorkspaceLayout(windowWidth, fontScale, measuredVisualsWidth, desktopFits);
-  // FINAL UI CORRECTION: on a phone the stage is the full card width
-  // (dominant), with the dials on their own row directly beneath it.
-  const heroSize = workspace.stageWidth;
-  const heroHeight = workspace.stageHeight;
-  const instrumentStageWidth = sidebar ? 156 : heroSize;
-  const instrumentsLayout = sidebar ? 'sidebar' : 'row';
+  const heroSize = Math.max(
+    1,
+    (measuredCardWidth ?? Math.min(900, windowWidth - 48)) - 2,
+  );
+  const heroHeight =
+    windowWidth / Math.max(1, fontScale) >= 1024
+      ? 410
+      : windowWidth / Math.max(1, fontScale) >= 620
+      ? 350
+      : 280;
+  const instrumentStageWidth = 320;
+  const instrumentsLayout = 'row' as const;
   const [hintVisible, setHintVisible] = useState(false);
   // Measure the stable outer card, not the stage that changes parent when
   // rotating a phone or crossing a desktop breakpoint. This avoids a late
   // measurement from the old stage overwriting the new viewport size.
   const handleCardLayout = (event: LayoutChangeEvent) => {
     const measured = event.nativeEvent.layout.width;
-    setMeasuredCardWidth(current => current === measured ? current : measured);
+    setMeasuredCardWidth(current =>
+      current === measured ? current : measured,
+    );
   };
-  const visualsStyle = [
-    styles.visuals,
-    sidebar && styles.visualsSidebar,
-    workspace.expanded && styles.visualsDesktop,
-  ];
-
   const handleReset = () => {
     // Rejected, not merely visually disabled: a press delivered while the
     // control is unavailable must capture nothing at all.
@@ -458,9 +487,12 @@ export default function OrientationHero({
     );
 
   const stage = (
-    <View style={visualsStyle}>
+    <View style={styles.visuals}>
       <View
-        style={[styles.rendererWrapper, { width: heroSize, height: heroHeight }]}
+        style={[
+          styles.rendererWrapper,
+          { width: heroSize, height: heroHeight },
+        ]}
         accessible={accessibilityText !== undefined}
         accessibilityLabel={accessibilityText}
         testID="orientation-hero-renderer-wrapper"
@@ -488,7 +520,7 @@ export default function OrientationHero({
             orientation={displayed}
             width={heroSize}
             height={heroHeight}
-            presentationScale={workspace.presentationScale}
+            presentationScale={1.5}
             stale={isStale}
             sampleIdentity={sampleIdentity}
             airframe={airframe}
@@ -496,16 +528,23 @@ export default function OrientationHero({
         )}
       </View>
 
-      <FlightInstruments
-        status={status}
-        stageWidth={instrumentStageWidth}
-        fontScale={fontScale}
-        layout={instrumentsLayout}
-        sizeScale={sidebar ? 0.8 : 1}
-        rollDeg={displayed?.rollDeg}
-        pitchDeg={displayed?.pitchDeg}
-        headingDeg={displayed?.yawDeg}
-      />
+      <View
+        style={
+          heroSize < 576 ? styles.instrumentsBelow : styles.instrumentsOverlay
+        }
+        pointerEvents="none"
+      >
+        <FlightInstruments
+          status={status}
+          stageWidth={instrumentStageWidth}
+          fontScale={fontScale}
+          layout={instrumentsLayout}
+          sizeScale={0.72}
+          rollDeg={displayed?.rollDeg}
+          pitchDeg={displayed?.pitchDeg}
+          headingDeg={displayed?.yawDeg}
+        />
+      </View>
     </View>
   );
 
@@ -601,67 +640,98 @@ export default function OrientationHero({
       ? 'orientation-hero-error'
       : 'orientation-hero';
 
-  if (workspace.expanded) {
-    return (
-      <View style={styles.container} onLayout={handleCardLayout} testID={containerTestID}>
-        {renderHeader(status)}
-        {readouts}
-        <View style={styles.desktopRow}>
-          <View style={styles.desktopStage}>{stage}</View>
-          <View style={styles.desktopControls}>
-            {calibrationSlot}
-            {controls}
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container} onLayout={handleCardLayout} testID={containerTestID}>
-      {renderHeader(status)}
-      {readouts}
-      {stage}
-      {calibrationSlot}
-      {controls}
+    <View
+      style={styles.container}
+      onLayout={handleCardLayout}
+      testID={containerTestID}
+    >
+      <View style={styles.sceneHeader}>{renderHeader(status)}</View>
+      <View style={styles.stageContainer}>
+        <View style={styles.readoutOverlay} pointerEvents="none">
+          {readouts}
+        </View>
+        {stage}
+      </View>
+      <View style={styles.toolRow}>
+        <View style={styles.calibration}>{calibrationSlot}</View>
+        <View style={styles.viewControls}>{controls}</View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  sceneHeader: { padding: spacing.md },
+  stageContainer: { width: '100%', position: 'relative' },
+  readoutOverlay: {
+    zIndex: 1,
+    position: 'absolute',
+    top: 12,
+    left: 16,
+    maxWidth: '70%',
+  },
+  instrumentsBelow: {
+    width: '100%',
     alignItems: 'center',
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    padding: spacing.lg,
+    padding: 8,
+    backgroundColor: colors.backgroundRaised,
+  },
+  instrumentsOverlay: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 232,
+  },
+  toolRow: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+    padding: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSoft,
+  },
+  calibration: {
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    flexBasis: 360,
+    maxWidth: '100%',
+  },
+  viewControls: {
+    flexGrow: 1,
+    flexBasis: 240,
+    gap: spacing.xs,
+    alignItems: 'flex-end',
+  },
+
+  container: {
+    width: '100%',
+    maxWidth: '100%',
+    minWidth: 0,
+    alignSelf: 'stretch',
     borderWidth: 1,
     borderColor: colors.borderSoft,
-    borderRadius: radii.lg,
+    borderRadius: radii.md,
     backgroundColor: colors.surface,
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.22,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 7 },
-    elevation: 4,
+    overflow: 'hidden',
+    marginTop: spacing.sm,
   },
   messageText: {
     ...typography.body,
-    color: colors.textSecondary, maxWidth: PROSE_MEASURE},
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
   rendererWrapper: {
-    marginTop: spacing.sm,
-    flexShrink: 0,
-    borderRadius: radii.lg,
+    width: '100%',
     overflow: 'hidden',
     backgroundColor: colors.backgroundRaised,
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  visuals: {
-    width: '100%',
-    alignItems: 'center',
-  },
+  visuals: { width: '100%', position: 'relative' },
   visualsSidebar: {
     /* `direction` was here too. react-native-web rejects it outright
        ("Invalid style property of 'direction'"), so it only ever applied
@@ -752,13 +822,7 @@ const styles = StyleSheet.create({
   },
   /* SETUP R9: the row sits ABOVE the stage now, so its spacing separates
      it from the header rather than from the calibration card. */
-  readoutsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
+  readoutsRow: { gap: 4 },
   desktopRow: {
     width: '100%',
     flexDirection: 'row',
@@ -776,42 +840,33 @@ const styles = StyleSheet.create({
     width: 320,
     flexShrink: 0,
   },
-  readout: {
-    alignItems: 'center',
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: radii.sm,
-    backgroundColor: colors.backgroundRaised,
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
-  },
+  readout: { flexDirection: 'row', gap: 12, alignItems: 'baseline' },
   readoutLabel: {
     ...typography.caption,
     color: colors.textSecondary,
+    minWidth: 72,
   },
   readoutValue: {
-    ...typography.title,
+    ...typography.label,
+    color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
-    color: colors.accentStrong,
-    marginTop: spacing.xs / 2,
+    fontWeight: '700',
   },
   resetButton: {
-    marginTop: spacing.lg,
     minHeight: 44,
-    width: '100%',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
     justifyContent: 'center',
+    paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: colors.accentStrong,
-    borderRadius: radii.md,
-    backgroundColor: colors.accentSoft,
+    borderColor: colors.borderStrong,
+    borderRadius: radii.sm,
+    backgroundColor: colors.surfaceAlt,
   },
   headingNoteText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: spacing.xs,
+    ...typography.helper,
+    color: colors.textMuted,
+    textAlign: 'right',
+    maxWidth: 300,
   },
   resetButtonDisabled: {
     opacity: 0.45,
@@ -841,7 +896,9 @@ const styles = StyleSheet.create({
   },
   hintText: {
     ...typography.caption,
-    color: colors.textSecondary, maxWidth: PROSE_MEASURE},
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
   hintDismiss: {
     marginTop: spacing.sm,
     alignSelf: 'flex-end',
@@ -851,5 +908,7 @@ const styles = StyleSheet.create({
   hintDismissText: {
     ...typography.caption,
     color: colors.accentStrong,
-    fontWeight: '600', maxWidth: PROSE_MEASURE},
+    fontWeight: '600',
+    maxWidth: PROSE_MEASURE,
+  },
 });

@@ -692,10 +692,10 @@ describe('Setup screen - integrated acceptance (Regions 1-5)', () => {
          (Region 5). Every probe below is a string the assembled screen
          actually renders, and every one must be found. */
       const orderedProbes = [
-        "Accu", // status chip label - FIRST content
         ARABIC.orientationTitle, // the model's own title
         "Versnellingsmeter kalibreren", // calibration action beside the model
         ARABIC.statusColumnTitle, // the information grid, after the model
+        "Accu", // the complete status strip follows the grid
         ARABIC.region4Title,
         ARABIC.region5Title,
       ];

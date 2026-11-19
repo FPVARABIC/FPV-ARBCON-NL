@@ -1,0 +1,601 @@
+{
+  "cases": [
+    {
+      "scene": "Setup",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Motors",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Ports",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "GPS",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Configurations",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Receiver",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "PID",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Modes",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Failsafe",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Power",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "OSD",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "VTX",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "LED",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Sensors",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Blackbox",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Presets",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "CLI",
+      "width": 390,
+      "scroll": 390,
+      "w": 390
+    },
+    {
+      "scene": "Setup",
+      "width": 320,
+      "bad": [
+        "fc-tool-ACC_CALIBRATION-button"
+      ],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Motors",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Ports",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "GPS",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Configurations",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Receiver",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "PID",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Modes",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Failsafe",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Power",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "OSD",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "VTX",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "LED",
+      "width": 320,
+      "bad": [
+        "led-cell-6-0",
+        "led-cell-7-0",
+        "led-cell-8-0",
+        "led-cell-9-0",
+        "led-cell-10-0",
+        "led-cell-11-0",
+        "led-cell-12-0",
+        "led-cell-13-0",
+        "led-cell-14-0",
+        "led-cell-15-0",
+        "led-cell-6-1",
+        "led-cell-7-1"
+      ],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Sensors",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Blackbox",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Presets",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "CLI",
+      "width": 320,
+      "bad": [],
+      "scroll": 320,
+      "w": 320
+    },
+    {
+      "scene": "Setup",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Motors",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Ports",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "GPS",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Configurations",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Receiver",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "PID",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Modes",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Failsafe",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Power",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "OSD",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "VTX",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "LED",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Sensors",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Blackbox",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Presets",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "CLI",
+      "width": 1280,
+      "bad": [],
+      "scroll": 1280,
+      "w": 1280
+    },
+    {
+      "scene": "Setup",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Motors",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Ports",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "GPS",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Configurations",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Receiver",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "PID",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Modes",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Failsafe",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Power",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "OSD",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "VTX",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "LED",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Sensors",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Blackbox",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Presets",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "CLI",
+      "width": 1920,
+      "bad": [],
+      "scroll": 1920,
+      "w": 1920
+    },
+    {
+      "scene": "Setup",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Motors",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Ports",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "GPS",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Configurations",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Receiver",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "PID",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Modes",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Failsafe",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Power",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "OSD",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "VTX",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "LED",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Sensors",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Blackbox",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "Presets",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    },
+    {
+      "scene": "CLI",
+      "width": 2560,
+      "bad": [],
+      "scroll": 2560,
+      "w": 2560
+    }
+  ],
+  "notes": [
+    "LED cells beyond the phone viewport are inside a deliberate horizontal grid scroller; the rightmost cell was reached by a real click.",
+    "The 320px accelerometer button was corrected and remeasured at x=27..278."
+  ]
+}

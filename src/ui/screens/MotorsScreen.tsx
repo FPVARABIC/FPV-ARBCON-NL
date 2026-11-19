@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * Phase 2H - the real Arabic motor-test screen.
  *
@@ -50,7 +54,6 @@ import React, {
 import {
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -59,8 +62,16 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import {PROSE_MEASURE, colors, noticeSurface, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {Icon} from '../icons';
+import {
+  PROSE_MEASURE,
+  colors,
+  noticeSurface,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { Icon } from '../icons';
 import type {
   MotorTestActivationBlockReason,
   MotorTestControllerSnapshot,
@@ -126,18 +137,14 @@ import {
    section speaks about the ACTIVE aircraft and must never be handed an
    unsaved topology. */
 import { MotorAirframeDiagram } from './MotorAirframeDiagram';
-import {
-  BETAFLIGHT_MIXER_REFERENCE_V147,
-} from '../../core/firmware-adapters/betaflightMixerReferenceV147';
+import { BETAFLIGHT_MIXER_REFERENCE_V147 } from '../../core/firmware-adapters/betaflightMixerReferenceV147';
 import { MotorDiagnosticsPanel } from './MotorDiagnosticsPanel';
 import { MotorDirectionWorkflow } from './MotorDirectionWorkflow';
 import {
   nextMotorDirectionWorkflowStatus,
   type MotorDirectionWorkflowStatus,
 } from '../../core/state/motorDirectionWorkflow';
-import {
-  evaluateMotorDirectionCommandCapability,
-} from '../../core/state/motorDirectionCapability';
+import { evaluateMotorDirectionCommandCapability } from '../../core/state/motorDirectionCapability';
 import {
   beginDirectionCommandLog,
   directionCommandFor,
@@ -415,11 +422,7 @@ export function endMotorTestSessionSafely(
     let closeStarted = false;
     let finished = false;
     const deadline = timers.setTimer(() => {
-      fail(
-        new Error(
-          'Motor-test teardown did not complete within its bound.',
-        ),
-      );
+      fail(new Error('Motor-test teardown did not complete within its bound.'));
     }, MOTOR_TEST_TEARDOWN_BOUND_MILLIS);
     const cleanup = () => {
       unsubscribe?.();
@@ -450,7 +453,8 @@ export function endMotorTestSessionSafely(
         return;
       }
       if (current.phase === 'CLOSING' || closeStarted) return;
-      if (!isMotorTestSettledForRelease(current) && current.phase !== 'IDLE') return;
+      if (!isMotorTestSettledForRelease(current) && current.phase !== 'IDLE')
+        return;
       closeStarted = true;
       let closing: Promise<MotorTestControllerSnapshot>;
       try {
@@ -466,11 +470,13 @@ export function endMotorTestSessionSafely(
     inspect();
   });
   endingMotorTestSessions.set(operator, operation);
-  operation.finally(() => {
-    if (endingMotorTestSessions.get(operator) === operation) {
-      endingMotorTestSessions.delete(operator);
-    }
-  }).catch(() => undefined);
+  operation
+    .finally(() => {
+      if (endingMotorTestSessions.get(operator) === operation) {
+        endingMotorTestSessions.delete(operator);
+      }
+    })
+    .catch(() => undefined);
   return operation;
 }
 
@@ -682,9 +688,9 @@ export function MotorsScreenView({
    * authority and has varied across browser/input combinations. On web we
    * qualify the SAME Pressable-owned gesture with our own timer. Android
    * keeps the native onLongPress path unchanged. */
-  const webLongPressTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
+  const webLongPressTimerRef = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
   /** Read at CALL time, so a stale closure still sees live state - the
    * same reasoning UsbSerialDebugPanel's own mspActiveRef guard uses. */
   const operatorRef = useRef(operator);
@@ -799,8 +805,7 @@ export function MotorsScreenView({
     snapshot?.outcome.kind === 'FAILED_CLOSED'
       ? snapshot.outcome.reason
       : undefined;
-  const readinessDiagnosticReason =
-    terminalSetupReason ?? primaryBlockReason;
+  const readinessDiagnosticReason = terminalSetupReason ?? primaryBlockReason;
   const showReadinessDiagnostic =
     !controllerAllows &&
     readinessDiagnosticReason !== undefined &&
@@ -938,7 +943,7 @@ export function MotorsScreenView({
           motorNumber,
           nextMotorDirectionWorkflowStatus(
             current.get(motorNumber) ?? 'UNCHECKED',
-            correct ? {kind: 'ANSWER_CORRECT'} : {kind: 'ANSWER_WRONG'},
+            correct ? { kind: 'ANSWER_CORRECT' } : { kind: 'ANSWER_WRONG' },
           ),
         );
         return next;
@@ -962,7 +967,7 @@ export function MotorsScreenView({
         return;
       }
       setDirectionLog(current =>
-        recordDirectionCommand(current, token, {motorNumber, target, status}),
+        recordDirectionCommand(current, token, { motorNumber, target, status }),
       );
       // §17: an ACKNOWLEDGED reverse marks «تم عكسه ويحتاج إعادة فحص» -
       // never "correct" and never "confirmed". UNCONFIRMED marks nothing:
@@ -974,7 +979,7 @@ export function MotorsScreenView({
             motorNumber,
             nextMotorDirectionWorkflowStatus(
               current.get(motorNumber) ?? 'UNCHECKED',
-              {kind: 'REVERSE_ACKNOWLEDGED'},
+              { kind: 'REVERSE_ACKNOWLEDGED' },
             ),
           );
           return next;
@@ -1027,12 +1032,14 @@ export function MotorsScreenView({
    * mixer, props flag and motor count, available BEFORE any motor-test
    * session exists. Display fallback only: every command gate keeps
    * reading the session's own scope. */
-  const [configTopology, setConfigTopology] = useState<AirframeConfigTopology>();
+  const [configTopology, setConfigTopology] =
+    useState<AirframeConfigTopology>();
   const [quickConfigBusy, setQuickConfigBusy] = useState(false);
   /** The airframe strip's draft/pending truth - M-F3 §32-§35. Drives the
    * labelled preview and the topology interlock below; display and
    * UI-level gating only, never command authority. */
-  const [airframeEditState, setAirframeEditState] = useState<AirframeEditState>();
+  const [airframeEditState, setAirframeEditState] =
+    useState<AirframeEditState>();
   /*
    * THE TOPOLOGY INTERLOCK - M-F3 §34/§35, and it is P0.
    *
@@ -1209,34 +1216,35 @@ export function MotorsScreenView({
    */
   const runtimeMotorCountUnread = identitySlots.length === 0;
 
-  const holdBlockedReason: string | undefined = !holdGateBlocked || holdOwned
-    ? undefined
-    : requiresNewConnection
+  const holdBlockedReason: string | undefined =
+    !holdGateBlocked || holdOwned
+      ? undefined
+      : requiresNewConnection
       ? t('motorsScreen.requiresNewConnection')
       : operator === undefined || sessionId === undefined
-        ? t('motorsScreen.holdBlockedNoSession')
-        /* M-E3: AHEAD OF "enable motor control first", because that
+      ? t('motorsScreen.holdBlockedNoSession')
+      : /* M-E3: AHEAD OF "enable motor control first", because that
            instruction cannot succeed here. Enabling is refused for the
            very same missing count, so naming the control sent the
            operator to a switch that would not help and told them nothing
            about their aircraft. The count is the cause; reopening the
            session is the route that re-runs the read. */
-        : runtimeMotorCountUnread
-          ? t('motorsScreen.holdBlockedCountUnread')
-        /* M-F3 §34/§35: the drafted or saved-but-not-rebooted airframe is
+      runtimeMotorCountUnread
+      ? t('motorsScreen.holdBlockedCountUnread')
+      : /* M-F3 §34/§35: the drafted or saved-but-not-rebooted airframe is
            not the one the firmware is flying. Ahead of "enable control
            first" because enabling is refused for the same reason. */
-        : topologyDirty
-          ? t('motorsScreen.holdBlockedTopologyDirty')
-        : topologyPendingReboot
-          ? t('motorsScreen.holdBlockedTopologyPendingReboot')
-        : !motorControlEnabled
-          ? t('motorsScreen.holdBlockedControlOff')
-          : motorConfigurationBusy || quickConfigBusy
-            ? t('motorsScreen.holdBlockedBusy')
-            : primaryBlockReason !== undefined
-              ? t(`motorsScreen.blockReason.${primaryBlockReason}`)
-              : t('motorsScreen.holdBlockedUnknown');
+      topologyDirty
+      ? t('motorsScreen.holdBlockedTopologyDirty')
+      : topologyPendingReboot
+      ? t('motorsScreen.holdBlockedTopologyPendingReboot')
+      : !motorControlEnabled
+      ? t('motorsScreen.holdBlockedControlOff')
+      : motorConfigurationBusy || quickConfigBusy
+      ? t('motorsScreen.holdBlockedBusy')
+      : primaryBlockReason !== undefined
+      ? t(`motorsScreen.blockReason.${primaryBlockReason}`)
+      : t('motorsScreen.holdBlockedUnknown');
   /** Ends the exclusive test session before the optional output-reorder
    * transaction, which deliberately owns a separate interlock. */
   const handleEndSessionForConfiguration = useCallback(async () => {
@@ -1309,11 +1317,7 @@ export function MotorsScreenView({
         const phase = port?.getSnapshot().phase;
         const spent =
           phase === 'CLOSED' && port?.getSnapshot().teardown?.complete === true;
-        if (
-          port === undefined ||
-          beginning ||
-          (phase !== 'IDLE' && !spent)
-        ) {
+        if (port === undefined || beginning || (phase !== 'IDLE' && !spent)) {
           return;
         }
         // The configuration panel and the motor-test controller share one
@@ -1365,7 +1369,6 @@ export function MotorsScreenView({
     [beginning, endingSession, motorConfigurationBusy, runBeginSession],
   );
 
-
   /**
    * MOTOR CONTROL - permission to put a value on an output, inside a
    * session that already exists. Turning it OFF withdraws that permission,
@@ -1410,7 +1413,6 @@ export function MotorsScreenView({
       setMotorControlEnabled(false);
     }
   }, [motorControlEnabled, sessionState]);
-
 
   useEffect(() => {
     if (!beginQueued || motorConfigurationBusy) {
@@ -1478,7 +1480,11 @@ export function MotorsScreenView({
       return;
     }
     const current = port.getSnapshot();
-    if (!holdOwnedRef.current || holdGestureRef.current !== gesture || !current.activation.allowed) {
+    if (
+      !holdOwnedRef.current ||
+      holdGestureRef.current !== gesture ||
+      !current.activation.allowed
+    ) {
       setPulseRejected(true);
       return;
     }
@@ -1614,22 +1620,25 @@ export function MotorsScreenView({
    * current episode and does NOT start the new one. The controller
    * enforces this too; the screen simply must not pretend otherwise.
    */
-  const handleSelectSlot = useCallback((slot: number) => {
-    const port = operatorRef.current;
-    if (port !== undefined && commandMayBeLive(port.getSnapshot())) {
-      const machine = port.getSnapshot().machine?.name;
-      if (machine === 'Starting' || machine === 'Pulsing') {
-        holdActivatedRef.current = false;
-        holdOwnedRef.current = false;
-        setHoldOwned(false);
-        holdGestureRef.current = undefined;
-        clearWebLongPressTimer();
-        clearHoldHeartbeat();
-        port.requestStop('MOTOR_SELECTION_CHANGED');
+  const handleSelectSlot = useCallback(
+    (slot: number) => {
+      const port = operatorRef.current;
+      if (port !== undefined && commandMayBeLive(port.getSnapshot())) {
+        const machine = port.getSnapshot().machine?.name;
+        if (machine === 'Starting' || machine === 'Pulsing') {
+          holdActivatedRef.current = false;
+          holdOwnedRef.current = false;
+          setHoldOwned(false);
+          holdGestureRef.current = undefined;
+          clearWebLongPressTimer();
+          clearHoldHeartbeat();
+          port.requestStop('MOTOR_SELECTION_CHANGED');
+        }
       }
-    }
-    setSelectedSlot(slot);
-  }, [clearHoldHeartbeat, clearWebLongPressTimer]);
+      setSelectedSlot(slot);
+    },
+    [clearHoldHeartbeat, clearWebLongPressTimer],
+  );
 
   const statusText = useMemo(() => {
     switch (presentation) {
@@ -1717,7 +1726,8 @@ export function MotorsScreenView({
    * M-E3 wording guard, and the controller's own commandableMotorCount
    * never sees these values.
    */
-  const effectiveMixerModeRaw = liveMixerModeRaw ?? configTopology?.mixerModeRaw;
+  const effectiveMixerModeRaw =
+    liveMixerModeRaw ?? configTopology?.mixerModeRaw;
   const effectiveYawMotorsReversed =
     liveYawMotorsReversed ?? configTopology?.yawMotorsReversed;
   /*
@@ -1755,10 +1765,14 @@ export function MotorsScreenView({
     airframeEditState?.draftMixerModeRaw !== undefined
       ? (() => {
           const row = BETAFLIGHT_MIXER_REFERENCE_V147.find(
-            candidate => candidate.mixerId === airframeEditState.draftMixerModeRaw,
+            candidate =>
+              candidate.mixerId === airframeEditState.draftMixerModeRaw,
           );
           return row?.motorCountStrategy.kind === 'TABLE_FIXED'
-            ? Array.from({length: row.motorCountStrategy.count}, (_, i) => i + 1)
+            ? Array.from(
+                { length: row.motorCountStrategy.count },
+                (_, i) => i + 1,
+              )
             : [];
         })()
       : displaySlots;
@@ -1769,7 +1783,7 @@ export function MotorsScreenView({
     return row === undefined
       ? previewMixerModeRaw === undefined
         ? t('motorsScreen.mixerUnreadValue')
-        : t('motorsScreen.mixerUnknownValue', {id: previewMixerModeRaw})
+        : t('motorsScreen.mixerUnknownValue', { id: previewMixerModeRaw })
       : t(`motorsScreen.topology.airframe.${row.firmwareName}`);
   })();
 
@@ -1809,7 +1823,8 @@ export function MotorsScreenView({
    * exists. Where there is none, the operational workspace is the page.
    */
   const hasUsableAuthoredAirframeVisual =
-    active && authoredAirframeLayout(effectiveMixerModeRaw, displaySlots) !== undefined;
+    active &&
+    authoredAirframeLayout(effectiveMixerModeRaw, displaySlots) !== undefined;
   /*
    * M-F2 §29/§30 - A COLUMN EXISTS WHEN IT HAS CONTENT, NOT A BREAKPOINT.
    *
@@ -1823,7 +1838,8 @@ export function MotorsScreenView({
    * its selector a dash, which is M-E2's dead region wearing new clothes.
    */
   const wideWorkspace =
-    wideViewport && (hasUsableAuthoredAirframeVisual || displaySlots.length > 0);
+    wideViewport &&
+    (hasUsableAuthoredAirframeVisual || displaySlots.length > 0);
   const quadIdentificationSupported =
     identificationCapability.kind === 'SUPPORTED';
 
@@ -1863,7 +1879,11 @@ export function MotorsScreenView({
       : undefined;
   /** One block, used wherever a Quad-X claim is withheld. */
   const identificationUnavailableNotice = (testID: string) => (
-    <View style={styles.advancedEmpty} testID={testID}>
+    <WorkbenchBlock
+      style={styles.advancedEmpty}
+      testID={testID}
+      section="advancedEmpty"
+    >
       <Text style={styles.advancedEmptyTitle}>
         {t('motorsScreen.identificationQuadOnlyTitle')}
       </Text>
@@ -1878,7 +1898,7 @@ export function MotorsScreenView({
           ? t('motorsScreen.identificationAirframeUnknownBody')
           : t('motorsScreen.identificationCountUnknownBody')}
       </Text>
-    </View>
+    </WorkbenchBlock>
   );
 
   /**
@@ -1902,7 +1922,11 @@ export function MotorsScreenView({
    * reserved box, three labels inside it.
    */
   const holdControl = (
-    <View style={styles.holdBlock} testID="motors-hold-block">
+    <WorkbenchBlock
+      style={styles.holdBlock}
+      testID="motors-hold-block"
+      section="holdBlock"
+    >
       {/* NOTHING ABOVE THE BUTTON THAT THE BUTTON ALREADY SAYS.
           There used to be an eyebrow here reading "test the selected
           motor" - immediately under a heading reading "identify the motor
@@ -1963,8 +1987,8 @@ export function MotorsScreenView({
             ? holdOwned && mayBeLive
               ? t('motorsScreen.holdActive', { slot: `M${selectedSlot}` })
               : holdOwned
-                ? t('motorsScreen.holdCountdown', { slot: `M${selectedSlot}` })
-                : t('motorsScreen.holdToTest', { slot: `M${selectedSlot}` })
+              ? t('motorsScreen.holdCountdown', { slot: `M${selectedSlot}` })
+              : t('motorsScreen.holdToTest', { slot: `M${selectedSlot}` })
             : t('motorsScreen.holdToTestNoScope')}
         </Text>
       </Pressable>
@@ -1987,7 +2011,11 @@ export function MotorsScreenView({
           used to sit above them («لا يمكن اختبار المحرك الآن») said what
           the disabled button and the reason already say, and is gone. */}
       {holdBlockedReason !== undefined ? (
-        <View style={styles.holdBlocked} testID="motors-hold-blocked">
+        <WorkbenchBlock
+          style={styles.holdBlocked}
+          testID="motors-hold-blocked"
+          section="holdBlocked"
+        >
           <Text
             style={styles.holdBlockedReason}
             testID="motors-hold-blocked-reason"
@@ -1997,18 +2025,19 @@ export function MotorsScreenView({
           <Text style={styles.holdBlockedSafety}>
             {t('motorsScreen.holdBlockedHint')}
           </Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 
   const stopIsUrgent =
     motorControlEnabled || mayBeLive || holdOwned || presentation === 'FAULT';
 
   return (
-    <View
+    <WorkbenchBlock
       style={[styles.root, { paddingBottom: effectiveBottomInset }]}
       testID="motors-screen"
+      section="root"
     >
       {/* Scrollable body.
           THE STOP CONTROL IS A SIBLING, NOT AN OVERLAY, and that is the
@@ -2025,9 +2054,13 @@ export function MotorsScreenView({
           of dead space the operator had to drag through on every phone
           width. The geometry check (.dev-preview/geomcheck.mjs) confirms
           zero collisions at 7 widths across 9 states without it. */}
-      <ScrollView
+      <WorkbenchScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { maxWidth: contentMaxWidth }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { maxWidth: contentMaxWidth },
+        ]}
+        workspace="Motors"
       >
         {/* ================================================ REGION A
             SAFETY / SESSION HEADER, and nothing else.
@@ -2045,42 +2078,53 @@ export function MotorsScreenView({
             skimmed - but it no longer needs a banner the width of a
             desktop to say eight words. The developer disclosure moved
             to the advanced region where it belongs. */}
-        <View style={styles.headerRow}>
+        <WorkbenchBlock style={styles.headerRow} section="headerRow">
           <Text style={styles.title} testID="motors-title">
             {t('motorsScreen.title')}
           </Text>
+        </WorkbenchBlock>
 
-        </View>
-
-        <View style={styles.dangerBanner} testID="motors-propeller-warning">
+        <WorkbenchBlock
+          style={styles.dangerBanner}
+          testID="motors-propeller-warning"
+          section="dangerBanner"
+        >
           <Icon name="triangle-alert" size={18} color={colors.error} />
           <Text style={[styles.flexOne, styles.dangerTitle]}>
             {t('motorsScreen.propellerWarning')}
           </Text>
-        </View>
+        </WorkbenchBlock>
 
-        {beginFailed || (operator === undefined && bringUpFailure !== undefined) ? (
-          <View style={styles.card} testID="motors-begin-failed">
+        {beginFailed ||
+        (operator === undefined && bringUpFailure !== undefined) ? (
+          <WorkbenchBlock
+            style={styles.card}
+            testID="motors-begin-failed"
+            section="card"
+            panel
+          >
             <Text style={styles.blockReason}>
               {t('motorsScreen.beginSessionFailed')}
             </Text>
             {bringUpFailure !== undefined ? (
-              <Text
-                style={styles.caption}
-                testID="motors-begin-bringup-error"
-              >
+              <Text style={styles.caption} testID="motors-begin-bringup-error">
                 {bringUpFailure}
               </Text>
             ) : null}
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* Compact authoritative status. The first causal reason remains
             operator-facing; the full internal state stays collapsed. */}
-        <View style={styles.statusCard} testID="motors-status">
-          <View style={styles.statusRow}>
-            <View
+        <WorkbenchBlock
+          style={styles.statusCard}
+          testID="motors-status"
+          section="statusCard"
+        >
+          <WorkbenchBlock style={styles.statusRow} section="statusRow">
+            <WorkbenchBlock
               style={[styles.statusDot, { backgroundColor: statusColor }]}
+              section="statusDot"
             />
             {/* The heading "حالة النظام" was a label for a value that
                 already reads as a state - two lines where one says the
@@ -2092,7 +2136,7 @@ export function MotorsScreenView({
             >
               {statusText}
             </Text>
-          </View>
+          </WorkbenchBlock>
           {presentation === 'ACKNOWLEDGED' && !freezeTransientPresentation ? (
             <Text style={styles.caption} testID="motors-ack-notice">
               {t('motorsScreen.statusAcknowledgedNotice')}
@@ -2116,7 +2160,11 @@ export function MotorsScreenView({
               gesture ends; nothing about the controller's own gating
               depends on this text. */}
           {primaryBlockReason !== undefined && !holdOwned ? (
-            <View style={styles.blockList} testID="motors-block-reasons">
+            <WorkbenchBlock
+              style={styles.blockList}
+              testID="motors-block-reasons"
+              section="blockList"
+            >
               <Text style={styles.blockHeading}>
                 {t('motorsScreen.blockedHeading')}
               </Text>
@@ -2137,10 +2185,9 @@ export function MotorsScreenView({
                   {t('motorsScreen.requiresNewConnection')}
                 </Text>
               ) : null}
-            </View>
+            </WorkbenchBlock>
           ) : null}
-
-        </View>
+        </WorkbenchBlock>
 
         {/* (7) Fault - MOVED TO THE TOP OF THE CONTENT FLOW (final-review
             M-1). An emergency instruction rendered below Identity,
@@ -2157,9 +2204,13 @@ export function MotorsScreenView({
             but it is NOT a reason to tell somebody to pull a battery. */}
         {presentation === 'FAULT' ? (
           stopUnconfirmed ? (
-            <View style={styles.faultBanner} testID="motors-fault-banner">
+            <WorkbenchBlock
+              style={styles.faultBanner}
+              testID="motors-fault-banner"
+              section="faultBanner"
+            >
               <Icon name="octagon-alert" size={24} color={colors.error} />
-              <View style={styles.flexOne}>
+              <WorkbenchBlock style={styles.flexOne} section="flexOne">
                 <Text style={styles.faultText} testID="motors-emergency-text">
                   {t('motorsScreen.emergencyDisconnect')}
                 </Text>
@@ -2169,10 +2220,15 @@ export function MotorsScreenView({
                 >
                   {t('motorsScreen.emergencyNewSession')}
                 </Text>
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
           ) : (
-            <View style={styles.card} testID="motors-fault-notice">
+            <WorkbenchBlock
+              style={styles.card}
+              testID="motors-fault-notice"
+              section="card"
+              panel
+            >
               <Text
                 style={styles.blockHeading}
                 testID="motors-fault-session-text"
@@ -2182,7 +2238,7 @@ export function MotorsScreenView({
               <Text style={styles.caption} testID="motors-fault-no-lipo-text">
                 {t('motorsScreen.faultNoBatteryAction')}
               </Text>
-            </View>
+            </WorkbenchBlock>
           )
         ) : null}
 
@@ -2200,12 +2256,7 @@ export function MotorsScreenView({
             topology disagreement, and whether servos are involved. It is
             a compact card on purpose; §3 asks for status before geometry,
             not for a larger picture. */}
-        <MotorAirframeSummary
-          mixerModeRaw={liveMixerModeRaw}
-          runtimeMotorCount={liveMotorCount}
-          scope={snapshot?.motorScope}
-          motorTestAvailable={snapshot?.activation?.allowed === true}
-        />
+
 
         {/* ================================================ REGION B
             THE MOTOR WORKSPACE - the reason the screen exists.
@@ -2221,21 +2272,29 @@ export function MotorsScreenView({
 
             The column order is deliberate in RTL: identity leads, because
             a person picks the motor before they move it. */}
-        <View
-          style={[styles.workspaceRow, wideWorkspace && styles.workspaceRowWide]}
+        <WorkbenchBlock
+          style={[
+            styles.workspaceRow,
+            wideWorkspace && styles.workspaceRowWide,
+          ]}
           testID="motors-primary-workspace"
+          section="workspaceRow"
         >
-          <View
-            style={[styles.workspaceColumn, wideWorkspace && styles.workspaceColumnAirframe]}
+          <WorkbenchBlock
+            style={[
+              styles.workspaceColumn,
+              wideWorkspace && styles.workspaceColumnAirframe,
+            ]}
             testID="motors-airframe-column"
+            section="workspaceColumn"
           >
-          {/* ---- P1b-B: MOTOR IDENTITY IS CORE. ------------------------
-            * Which motor am I addressing, where did I observe it, which
-            * output drives it, what is actually confirmed - answerable
-            * without opening a disclosure. The map, the numbered
-            * selector, the protected hold and the observation wizard now
-            * sit together in the order a person performs them. */}
-          {/* M-E §11 / §13: THE AIRCRAFT, AND NOTHING ELSE.
+            {/* ---- P1b-B: MOTOR IDENTITY IS CORE. ------------------------
+             * Which motor am I addressing, where did I observe it, which
+             * output drives it, what is actually confirmed - answerable
+             * without opening a disclosure. The map, the numbered
+             * selector, the protected hold and the observation wizard now
+             * sit together in the order a person performs them. */}
+            {/* M-E §11 / §13: THE AIRCRAFT, AND NOTHING ELSE.
               This column used to carry the whole identity section - the
               verification wizard, its counts, the direction authoring
               workflow and the output-order transaction - and on a 390px
@@ -2248,187 +2307,242 @@ export function MotorsScreenView({
               expected of the selected motor and what has been observed.
               Everything removed is in the technical details section, in
               full, reachable in one press. */}
-          {/* M-F2 §3/§7/§16/§19/§24 - THE AIRFRAME'S OWN CONTROLS.
+            {/* M-F2 §3/§7/§16/§19/§24 - THE AIRFRAME'S OWN CONTROLS.
               Mixer, props direction and the two primary tools, beside the
               aircraft they describe. Reads and writes go through the same
               verified configuration transaction as the settings editor -
               see the strip's own header. */}
-          <MotorAirframeControls
-            sessionId={sessionId}
-            sessionKey={sessionKey}
-            liveMixerModeRaw={liveMixerModeRaw}
-            liveYawMotorsReversed={liveYawMotorsReversed}
-            writesLocked={holdOwned || mayBeLive || motorControlEnabled}
-            onTopology={setConfigTopology}
-            onEditState={setAirframeEditState}
-            onBusyChange={setQuickConfigBusy}
-            directionOpen={directionOpen}
-            reorderOpen={reorderOpen}
-            onToggleDirection={() => setDirectionOpen(open => !open)}
-            onToggleReorder={() => setReorderOpen(open => !open)}
-            controller={airframeConfigPort}
-          />
-          {/* ============================== M-F3 §9/§16 - THE TOOLS OPEN
+            <MotorAirframeControls
+              sessionId={sessionId}
+              sessionKey={sessionKey}
+              liveMixerModeRaw={liveMixerModeRaw}
+              liveYawMotorsReversed={liveYawMotorsReversed}
+              writesLocked={holdOwned || mayBeLive || motorControlEnabled}
+              onTopology={setConfigTopology}
+              onEditState={setAirframeEditState}
+              onBusyChange={setQuickConfigBusy}
+              directionOpen={directionOpen}
+              reorderOpen={reorderOpen}
+              onToggleDirection={() => setDirectionOpen(open => !open)}
+              onToggleReorder={() => setReorderOpen(open => !open)}
+              controller={airframeConfigPort}
+            />
+            {/* ============================== M-F3 §9/§16 - THE TOOLS OPEN
               HERE, directly under the buttons that open them. They used
               to mount ~1000px lower, after the whole workspace: pressing
               «اتجاه المحركات» visibly changed nothing but the button's
               colour - P0-2/P0-3's shared placement defect. Same
               components, same controllers, same gates; only the mount
               moved to where the press happened. */}
-          {directionOpen ? (
-            <View style={styles.primaryToolPanel} testID="motors-direction-tool">
-              <MotorDirectionWorkflow
-                motorNumbers={identitySlots}
-                selectedMotor={selectedSlot}
-                onSelectMotor={handleSelectSlot}
-                statuses={directionStatuses}
-                onAnswer={handleDirectionAnswer}
-                propsOffAcknowledged={directionAck}
-                onAcknowledgePropsOff={setDirectionAck}
-                spinControl={holdControl}
-                operator={operator}
-                identificationCapability={identificationCapability}
-                commandCapability={directionCommandCapability}
-                expectedRotation={expectedMotorRotation(
-                  effectiveMixerModeRaw,
-                  selectedSlot,
-                  effectiveYawMotorsReversed,
-                )}
-                verification={verification}
-                commanded={selectedDirectionCommand}
-                onCommandOutcome={handleDirectionCommandOutcome}
-                onDirtyChange={setEscDirectionDirty}
-                authoringRequestId={directionAuthoringRequest}
-              />
-            </View>
-          ) : null}
-          {reorderOpen ? (
-            <View style={styles.primaryToolPanel} testID="motors-reorder-tool">
-              <MotorOutputMappingSection
-                sessionId={sessionId}
-                motorCount={liveMotorCount}
-                verification={verification}
-                capability={identificationCapability}
-                onEndMotorTestSession={handleEndSessionForConfiguration}
-                onDirtyChange={setOutputOrderDirty}
-                blockedReason={configurationReadBlockedReason}
-                onValuesChange={setOutputOrderValues}
-              />
-            </View>
-          ) : null}
-          {previewingTopology ? (
-            /* M-F3 §33 - THE DRAFT, LABELLED AS A DRAFT. The drawing
+            {directionOpen ? (
+              <WorkbenchBlock
+                style={styles.primaryToolPanel}
+                testID="motors-direction-tool"
+                section="primaryToolPanel"
+              >
+                <MotorDirectionWorkflow
+                  motorNumbers={identitySlots}
+                  selectedMotor={selectedSlot}
+                  onSelectMotor={handleSelectSlot}
+                  statuses={directionStatuses}
+                  onAnswer={handleDirectionAnswer}
+                  propsOffAcknowledged={directionAck}
+                  onAcknowledgePropsOff={setDirectionAck}
+                  spinControl={holdControl}
+                  operator={operator}
+                  identificationCapability={identificationCapability}
+                  commandCapability={directionCommandCapability}
+                  expectedRotation={expectedMotorRotation(
+                    effectiveMixerModeRaw,
+                    selectedSlot,
+                    effectiveYawMotorsReversed,
+                  )}
+                  verification={verification}
+                  commanded={selectedDirectionCommand}
+                  onCommandOutcome={handleDirectionCommandOutcome}
+                  onDirtyChange={setEscDirectionDirty}
+                  authoringRequestId={directionAuthoringRequest}
+                />
+              </WorkbenchBlock>
+            ) : null}
+            {reorderOpen ? (
+              <WorkbenchBlock
+                style={styles.primaryToolPanel}
+                testID="motors-reorder-tool"
+                section="primaryToolPanel"
+              >
+                <MotorOutputMappingSection
+                  sessionId={sessionId}
+                  motorCount={liveMotorCount}
+                  verification={verification}
+                  capability={identificationCapability}
+                  onEndMotorTestSession={handleEndSessionForConfiguration}
+                  onDirtyChange={setOutputOrderDirty}
+                  blockedReason={configurationReadBlockedReason}
+                  onValuesChange={setOutputOrderValues}
+                />
+              </WorkbenchBlock>
+            ) : null}
+            {previewingTopology ? (
+              /* M-F3 §33 - THE DRAFT, LABELLED AS A DRAFT. The drawing
                follows the unsaved selection so the tap visibly answers,
                under «معاينة: …» and the activation sentence. The identity
                section is withheld here on purpose: its words describe the
                ACTIVE aircraft, and rendering them beside a draft drawing
                is the two-truths screen §32 forbids. Motor test is
                interlocked for as long as this block exists (§34). */
-            <View style={styles.topologyPreview} testID="motors-topology-preview">
-              <Text
-                style={styles.topologyPreviewLabel}
-                testID="motors-topology-preview-label"
+              <WorkbenchBlock
+                style={styles.topologyPreview}
+                testID="motors-topology-preview"
+                section="topologyPreview"
               >
-                {t('motorsScreen.topologyPreviewLabel', {name: previewMixerName})}
-              </Text>
-              <MotorAirframeDiagram
+                <Text
+                  style={styles.topologyPreviewLabel}
+                  testID="motors-topology-preview-label"
+                >
+                  {t('motorsScreen.topologyPreviewLabel', {
+                    name: previewMixerName,
+                  })}
+                </Text>
+                <MotorAirframeDiagram
+                  selectedSlot={selectedSlot}
+                  onSelectSlot={handleSelectSlot}
+                  mixerModeRaw={previewMixerModeRaw}
+                  yawMotorsReversed={previewYawMotorsReversed}
+                  motorNumbers={previewMotorNumbers}
+                />
+                <Text
+                  style={styles.topologyPreviewNote}
+                  testID="motors-topology-preview-note"
+                >
+                  {t('motorsScreen.topologyPreviewNote')}
+                </Text>
+              </WorkbenchBlock>
+            ) : (
+              <MotorIdentitySection
+                variant="MAP"
+                slots={displaySlots}
                 selectedSlot={selectedSlot}
                 onSelectSlot={handleSelectSlot}
-                mixerModeRaw={previewMixerModeRaw}
-                yawMotorsReversed={previewYawMotorsReversed}
-                motorNumbers={previewMotorNumbers}
+                capability={identificationCapability}
+                mixerModeRaw={effectiveMixerModeRaw}
+                yawMotorsReversed={effectiveYawMotorsReversed}
+                diagramMotorNumbers={displaySlots}
+                active={active}
+                liveSlot={liveSlot}
+                liveActivity={liveActivity}
+                verification={verification}
+                receipt={receipt}
+                onConfirm={handleConfirmObservation}
+                onMultipleMotorsReported={handleMultipleMotors}
+                onClearObservation={handleClearObservation}
+                outputOrder={outputOrderValues}
               />
-              <Text
-                style={styles.topologyPreviewNote}
-                testID="motors-topology-preview-note"
-              >
-                {t('motorsScreen.topologyPreviewNote')}
-              </Text>
-            </View>
-          ) : (
-            <MotorIdentitySection
-              variant="MAP"
-              slots={displaySlots}
-              selectedSlot={selectedSlot}
-              onSelectSlot={handleSelectSlot}
-              capability={identificationCapability}
-              mixerModeRaw={effectiveMixerModeRaw}
-              yawMotorsReversed={effectiveYawMotorsReversed}
-              diagramMotorNumbers={displaySlots}
-              active={active}
-              liveSlot={liveSlot}
-              liveActivity={liveActivity}
-              verification={verification}
-              receipt={receipt}
-              onConfirm={handleConfirmObservation}
-              onMultipleMotorsReported={handleMultipleMotors}
-              onClearObservation={handleClearObservation}
-              outputOrder={outputOrderValues}
-            />
-          )}
-          {/* SESSION READINESS, BESIDE THE HOLD CONTROL IT DESCRIBES.
+            )}
+            {/* SESSION READINESS, BESIDE THE HOLD CONTROL IT DESCRIBES.
               These two blocks used to live at the bottom of the tools
               bench. "الجلسة جاهزة - اضغط مطولًا على M1" and the exact
               terminal readiness failure are both statements ABOUT the
               protected hold, and the hold is in the identity section
               directly above - reading them 2,000px away from it was the
               reason the bench looked like it owned the workflow. */}
-          {/* A NORMAL STATE IS A STATUS, NOT AN ANNOUNCEMENT.
+            {/* A NORMAL STATE IS A STATUS, NOT AN ANNOUNCEMENT.
               "Ready" was a full notice card - a 38px check disc, a
               section-title heading and a sentence - occupying ~99px at
               390 to say the thing that is true almost all of the time. It
               is a strip now: one dot, the state, the addressed motor.
               The FAILURE states below are untouched and still expand,
               because a failure is the case that has something to say. */}
-          {canActivate || freezeTransientPresentation ? (
-            <View
-              style={styles.readyStrip}
-              testID="motors-session-ready"
-              accessibilityLabel={`${t('motorsScreen.readyHeading')}. ${t(
-                'motorsScreen.readyDetail',
-                {slot: `M${selectedSlot}`},
-              )}`}
-            >
-              <View style={styles.readyDot} />
-              <Text style={styles.readyStripText}>
-                {t('motorsScreen.readyHeading')}
-              </Text>
-              <Text style={styles.readyStripMotor}>
-                {`M${selectedSlot}`}
-              </Text>
-            </View>
-          ) : null}
+            {canActivate || freezeTransientPresentation ? (
+              <WorkbenchBlock
+                style={styles.readyStrip}
+                testID="motors-session-ready"
+                accessibilityLabel={`${t('motorsScreen.readyHeading')}. ${t(
+                  'motorsScreen.readyDetail',
+                  { slot: `M${selectedSlot}` },
+                )}`}
+                section="readyStrip"
+              >
+                <WorkbenchBlock style={styles.readyDot} section="readyDot" />
+                <Text style={styles.readyStripText}>
+                  {t('motorsScreen.readyHeading')}
+                </Text>
+                <Text style={styles.readyStripMotor}>{`M${selectedSlot}`}</Text>
+              </WorkbenchBlock>
+            ) : null}
 
-          {/* P1b-B: the numbered selector, the airframe map, the protected
+            {/* P1b-B: the numbered selector, the airframe map, the protected
               hold and the selected-motor facts all moved UP into
               MotorIdentitySection. They are not duplicated here - motor
               identity is a core question, and answering it from the bottom
               of a tools card was the reason it read as advanced. */}
 
+        <MotorAirframeSummary
+          mixerModeRaw={liveMixerModeRaw}
+          runtimeMotorCount={liveMotorCount}
+          scope={snapshot?.motorScope}
+          motorTestAvailable={snapshot?.activation?.allowed === true}
+        />
+            <Text style={styles.toolsHeading} testID="motors-settings-heading">
+              {'motoren instellingen'}
+            </Text>
+            <MotorConfigurationSummary scope={snapshot?.motorScope} />
+            {sessionId !== undefined && !motorSettingsOpen ? (
+              <Pressable
+                onPress={() => setMotorSettingsOpen(true)}
+                accessibilityRole="button"
+                style={styles.disclosure}
+                testID="motors-open-settings"
+              >
+                {/* A DISCLOSURE IS A ROW, NOT A CARD. This one was a 141px
+                full-width panel at 390 because a whole paragraph about
+                when to open it lived inside the tappable surface. The
+                title says what is inside; the caption beside it says it
+                in four words. */}
+                <Text style={styles.disclosureTitle}>
+                  {t('motorsScreen.openMotorSettings')}
+                </Text>
+                <Text style={styles.disclosureHint}>
+                  {t('motorsScreen.openMotorSettingsHint')}
+                </Text>
+              </Pressable>
+            ) : null}
+            {sessionId !== undefined &&
+            sessionKey !== undefined &&
+            motorSettingsOpen ? (
+              <MotorConfigurationPanel
+                sessionKey={sessionKey}
+                onDirtyChange={setMotorConfigurationDirty}
+                onBusyChange={setMotorConfigurationBusy}
+              />
+            ) : null}
+          </WorkbenchBlock>
 
-          </View>
-
-          <View
-            style={[styles.workspaceColumn, wideWorkspace && styles.workspaceColumnControls]}
+          <WorkbenchBlock
+            style={[
+              styles.workspaceColumn,
+              wideWorkspace && styles.workspaceColumnControls,
+            ]}
             testID="motors-control-column"
+            section="workspaceColumn"
           >
-          {/* ---- P3: THE PRIMARY EXPERIENCE. -------------------------
-            * Professional Motor 1..N workspace over the P2 facade. No
-            * long press, no heartbeat, no fixed magnitude. The legacy
-            * pulse/verification workflow below is retained as an
-            * OPTIONAL tool until it is separately retired - it is no
-            * longer the way motors are driven. */}
-          <MotorWorkspace
-            snapshot={snapshot}
-            port={operator}
-            sessionState={sessionState}
-            onSessionChange={handleSessionChange}
-            enabled={motorControlEnabled}
-            onEnableChange={handleMotorControlChange}
-            enableBlockedReason={
-              topologyDirty
-                ? t('motorsScreen.holdBlockedTopologyDirty')
-                : /* M-F3F §8: the activation window has its OWN sentence.
+            {/* ---- P3: THE PRIMARY EXPERIENCE. -------------------------
+             * Professional Motor 1..N workspace over the P2 facade. No
+             * long press, no heartbeat, no fixed magnitude. The legacy
+             * pulse/verification workflow below is retained as an
+             * OPTIONAL tool until it is separately retired - it is no
+             * longer the way motors are driven. */}
+            <MotorWorkspace
+              snapshot={snapshot}
+              port={operator}
+              sessionState={sessionState}
+              onSessionChange={handleSessionChange}
+              enabled={motorControlEnabled}
+              onEnableChange={handleMotorControlChange}
+              enableBlockedReason={
+                topologyDirty
+                  ? t('motorsScreen.holdBlockedTopologyDirty')
+                  : /* M-F3F §8: the activation window has its OWN sentence.
                      Blocking without one would be a control that refuses
                      and does not say why - and the pending-reboot
                      sentence would be wrong here, because the restart is
@@ -2436,11 +2550,23 @@ export function MotorsScreenView({
                   topologyActivating
                   ? t('motorsScreen.holdBlockedTopologyActivating')
                   : topologyPendingReboot
-                    ? t('motorsScreen.holdBlockedTopologyPendingReboot')
-                    : undefined
-            }
-          />
-          {/* M-E §17 / §32: THE IDENTIFICATION ACTION, WITH THE CONTROLS.
+                  ? t('motorsScreen.holdBlockedTopologyPendingReboot')
+                  : undefined
+              }
+            />
+            {sessionId !== undefined ? (
+              <MotorDiagnosticsPanel
+                sessionId={sessionId}
+                operator={operator}
+                activeMotorTest={
+                  snapshot?.phase === 'ACTIVE' &&
+                  snapshot.outcome.kind === 'READY'
+                }
+                motorTestDiagnostics={snapshot?.diagnostics}
+                support={snapshot?.motorDiagnosticsSupport}
+              />
+            ) : null}
+            {/* M-E §17 / §32: THE IDENTIFICATION ACTION, WITH THE CONTROLS.
               It used to live inside the verification wizard, which is a
               different job: the wizard asks where a motor turned out to
               be and compares that against a Quad X expectation, and it
@@ -2452,15 +2578,15 @@ export function MotorsScreenView({
               the sliders beside it already use on every airframe.
               The gate is unchanged: operator present, no reconnection
               required, activation allowed. */}
-          {/* ONE spin control, ONE mount. While the direction workflow is
+            {/* ONE spin control, ONE mount. While the direction workflow is
               open the hold renders inside it (same element, same gates,
               same stop seams) - two simultaneous mounts would be two
               claims to one gesture. */}
-          {directionOpen ? null : (
-            <View testID="motors-identify-action">{holdControl}</View>
-          )}
-          </View>
-        </View>
+            {directionOpen ? null : (
+              <View testID="motors-identify-action">{holdControl}</View>
+            )}
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
         {/* LIVE ESC TELEMETRY, FULL WIDTH AFTER THE WORKSPACE - M-F3
             §42/§43. It used to sit inside the control column, where on a
@@ -2474,59 +2600,16 @@ export function MotorsScreenView({
             While the lease is held it performs fixed read-only requests
             through that SAME serialized lease, without bypassing pulse or
             stop ownership. */}
-        {sessionId !== undefined ? (
-          <MotorDiagnosticsPanel
-            sessionId={sessionId}
-            operator={operator}
-            activeMotorTest={
-              snapshot?.phase === 'ACTIVE' && snapshot.outcome.kind === 'READY'
-            }
-            motorTestDiagnostics={snapshot?.diagnostics}
-            support={snapshot?.motorDiagnosticsSupport}
-          />
-        ) : null}
 
         {/* ================================================ REGION C
             BASIC MOTOR / ESC SETTINGS - one card, straight after the
             workspace. Protocol, idle, motor stop, bidirectional DShot,
             poles and 3D were reachable only after the tools bench, the
             diagnostics panel and 3,900px of scrolling. */}
-          <Text style={styles.toolsHeading} testID="motors-settings-heading">
-            {"motoren instellingen"}</Text>
-          <MotorConfigurationSummary scope={snapshot?.motorScope} />
+
         {/* Persistent configuration is a separate transaction from bench
             testing. It owns no motor pulse path and is deliberately bound to
             the canonical session id rather than to the MotorTest operator. */}
-        {sessionId !== undefined && !motorSettingsOpen ? (
-          <Pressable
-            onPress={() => setMotorSettingsOpen(true)}
-            accessibilityRole="button"
-            style={styles.disclosure}
-            testID="motors-open-settings"
-          >
-            {/* A DISCLOSURE IS A ROW, NOT A CARD. This one was a 141px
-                full-width panel at 390 because a whole paragraph about
-                when to open it lived inside the tappable surface. The
-                title says what is inside; the caption beside it says it
-                in four words. */}
-            <Text style={styles.disclosureTitle}>
-              {t('motorsScreen.openMotorSettings')}
-            </Text>
-            <Text style={styles.disclosureHint}>
-              {t('motorsScreen.openMotorSettingsHint')}
-            </Text>
-          </Pressable>
-        ) : null}
-
-        {sessionId !== undefined &&
-        sessionKey !== undefined &&
-        motorSettingsOpen ? (
-          <MotorConfigurationPanel
-            sessionKey={sessionKey}
-            onDirtyChange={setMotorConfigurationDirty}
-            onBusyChange={setMotorConfigurationBusy}
-          />
-        ) : null}
 
         {/* ================================================ REGION D
             ADVANCED AND DIAGNOSTIC - collapsed, and last.
@@ -2538,7 +2621,7 @@ export function MotorsScreenView({
         <Pressable
           onPress={() => setAdvancedVerificationOpen(open => !open)}
           accessibilityRole="button"
-          accessibilityState={{expanded: advancedVerificationOpen}}
+          accessibilityState={{ expanded: advancedVerificationOpen }}
           style={styles.disclosure}
           testID="motors-advanced-verification-toggle"
         >
@@ -2549,79 +2632,93 @@ export function MotorsScreenView({
               workspace comes first, because a collapsed section would
               simply have no position at all. */}
           <Text style={styles.disclosureTitle} testID="motors-tools-heading">
-            {"Verificatie en instrumenten"}</Text>
+            {'Verificatie en instrumenten'}
+          </Text>
           <Text style={styles.disclosureHint}>
             {t('motorsScreen.advancedVerificationHint')}
           </Text>
         </Pressable>
 
         {advancedVerificationOpen ? (
-          <View style={styles.advancedStack} testID="motors-advanced-verification">
-        {/* M-E §44: THE TECHNICAL TRUTH, IN FULL, ONE PRESS AWAY.
+          <WorkbenchBlock
+            style={styles.advancedStack}
+            testID="motors-advanced-verification"
+            section="advancedStack"
+          >
+            {/* M-E §44: THE TECHNICAL TRUTH, IN FULL, ONE PRESS AWAY.
             Nothing here was deleted or weakened when the first viewport
             was cleared - the verification wizard with its counts and its
             conflict report, the three-source direction workflow, and the
             output-order transaction are the same components reading the
             same state. They stopped standing between the operator and the
             motors, which is a different thing from being hidden. */}
-        <MotorIdentitySection
-          slots={identitySlots}
-          selectedSlot={selectedSlot}
-          onSelectSlot={handleSelectSlot}
-          capability={identificationCapability}
-          mixerModeRaw={liveMixerModeRaw}
-          diagramMotorNumbers={identitySlots}
-          active={active}
-          liveSlot={liveSlot}
-          liveActivity={liveActivity}
-          verification={verification}
-          receipt={receipt}
-          onConfirm={handleConfirmObservation}
-          onMultipleMotorsReported={handleMultipleMotors}
-          onClearObservation={handleClearObservation}
-          outputOrder={outputOrderValues}
-        />
-          {/* M-F2 §18/§24: the direction and reorder workflows moved OUT of
-            * this disclosure to their primary entries beside the airframe.
-            * Nothing else here changed: the verification wizard and the
-            * diagnostics remain the technical layer. */}
-        {showReadinessDiagnostic && !freezeTransientPresentation ? (
-          <View
-            style={styles.readinessBlock}
-            testID="motors-readiness-blocked-detail"
-          >
-            <Text style={styles.blockHeading}>
-              {t('motorsScreen.readinessBlockedHeading')}
-            </Text>
-            {primaryBlockReason !== undefined ? (
-              <Text style={styles.blockReason}>
-                {t(`motorsScreen.blockReason.${primaryBlockReason}`)}
-              </Text>
+            <MotorIdentitySection
+              slots={identitySlots}
+              selectedSlot={selectedSlot}
+              onSelectSlot={handleSelectSlot}
+              capability={identificationCapability}
+              mixerModeRaw={liveMixerModeRaw}
+              diagramMotorNumbers={identitySlots}
+              active={active}
+              liveSlot={liveSlot}
+              liveActivity={liveActivity}
+              verification={verification}
+              receipt={receipt}
+              onConfirm={handleConfirmObservation}
+              onMultipleMotorsReported={handleMultipleMotors}
+              onClearObservation={handleClearObservation}
+              outputOrder={outputOrderValues}
+            />
+            {/* M-F2 §18/§24: the direction and reorder workflows moved OUT of
+             * this disclosure to their primary entries beside the airframe.
+             * Nothing else here changed: the verification wizard and the
+             * diagnostics remain the technical layer. */}
+            {showReadinessDiagnostic && !freezeTransientPresentation ? (
+              <WorkbenchBlock
+                style={styles.readinessBlock}
+                testID="motors-readiness-blocked-detail"
+                section="readinessBlock"
+              >
+                <Text style={styles.blockHeading}>
+                  {t('motorsScreen.readinessBlockedHeading')}
+                </Text>
+                {primaryBlockReason !== undefined ? (
+                  <Text style={styles.blockReason}>
+                    {t(`motorsScreen.blockReason.${primaryBlockReason}`)}
+                  </Text>
+                ) : null}
+                <Text
+                  style={styles.caption}
+                  testID="motors-readiness-blocked-code"
+                >
+                  {t('motorsScreen.readinessBlockedDetail', {
+                    reason: readinessDiagnosticReason,
+                    step: snapshot?.setupStep ?? 'NONE',
+                  })}
+                </Text>
+                <Text style={styles.caption}>
+                  {requiresNewConnection
+                    ? t('motorsScreen.readinessReconnectAction')
+                    : t('motorsScreen.readinessWaitAction')}
+                </Text>
+              </WorkbenchBlock>
             ) : null}
-            <Text style={styles.caption} testID="motors-readiness-blocked-code">
-              {t('motorsScreen.readinessBlockedDetail', {
-                reason: readinessDiagnosticReason,
-                step: snapshot?.setupStep ?? 'NONE',
-              })}
-            </Text>
-            <Text style={styles.caption}>
-              {requiresNewConnection
-                ? t('motorsScreen.readinessReconnectAction')
-                : t('motorsScreen.readinessWaitAction')}
-            </Text>
-          </View>
-        ) : null}
 
-        {/* P3: THE LEGACY BENCH IS NOW A SECONDARY TOOL. The professional
+            {/* P3: THE LEGACY BENCH IS NOW A SECONDARY TOOL. The professional
             workspace above is the primary path; this card keeps the
             verification workflow (selection, airframe reference, the hold
             action) reachable without ever standing between Enable and the
             sliders. */}
-        <Text style={styles.sectionTitle}>
-          {t('motorsScreen.advancedVerification')}
-        </Text>
-        <View style={styles.benchCard} testID="motors-workspace">
-          {/* FINAL-REVIEW M-2: this card no longer carries a second
+            <Text style={styles.sectionTitle}>
+              {t('motorsScreen.advancedVerification')}
+            </Text>
+            <WorkbenchBlock
+              style={styles.benchCard}
+              testID="motors-workspace"
+              section="benchCard"
+              panel
+            >
+              {/* FINAL-REVIEW M-2: this card no longer carries a second
               identification model. The X-of-4 badge contradicted the
               identity summary on non-quad aircraft (0-of-4 beside "not
               available for this layout"), and the old copy directed the
@@ -2629,23 +2726,25 @@ export function MotorsScreenView({
               that moved into the identity section in P1b-B. What remains
               here is what the card actually contains: session readiness
               detail and the read-only settings summary. */}
-          <View style={styles.benchHeadingRow}>
-            <View style={styles.flexOne}>
-              <Text style={styles.sectionTitle}>
-                {t('motorsScreen.workspaceHeading')}
-              </Text>
-              <Text style={styles.caption}>
-                {t('motorsScreen.workspaceSubtitle')}
-              </Text>
-            </View>
-          </View>
+              <WorkbenchBlock
+                style={styles.benchHeadingRow}
+                section="benchHeadingRow"
+              >
+                <WorkbenchBlock style={styles.flexOne} section="flexOne">
+                  <Text style={styles.sectionTitle}>
+                    {t('motorsScreen.workspaceHeading')}
+                  </Text>
+                  <Text style={styles.caption}>
+                    {t('motorsScreen.workspaceSubtitle')}
+                  </Text>
+                </WorkbenchBlock>
+              </WorkbenchBlock>
 
-
-          {/* P1b-C: the direction workflow moved UP into
+              {/* P1b-C: the direction workflow moved UP into
               MotorDirectionSection, beside the identity it describes. It
               is not duplicated here - there is exactly one place a
               direction command is authored. */}
-        </View>
+            </WorkbenchBlock>
 
             {/* THE DEFECT THIS CLOSES. Every child below is conditional on
                 a verification session token or a receipt, both of which
@@ -2656,15 +2755,20 @@ export function MotorsScreenView({
                 Output reordering lives in here, so it was unreachable.
                 An expanded section now always says what it is waiting
                 for. */}
-            {receipt === undefined && verification.sessionToken === undefined ? (
-              <View style={styles.advancedEmpty} testID="motors-advanced-empty">
+            {receipt === undefined &&
+            verification.sessionToken === undefined ? (
+              <WorkbenchBlock
+                style={styles.advancedEmpty}
+                testID="motors-advanced-empty"
+                section="advancedEmpty"
+              >
                 <Text style={styles.advancedEmptyTitle}>
                   {t('motorsScreen.advancedEmptyTitle')}
                 </Text>
                 <Text style={styles.caption}>
                   {t('motorsScreen.advancedEmptyBody')}
                 </Text>
-              </View>
+              </WorkbenchBlock>
             ) : null}
             {/* P1b-B: WHAT IS LEFT IN HERE, AND WHY.
                 The observation wizard and the output-mapping workflow both
@@ -2679,7 +2783,9 @@ export function MotorsScreenView({
                 expectations do not describe the aircraft. */}
             {!quadIdentificationSupported &&
             (receipt !== undefined || verification.sessionToken !== undefined)
-              ? identificationUnavailableNotice('motors-identification-unsupported-report')
+              ? identificationUnavailableNotice(
+                  'motors-identification-unsupported-report',
+                )
               : null}
             {quadIdentificationSupported &&
             verification.sessionToken !== undefined ? (
@@ -2688,8 +2794,8 @@ export function MotorsScreenView({
                 safeTeardownConfirmed={
                   presentation !== 'FAULT' &&
                   (snapshot?.stopExecution.attributionAmbiguous !== true ||
-                    snapshot?.stopExecution.attributionResolvedByConfirmation ===
-                      true)
+                    snapshot?.stopExecution
+                      .attributionResolvedByConfirmation === true)
                 }
                 expectedDirectionFor={motorNumber =>
                   expectedMotorRotation(
@@ -2700,53 +2806,48 @@ export function MotorsScreenView({
                 }
               />
             ) : null}
-          </View>
+          </WorkbenchBlock>
         ) : null}
-          {/* DEVELOPER DIAGNOSTICS - collapsed by default, never shown to
+        {/* DEVELOPER DIAGNOSTICS - collapsed by default, never shown to
               the operator unless asked for. Everything the old list dumped
               on screen lives here, plus the terminal outcome, setup step
               and teardown report that were previously invisible. */}
-          {blockReasons.length > 0 || snapshot !== undefined ? (
-            <View>
-              <Pressable
-                onPress={() => setDiagnosticsOpen(current => !current)}
-                accessibilityRole="button"
-                accessibilityState={{ expanded: diagnosticsOpen }}
-                style={styles.diagnosticsToggle}
-                testID="motors-diagnostics-toggle"
-              >
-                <Text style={styles.caption}>
-                  {t('motorsScreen.diagnosticsToggle')}
-                </Text>
-              </Pressable>
-              {diagnosticsOpen ? (
-                <View testID="motors-diagnostics">
-                  {blockReasons.map(
-                    (reason: MotorTestActivationBlockReason) => (
-                      <Text
-                        key={reason}
-                        style={styles.caption}
-                        testID={`motors-diagnostic-${reason}`}
-                      >
-                        • {reason}
-                      </Text>
-                    ),
-                  )}
-                  {/* COMPLETE TECHNICAL STATE, behind the toggle. The
+        {blockReasons.length > 0 || snapshot !== undefined ? (
+          <View>
+            <Pressable
+              onPress={() => setDiagnosticsOpen(current => !current)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: diagnosticsOpen }}
+              style={styles.diagnosticsToggle}
+              testID="motors-diagnostics-toggle"
+            >
+              <Text style={styles.caption}>
+                {t('motorsScreen.diagnosticsToggle')}
+              </Text>
+            </Pressable>
+            {diagnosticsOpen ? (
+              <View testID="motors-diagnostics">
+                {blockReasons.map((reason: MotorTestActivationBlockReason) => (
+                  <Text
+                    key={reason}
+                    style={styles.caption}
+                    testID={`motors-diagnostic-${reason}`}
+                  >
+                    • {reason}
+                  </Text>
+                ))}
+                {/* COMPLETE TECHNICAL STATE, behind the toggle. The
                       operator-facing reason set is deliberately narrow, so
                       everything the gate actually consulted has to be
                       readable somewhere - this is that somewhere. */}
-                  <Text
-                    style={styles.caption}
-                    testID="motors-diagnostic-outcome"
-                  >
-                    outcome: {snapshot?.outcome.kind ?? 'NONE'} | setupStep:{' '}
-                    {snapshot?.setupStep ?? 'NONE'} | phase:{' '}
-                    {snapshot?.phase ?? 'NONE'} | machine:{' '}
-                    {String(snapshot?.machine?.name)} | teardownComplete:{' '}
-                    {String(snapshot?.teardown?.complete)}
-                  </Text>
-                  {/* The decoded scope is serialized WHOLE rather than
+                <Text style={styles.caption} testID="motors-diagnostic-outcome">
+                  outcome: {snapshot?.outcome.kind ?? 'NONE'} | setupStep:{' '}
+                  {snapshot?.setupStep ?? 'NONE'} | phase:{' '}
+                  {snapshot?.phase ?? 'NONE'} | machine:{' '}
+                  {String(snapshot?.machine?.name)} | teardownComplete:{' '}
+                  {String(snapshot?.teardown?.complete)}
+                </Text>
+                {/* The decoded scope is serialized WHOLE rather than
                       field by field. Naming its fields here would put
                       safety-relevant identifiers in this file even though
                       nothing branches on them, and the containment test
@@ -2754,19 +2855,19 @@ export function MotorsScreenView({
                       a safety field is one edit away from deciding on it.
                       Serializing keeps every value visible and keeps this
                       component unable to read any of them. */}
-                  <Text
-                    style={styles.caption}
-                    testID="motors-diagnostic-evidence"
-                  >
-                    armedState: {snapshot?.armedStateEvidence ?? 'NONE'} |
-                    telemetryHeld: {String(snapshot?.telemetryHeld)} | scope:{' '}
-                    {JSON.stringify(snapshot?.motorScope ?? null)} | firmware:{' '}
-                    {JSON.stringify(snapshot?.firmwareCompatibility ?? null)}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          ) : null}
+                <Text
+                  style={styles.caption}
+                  testID="motors-diagnostic-evidence"
+                >
+                  armedState: {snapshot?.armedStateEvidence ?? 'NONE'} |
+                  telemetryHeld: {String(snapshot?.telemetryHeld)} | scope:{' '}
+                  {JSON.stringify(snapshot?.motorScope ?? null)} | firmware:{' '}
+                  {JSON.stringify(snapshot?.firmwareCompatibility ?? null)}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
 
         {onRequestLeave !== undefined ? (
           <Pressable
@@ -2778,7 +2879,7 @@ export function MotorsScreenView({
             <Text style={styles.leaveLabel}>{t('motorsScreen.title')}</Text>
           </Pressable>
         ) : null}
-      </ScrollView>
+      </WorkbenchScrollView>
 
       {/* (8) The motor action dock. OUTSIDE the ScrollView so the actual
           hold control cannot be confused with the explanatory Step 3 card
@@ -2801,9 +2902,13 @@ export function MotorsScreenView({
           unconditional one would have removed a pinned stop from the
           states that need it most. The in-flow control inside the
           workspace (motor-workspace-stop) is unchanged. */}
-      <View
-        style={[styles.sessionDock, { marginBottom: effectiveBottomInset + spacing.md }]}
+      <WorkbenchBlock
+        style={[
+          styles.sessionDock,
+          { marginBottom: effectiveBottomInset + spacing.md },
+        ]}
         testID="motors-session-dock"
+        section="sessionDock"
       >
         {/* P3: the long-press control moved into the التحقق والأدوات bench
             card below - the pinned dock no longer teaches press-and-hold
@@ -2847,19 +2952,40 @@ export function MotorsScreenView({
           style={[styles.stopButton, !stopIsUrgent && styles.stopButtonCalm]}
           testID="motors-stop-button"
         >
-          <Icon name="square" size={stopIsUrgent ? 26 : 18} color={colors.white} />
-          <Text style={[styles.stopLabel, !stopIsUrgent && styles.stopLabelCalm]}>
+          <Icon
+            name="square"
+            size={stopIsUrgent ? 26 : 18}
+            color={colors.white}
+          />
+          <Text
+            style={[styles.stopLabel, !stopIsUrgent && styles.stopLabelCalm]}
+          >
             {t('motorsScreen.stop')}
           </Text>
         </Pressable>
-        {endSessionFailed || sessionCloseFailed ? <Text style={styles.inlineError} testID="motors-end-session-failed">{t('motorsScreen.endSessionFailed')}</Text> : null}
-        {sessionHasEnded ? <Text style={styles.sessionEndedText} testID="motors-end-session-done">{t('motorsScreen.endSessionDone')}</Text> : null}
-      </View>
+        {endSessionFailed || sessionCloseFailed ? (
+          <Text style={styles.inlineError} testID="motors-end-session-failed">
+            {t('motorsScreen.endSessionFailed')}
+          </Text>
+        ) : null}
+        {sessionHasEnded ? (
+          <Text
+            style={styles.sessionEndedText}
+            testID="motors-end-session-done"
+          >
+            {t('motorsScreen.endSessionDone')}
+          </Text>
+        ) : null}
+      </WorkbenchBlock>
 
       {mayBeLive ? (
-        <View style={styles.liveStrip} testID="motors-command-may-be-live" />
+        <WorkbenchBlock
+          style={styles.liveStrip}
+          testID="motors-command-may-be-live"
+          section="liveStrip"
+        />
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -2972,41 +3098,55 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.display,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   screenSubtitle: {
     ...typography.body,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  dangerBanner: {...noticeSurface, flexDirection: 'row',
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  dangerBanner: {
+    ...noticeSurface,
+    flexDirection: 'row',
     gap: spacing.sm,
     backgroundColor: colors.errorSoft,
-    borderColor: colors.error},
+    borderColor: colors.error,
+  },
   dangerIcon: { fontSize: 22, color: colors.error },
   dangerTitle: {
     ...typography.sectionTitle,
     color: colors.error,
     writingDirection: 'ltr',
-    flexShrink: 1},
+    flexShrink: 1,
+  },
   dangerBody: {
     ...typography.body,
     color: colors.textPrimary,
     writingDirection: 'ltr',
-    flexShrink: 1, maxWidth: PROSE_MEASURE},
+    flexShrink: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   safetyNoticeCopy: { gap: spacing.xs },
-  faultBanner: {...noticeSurface, flexDirection: 'row',
+  faultBanner: {
+    ...noticeSurface,
+    flexDirection: 'row',
     gap: spacing.sm,
     backgroundColor: colors.errorSoft,
     borderColor: colors.error,
-    borderWidth: 2},
+    borderWidth: 2,
+  },
   faultText: {
     ...typography.title,
     color: colors.error,
     writingDirection: 'ltr',
-    flexShrink: 1},
+    flexShrink: 1,
+  },
   /* A COLLAPSED SECTION IS A ROW YOU PRESS, not a page-width panel.
      Both disclosures used the full card style - shadow, 18px padding,
      a section-title heading and an explanatory paragraph, stacked - and
@@ -3089,7 +3229,9 @@ const styles = StyleSheet.create({
   statusHeading: {
     ...typography.caption,
     color: colors.textMuted,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   benchCard: {
     gap: spacing.lg,
     backgroundColor: colors.surface,
@@ -3114,17 +3256,27 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   sectionTitle: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
-  statusText: { ...typography.body, writingDirection: 'ltr', flexShrink: 1, maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+  },
+  statusText: {
+    ...typography.body,
+    writingDirection: 'ltr',
+    flexShrink: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   caption: {
     ...typography.caption,
     color: colors.textSecondary,
     writingDirection: 'ltr',
-    flexShrink: 1, maxWidth: PROSE_MEASURE},
+    flexShrink: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   blockList: { gap: spacing.xs },
   diagnosticsToggle: {
     minHeight: MIN_TOUCH_TARGET,
@@ -3133,12 +3285,16 @@ const styles = StyleSheet.create({
   blockHeading: {
     ...typography.caption,
     color: colors.warning,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   blockReason: {
     ...typography.body,
     color: colors.warning,
     writingDirection: 'ltr',
-    flexShrink: 1, maxWidth: PROSE_MEASURE},
+    flexShrink: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   /* Rendered INSIDE the hold control, so the reason a locked button is
      locked is read where the operator is already pressing. */
   holdBlocked: {
@@ -3198,7 +3354,8 @@ const styles = StyleSheet.create({
   advancedEmptyTitle: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   checkRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -3214,7 +3371,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     writingDirection: 'ltr',
-    flexShrink: 1},
+    flexShrink: 1,
+  },
   slotRow: { flexDirection: 'row', gap: spacing.sm },
   slotCard: {
     flex: 1,
@@ -3255,7 +3413,9 @@ const styles = StyleSheet.create({
   referenceNotice: {
     ...typography.caption,
     color: colors.warning,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   selectedMotorPanel: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -3285,7 +3445,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.warning,
     writingDirection: 'ltr',
-    flexShrink: 1, maxWidth: PROSE_MEASURE},
+    flexShrink: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   directionNotice: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -3324,7 +3486,8 @@ const styles = StyleSheet.create({
   beginLabel: {
     ...typography.sectionTitle,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   /* The control and the two captions that belong to it. Left-aligned as
      a group so the button's own width reads as deliberate rather than as
      a column that failed to fill. */
@@ -3386,7 +3549,8 @@ const styles = StyleSheet.create({
     ...typography.sectionTitle,
     color: colors.accentText,
     writingDirection: 'ltr',
-    flexShrink: 1},
+    flexShrink: 1,
+  },
   holdLabelOff: {
     color: colors.textPrimary,
   },
@@ -3401,11 +3565,27 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
     maxWidth: PROSE_MEASURE,
   },
-  readinessBlock: {...noticeSurface, gap: spacing.xs,
+  readinessBlock: {
+    ...noticeSurface,
+    gap: spacing.xs,
     borderColor: colors.warning,
-    backgroundColor: colors.warningSoft},
-  prepareButton: { minHeight: MIN_TOUCH_TARGET + spacing.md, alignItems: 'center', justifyContent: 'center', borderColor: colors.accent, borderWidth: 2, borderRadius: radii.md, padding: spacing.md, gap: spacing.xs },
-  prepareLabel: { ...typography.sectionTitle, color: colors.accentStrong, writingDirection: 'ltr'},
+    backgroundColor: colors.warningSoft,
+  },
+  prepareButton: {
+    minHeight: MIN_TOUCH_TARGET + spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: colors.accent,
+    borderWidth: 2,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  prepareLabel: {
+    ...typography.sectionTitle,
+    color: colors.accentStrong,
+    writingDirection: 'ltr',
+  },
   /* THE QUIET STATE, AS A STRIP. Same words, same colour meaning, one
      line. The full accessibility sentence is on the container, so a
      screen reader still hears which motor is addressed. */
@@ -3445,12 +3625,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     writingDirection: 'ltr',
   },
-  inlineError: { ...typography.caption, color: colors.error, writingDirection: 'ltr', textAlign: 'center' },
+  inlineError: {
+    ...typography.caption,
+    color: colors.error,
+    writingDirection: 'ltr',
+    textAlign: 'center',
+  },
   leaveButton: { minHeight: MIN_TOUCH_TARGET, justifyContent: 'center' },
   leaveLabel: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   /**
    * The pinned stop bar. A SIBLING of the scroll view, never an overlay -
    * see the ScrollView's note for why nothing reserves space for it.
@@ -3470,7 +3656,7 @@ const styles = StyleSheet.create({
      scrolling viewport still ENDS above it and nothing is covered. */
   sessionDock: {
     width: '100%',
-    maxWidth: 1180,
+
     alignSelf: 'center',
     gap: spacing.xs,
     paddingTop: spacing.sm,
@@ -3518,10 +3704,29 @@ const styles = StyleSheet.create({
   stopLabel: {
     ...typography.title,
     color: colors.white,
-    writingDirection: 'ltr'},
-  endSessionButton: { minHeight: MIN_TOUCH_TARGET, alignItems: 'center', justifyContent: 'center', borderColor: colors.warning, borderWidth: 2, borderRadius: radii.md, padding: spacing.sm },
-  endSessionLabel: { ...typography.body, color: colors.warning, fontWeight: '700', writingDirection: 'ltr'},
-  sessionEndedText: { ...typography.caption, color: colors.success, textAlign: 'center', writingDirection: 'ltr' },
+    writingDirection: 'ltr',
+  },
+  endSessionButton: {
+    minHeight: MIN_TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: colors.warning,
+    borderWidth: 2,
+    borderRadius: radii.md,
+    padding: spacing.sm,
+  },
+  endSessionLabel: {
+    ...typography.body,
+    color: colors.warning,
+    fontWeight: '700',
+    writingDirection: 'ltr',
+  },
+  sessionEndedText: {
+    ...typography.caption,
+    color: colors.success,
+    textAlign: 'center',
+    writingDirection: 'ltr',
+  },
   liveStrip: { height: 3, backgroundColor: colors.warning },
 });
 
@@ -3570,7 +3775,9 @@ export interface MotorsTabProps {
   readonly sessionKey: SetupUiSessionKey | undefined;
   readonly navigation: MotorsHostNavigation;
   /** Registered on mount, cleared on unmount. */
-  readonly registerDepartureGate?: (gate: MotorsDepartureGate | undefined) => void;
+  readonly registerDepartureGate?: (
+    gate: MotorsDepartureGate | undefined,
+  ) => void;
   /**
    * Fires when the operator switches AWAY from the Motors tab.
    *

@@ -39,9 +39,10 @@
 
 import React, {useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Canvas, Path, Skia} from '@shopify/react-native-skia';
+import {Canvas, Vertices, Path, Skia} from '@shopify/react-native-skia';
 import type {SkPath} from '@shopify/react-native-skia';
 
+import {meshForAirframe, projectAirframeMesh} from './meshProjection';
 import {computeDroneScene} from './droneSceneGeometry';
 import type {
   DroneOrientationDeg,
@@ -117,6 +118,7 @@ function buildDrawables(
   const scene = computeDroneScene(orientation, {width, height}, presentationScale, airframe);
   return scene.primitives.map(primitive => ({
     path: toSkPath(primitive.points),
+    grid: primitive.material === 'LEVEL_GRID',
     ...appearanceFor(primitive.material),
   }));
 }
@@ -145,6 +147,12 @@ export function OrientationRenderer({
     [rollDeg, pitchDeg, yawDeg, width, height, presentationScale, airframe],
   );
 
+  const meshFaces = useMemo(() => {
+    const mesh = meshForAirframe(airframe);
+    return mesh === undefined ? undefined : projectAirframeMesh(mesh, {rollDeg,pitchDeg,yawDeg},width,height);
+  },[airframe,rollDeg,pitchDeg,yawDeg,width,height]);
+  const meshVertices = useMemo(() => meshFaces?.flatMap(face=>face.points.map(p=>({x:p.x,y:p.y}))),[meshFaces]);
+  const meshColors = useMemo(() => meshFaces?.flatMap(face=>[face.color,face.color,face.color]),[meshFaces]);
   if (sessionToken !== undefined && sampleSeq !== undefined) {
     const identity = {sessionToken, sampleSeq};
     orientationLatencyTracker.noteRendererSample(identity);
@@ -157,7 +165,7 @@ export function OrientationRenderer({
           toggle tied to the sample would destroy and recreate the
           native surface on every attitude update. */}
       <Canvas style={StyleSheet.absoluteFill}>
-        {drawables.map((drawable, index) => {
+        {drawables.filter(drawable => meshFaces === undefined || drawable.grid).map((drawable, index) => {
           const opacity = effectiveOpacity(drawable.baseOpacity, stale);
           // The scene is fully rebuilt in the same deterministic
           // primitive order every render (see computeDroneScene()'s own
@@ -181,6 +189,7 @@ export function OrientationRenderer({
             </React.Fragment>
           );
         })}
+        {meshVertices && meshColors ? <Vertices mode="triangles" vertices={meshVertices} colors={meshColors} opacity={effectiveOpacity(1,stale)} /> : null}
       </Canvas>
     </View>
   );

@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 import React, {
   useCallback,
   useEffect,
@@ -8,10 +12,8 @@ import React, {
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -44,19 +46,26 @@ import {
   useMspOwnershipState,
   useTelemetryValue,
 } from '../../platforms/react-native/protocol';
+import { OfflinePositionMap } from '../components/gps/OfflinePositionMap';
 import { openMapLocation } from '../../platforms/mapLink';
-import {isOwnedByDifferentConfigurationSession} from '../../core/state/configurationSessionOwnership';
-import {colors, noticeSurface, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {PROSE_MEASURE} from '../theme';
+import { isOwnedByDifferentConfigurationSession } from '../../core/state/configurationSessionOwnership';
 import {
-  Button,
-  MIN_TOUCH_TARGET,
-  ToggleSwitch,
-} from '../components/controls';
+  colors,
+  noticeSurface,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { PROSE_MEASURE } from '../theme';
+import { Button, MIN_TOUCH_TARGET, ToggleSwitch } from '../components/controls';
 import { readInteraction } from '../components/controls/interaction';
 import { Icon } from '../icons';
 import { StickyActionBar } from '../components/editing';
-import {classifyGpsPositionQuality, type GpsPositionQuality} from '../../core';
+import {
+  classifyGpsPositionQuality,
+  type GpsPositionQuality,
+} from '../../core';
 
 export interface GpsControllerPort {
   load(sessionKey: SetupUiSessionKey): Promise<GpsLoadOutcome>;
@@ -153,13 +162,13 @@ function Metric({
   testID?: string;
 }) {
   return (
-    <View style={styles.metric} testID={testID}>
+    <WorkbenchBlock style={styles.metric} testID={testID} section="metric">
       <Text style={styles.metricLabel}>{label}</Text>
       <Text style={styles.metricValue}>
         {value}
         {unit === undefined ? '' : ` ${unit}`}
       </Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -220,11 +229,14 @@ function ToggleRow({
   testID: string;
 }) {
   return (
-    <View style={[styles.toggleRow, disabled && styles.disabled]}>
-      <View style={styles.toggleCopy}>
+    <WorkbenchBlock
+      style={[styles.toggleRow, disabled && styles.disabled]}
+      section="toggleRow"
+    >
+      <WorkbenchBlock style={styles.toggleCopy} section="toggleCopy">
         <Text style={styles.controlTitle}>{title}</Text>
         <Text style={styles.controlDetail}>{detail}</Text>
-      </View>
+      </WorkbenchBlock>
       <ToggleSwitch
         value={value}
         disabled={disabled}
@@ -232,7 +244,7 @@ function ToggleRow({
         accessibilityLabel={title}
         testID={testID}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -244,13 +256,13 @@ function ToggleRow({
  * would be as wrong as reporting it as a good one.
  */
 const GPS_QUALITY_TEXT: Readonly<Record<GpsPositionQuality, string>> = {
-  IDEAL: "Perfect.",
-  EXCELLENT: "Uitstekend.",
-  GOOD: "Goed.",
-  MODERATE: "Gemiddeld.",
-  FAIR: "Zwak.",
-  POOR: "Slecht.",
-  UNKNOWN: "Onbekend.",
+  IDEAL: 'Perfect.',
+  EXCELLENT: 'Uitstekend.',
+  GOOD: 'Goed.',
+  MODERATE: 'Gemiddeld.',
+  FAIR: 'Zwak.',
+  POOR: 'Slecht.',
+  UNKNOWN: 'Onbekend.',
 };
 
 export default function GpsScreen({
@@ -381,7 +393,8 @@ export default function GpsScreen({
    * one, with «فتح الموقع في تطبيق الخرائط» still enabled - one press away
    * from sending someone to where the aircraft used to be.
    */
-  const positionIsLive = rawTelemetry.status === 'FRESH' && raw?.hasFix === true;
+  const positionIsLive =
+    rawTelemetry.status === 'FRESH' && raw?.hasFix === true;
   const homeIsLive = homeTelemetry.status === 'FRESH' && home !== undefined;
   const ports = snapshot === undefined ? [] : assignedGpsPorts(snapshot);
   const originalDraft = useMemo(
@@ -414,7 +427,10 @@ export default function GpsScreen({
      a draft built against a DIFFERENT aircraft. The controller refuses
      this too; both layers are required, and this is the one the operator
      can see. See core/state/configurationSessionOwnership. */
-  const saveBlockedBySession = isOwnedByDifferentConfigurationSession(snapshot, sessionKey);
+  const saveBlockedBySession = isOwnedByDifferentConfigurationSession(
+    snapshot,
+    sessionKey,
+  );
 
   useEffect(() => {
     onDirtyChange?.(dirty);
@@ -467,7 +483,16 @@ export default function GpsScreen({
         },
       },
     ]);
-  }, [saveBlockedBySession, controller, dirty, draft, invalid.length, sessionKey, snapshot, t]);
+  }, [
+    saveBlockedBySession,
+    controller,
+    dirty,
+    draft,
+    invalid.length,
+    sessionKey,
+    snapshot,
+    t,
+  ]);
 
   const reloadNow = useCallback(() => {
     setSaveOutcome(undefined);
@@ -475,10 +500,18 @@ export default function GpsScreen({
   }, []);
   const requestReload = useCallback(() => {
     if (!dirty) return reloadNow();
-    Alert.alert(t('gpsSystem.discardChangesTitle'), t('gpsSystem.discardChangesBody'), [
-      { text: t('gpsSystem.cancel'), style: 'cancel' },
-      { text: t('gpsSystem.discardAndReload'), style: 'destructive', onPress: reloadNow },
-    ]);
+    Alert.alert(
+      t('gpsSystem.discardChangesTitle'),
+      t('gpsSystem.discardChangesBody'),
+      [
+        { text: t('gpsSystem.cancel'), style: 'cancel' },
+        {
+          text: t('gpsSystem.discardAndReload'),
+          style: 'destructive',
+          onPress: reloadNow,
+        },
+      ],
+    );
   }, [dirty, reloadNow, t]);
 
   const openMap = useCallback(() => {
@@ -505,66 +538,77 @@ export default function GpsScreen({
       : undefined;
 
   return (
-    <View style={styles.root} testID="gps-screen">
-      <ScrollView
+    <WorkbenchBlock style={styles.root} testID="gps-screen" section="root">
+      <WorkbenchScrollView
         contentContainerStyle={[styles.content, { maxWidth: contentMaxWidth }]}
         keyboardShouldPersistTaps="handled"
+        workspace="Gps"
       >
-        <View style={styles.hero}>
+        <WorkbenchBlock style={styles.hero} section="hero" heading>
           <Text style={styles.eyebrow}>{t('gpsSystem.eyebrow')}</Text>
           <Text style={styles.title}>{t('gpsSystem.title')}</Text>
 
-          <View style={styles.statusRow}>
-            <View
+          <WorkbenchBlock style={styles.statusRow} section="statusRow">
+            <WorkbenchBlock
               style={[
                 styles.statusPill,
                 ownership === 'ACTIVE' && styles.statusGood,
               ]}
+              section="statusPill"
             >
               <Text style={styles.statusText}>
                 {ownership === 'ACTIVE'
                   ? t('gpsSystem.connected')
                   : t('gpsSystem.disconnected')}
               </Text>
-            </View>
-            <View
+            </WorkbenchBlock>
+            <WorkbenchBlock
               style={[
                 styles.statusPill,
                 raw?.hasFix === true && styles.statusGood,
               ]}
+              section="statusPill"
             >
               <Text style={styles.statusText}>
                 {raw?.hasFix === true
                   ? t('gpsSystem.fix')
                   : t('gpsSystem.noFix')}
               </Text>
-            </View>
-            <View
+            </WorkbenchBlock>
+            <WorkbenchBlock
               style={[
                 styles.statusPill,
-                configurationRead && draft?.enabled === true && styles.statusGood,
+                configurationRead &&
+                  draft?.enabled === true &&
+                  styles.statusGood,
               ]}
+              section="statusPill"
             >
               <Text style={styles.statusText}>
                 {!configurationRead
                   ? t('gpsSystem.featureUnknown')
                   : draft?.enabled === true
-                    ? t('gpsSystem.featureOn')
-                    : t('gpsSystem.featureOff')}
+                  ? t('gpsSystem.featureOn')
+                  : t('gpsSystem.featureOff')}
               </Text>
-            </View>
-          </View>
-        </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
-        <View
+        <WorkbenchBlock
           style={[
             styles.card,
             configurationRead && ports.length === 0 && styles.warningCard,
           ]}
           testID="gps-port-integration"
+          section="card"
+          panel
         >
-          <View style={styles.cardHeaderRow}>
-            <View style={styles.cardHeaderCopy}>
+          <WorkbenchBlock style={styles.cardHeaderRow} section="cardHeaderRow">
+            <WorkbenchBlock
+              style={styles.cardHeaderCopy}
+              section="cardHeaderCopy"
+            >
               <Text style={styles.cardEyebrow}>
                 {t('gpsSystem.portEyebrow')}
               </Text>
@@ -572,8 +616,8 @@ export default function GpsScreen({
                 {!configurationRead
                   ? t('gpsSystem.portUnknown')
                   : ports.length === 0
-                    ? t('gpsSystem.noPort')
-                    : t('gpsSystem.portReady')}
+                  ? t('gpsSystem.noPort')
+                  : t('gpsSystem.portReady')}
               </Text>
               <Text style={styles.cardBody}>
                 {!configurationRead
@@ -587,9 +631,9 @@ export default function GpsScreen({
                             SERIAL_BAUD_RATES[port.gpsBaudIndex] ?? '?'
                           }`,
                       )
-                      .join(", ")}
+                      .join(', ')}
               </Text>
-            </View>
+            </WorkbenchBlock>
             <Button
               label={t('gpsSystem.openPorts')}
               onPress={onOpenPorts}
@@ -597,90 +641,398 @@ export default function GpsScreen({
               icon="cable"
               testID="gps-open-ports"
             />
-          </View>
-        </View>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
-        <View style={[styles.twoColumn, !wide && styles.oneColumn]}>
-          <View style={[styles.card, styles.columnCard]}>
-            <Text style={styles.cardEyebrow}>{t('gpsSystem.liveEyebrow')}</Text>
-            <Text style={styles.cardTitle}>{t('gpsSystem.liveTitle')}</Text>
-            <View style={styles.metricGrid}>
-              <Metric
-                label={t('gpsSystem.satellites')}
-                value={raw === undefined ? '—' : String(raw.satelliteCount)}
-                testID="gps-live-satellites"
-              />
-              <Metric
-                label={t('gpsSystem.altitude')}
-                value={raw === undefined ? '—' : String(raw.altitudeMeters)}
-                unit="m"
-              />
-              <Metric
-                label={t('gpsSystem.speed')}
-                value={
-                  raw === undefined
-                    ? '—'
-                    : (raw.groundSpeedCentimetersPerSecond / 100).toFixed(1)
-                }
-                unit="m/s"
-              />
-              <Metric
-                label={t('gpsSystem.course')}
-                value={
-                  raw === undefined
-                    ? '—'
-                    : (raw.groundCourseDecidegrees / 10).toFixed(1)
-                }
-                unit="°"
-              />
-              {/* Not a bare acronym any more. The number is the board's
+        <WorkbenchBlock
+          section="gpsWorkspace"
+          style={[styles.gpsWorkspace, wide && styles.gpsWorkspaceWide]}
+        >
+          <WorkbenchBlock section="gpsSettings" style={styles.gpsSettings}>
+            <WorkbenchBlock
+              style={styles.card}
+              testID="gps-configuration-panel"
+              section="card"
+              panel
+            >
+              <Text style={styles.cardEyebrow}>
+                {t('gpsSystem.configEyebrow')}
+              </Text>
+              <Text style={styles.cardTitle}>{t('gpsSystem.configTitle')}</Text>
+              <Text style={styles.cardBody}>{t('gpsSystem.configDetail')}</Text>
+
+              {phase === 'LOADING' ? (
+                <Text style={styles.stateText}>{t('gpsSystem.loading')}</Text>
+              ) : null}
+              {loadMessage !== undefined ? (
+                <WorkbenchBlock style={styles.errorBox} section="errorBox">
+                  <Text style={styles.errorText}>{loadMessage}</Text>
+                  <Button
+                    label={t('gpsSystem.reload')}
+                    onPress={requestReload}
+                    variant="secondary"
+                    icon="refresh-cw"
+                    style={styles.blockActionSpacing}
+                    testID="gps-retry-load"
+                  />
+                </WorkbenchBlock>
+              ) : null}
+
+              {draft !== undefined ? (
+                <>
+                  <ToggleRow
+                    title={t('gpsSystem.enable')}
+                    detail={t('gpsSystem.enableDetail')}
+                    value={draft.enabled}
+                    disabled={busy}
+                    onChange={enabled => update({ enabled })}
+                    testID="gps-enable"
+                  />
+                  <Text style={styles.groupTitle}>
+                    {t('gpsSystem.providerTitle')}
+                  </Text>
+                  <WorkbenchBlock
+                    style={styles.choiceWrap}
+                    section="choiceWrap"
+                  >
+                    <Choice
+                      label="UBLOX"
+                      selected={draft.provider === 1}
+                      disabled={busy}
+                      onPress={() => update({ provider: 1 })}
+                      testID="gps-provider-ublox"
+                    />
+                    <Choice
+                      label="NMEA"
+                      selected={draft.provider === 0}
+                      disabled={busy}
+                      onPress={() => update({ provider: 0 })}
+                      testID="gps-provider-nmea"
+                    />
+                    <Choice
+                      label="MSP"
+                      selected={draft.provider === 2}
+                      disabled={busy}
+                      onPress={() => update({ provider: 2 })}
+                      testID="gps-provider-msp"
+                    />
+                    {draft.provider === 3 ? (
+                      <Choice
+                        label="VIRTUAL"
+                        selected
+                        disabled
+                        onPress={() => {}}
+                        testID="gps-provider-virtual"
+                      />
+                    ) : null}
+                  </WorkbenchBlock>
+
+                  <Text style={styles.groupTitle}>
+                    {t('gpsSystem.sbasTitle')}
+                  </Text>
+                  <WorkbenchBlock
+                    style={styles.choiceWrap}
+                    section="choiceWrap"
+                  >
+                    {(
+                      [
+                        'AUTO',
+                        'EGNOS',
+                        'WAAS',
+                        'MSAS',
+                        'GAGAN',
+                        'NONE',
+                      ] as const
+                    ).map((label, mode) => (
+                      <Choice
+                        key={label}
+                        label={label}
+                        selected={draft.sbasMode === mode}
+                        disabled={busy}
+                        onPress={() => update({ sbasMode: mode })}
+                        testID={`gps-sbas-${label.toLowerCase()}`}
+                      />
+                    ))}
+                  </WorkbenchBlock>
+
+                  <ToggleRow
+                    title={t('gpsSystem.autoConfig')}
+                    detail={t('gpsSystem.autoConfigDetail')}
+                    value={draft.autoConfig}
+                    disabled={busy || draft.provider !== 1}
+                    onChange={autoConfig => update({ autoConfig })}
+                    testID="gps-auto-config"
+                  />
+                  <ToggleRow
+                    title={t('gpsSystem.galileo')}
+                    detail={t('gpsSystem.galileoDetail')}
+                    value={draft.useGalileo}
+                    disabled={busy || draft.provider !== 1 || !draft.autoConfig}
+                    onChange={useGalileo => update({ useGalileo })}
+                    testID="gps-galileo"
+                  />
+                  <ToggleRow
+                    title={t('gpsSystem.homeOnce')}
+                    detail={t('gpsSystem.homeOnceDetail')}
+                    value={draft.homePointOnce}
+                    disabled={busy}
+                    onChange={homePointOnce => update({ homePointOnce })}
+                    testID="gps-home-once"
+                  />
+
+                  <WorkbenchBlock style={styles.infoBox} section="infoBox">
+                    <Text style={styles.infoTitle}>
+                      {t('gpsSystem.autoBaudTitle')}
+                    </Text>
+                    <Text style={styles.infoText}>
+                      {t('gpsSystem.autoBaudModern')}
+                    </Text>
+                  </WorkbenchBlock>
+                  {/* One sentence per issue, naming the setting - the same
+                  contract Failsafe and Ports use. A generic "something is
+                  invalid" leaves the operator hunting through the screen for
+                  which of two dropdowns it means. */}
+                  {invalid.map(code => (
+                    <Text key={code} style={styles.errorText}>
+                      {t(`gpsSystem.validation.${code}`)}
+                    </Text>
+                  ))}
+                  {saveOutcome !== undefined ? (
+                    <Text
+                      style={[
+                        styles.outcomeText,
+                        saveOutcome.kind !== 'SAVED_VERIFIED' &&
+                          saveOutcome.kind !== 'NO_CHANGES' &&
+                          styles.errorText,
+                      ]}
+                      testID="gps-save-outcome"
+                    >
+                      {t(outcomeKey(saveOutcome))}
+                    </Text>
+                  ) : null}
+                  <WorkbenchBlock style={styles.actionRow} section="actionRow">
+                    <Button
+                      label={t('gpsSystem.reset')}
+                      onPress={() => setDraft(originalDraft)}
+                      variant="secondary"
+                      icon="rotate-ccw"
+                      disabled={busy || !dirty}
+                      testID="gps-reset"
+                    />
+                    <Button
+                      label={t('gpsSystem.reload')}
+                      onPress={requestReload}
+                      variant="secondary"
+                      icon="refresh-cw"
+                      disabled={busy}
+                      testID="gps-reload"
+                    />
+                    <Button
+                      label={
+                        phase === 'SAVING'
+                          ? t('gpsSystem.saving')
+                          : t('gpsSystem.save')
+                      }
+                      onPress={handleSave}
+                      variant="primary"
+                      icon="save"
+                      disabled={
+                        busy ||
+                        !dirty ||
+                        invalid.length > 0 ||
+                        saveBlockedBySession
+                      }
+                      accessibilityLabel={t('gpsSystem.save')}
+                      style={styles.saveGrow}
+                      testID="gps-save"
+                    />
+                  </WorkbenchBlock>
+                </>
+              ) : null}
+            </WorkbenchBlock>
+            <WorkbenchBlock
+              style={styles.card}
+              testID="gps-satellite-panel"
+              section="card"
+              panel
+            >
+              <Text style={styles.cardEyebrow}>
+                {t('gpsSystem.signalEyebrow')}
+              </Text>
+              <Text style={styles.cardTitle}>{t('gpsSystem.signalTitle')}</Text>
+              <Text style={styles.cardBody}>{t('gpsSystem.signalDetail')}</Text>
+              {satellites === undefined ||
+              satellites.satellites.length === 0 ? (
+                <Text style={styles.emptyText}>
+                  {t('gpsSystem.noSatelliteDetails')}
+                </Text>
+              ) : (
+                <WorkbenchBlock
+                  style={styles.satelliteGrid}
+                  section="satelliteGrid"
+                >
+                  {satellites.satellites.map((satellite, index) => (
+                    <WorkbenchBlock
+                      key={`${satellite.channelOrGnssId}-${satellite.satelliteId}-${index}`}
+                      style={[
+                        styles.satellite,
+                        satellite.used && styles.satelliteUsed,
+                      ]}
+                      section="satellite"
+                    >
+                      <WorkbenchBlock
+                        style={styles.satelliteTop}
+                        section="satelliteTop"
+                      >
+                        <Text style={styles.satelliteId}>
+                          {satellite.constellation === 'LEGACY'
+                            ? t('gpsSystem.legacyChannel')
+                            : satellite.constellation}{' '}
+                          {satellite.satelliteId}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.usedLabel,
+                            satellite.used && styles.usedLabelActive,
+                          ]}
+                        >
+                          {satellite.used
+                            ? t('gpsSystem.used')
+                            : t('gpsSystem.visible')}
+                        </Text>
+                      </WorkbenchBlock>
+                      <WorkbenchBlock
+                        style={styles.signalTrack}
+                        section="signalTrack"
+                      >
+                        <WorkbenchBlock
+                          style={[
+                            styles.signalFill,
+                            {
+                              width: `${Math.min(
+                                100,
+                                Math.max(0, satellite.signalToNoiseDbHz * 2),
+                              )}%`,
+                            },
+                          ]}
+                          section="signalFill"
+                        />
+                      </WorkbenchBlock>
+                      <Text style={styles.signalValue}>
+                        {satellite.signalToNoiseDbHz} dB-Hz · Q
+                        {satellite.quality}
+                      </Text>
+                    </WorkbenchBlock>
+                  ))}
+                </WorkbenchBlock>
+              )}
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+          <WorkbenchBlock section="gpsTelemetry" style={styles.gpsTelemetry}>
+            <WorkbenchBlock
+              style={[styles.card, styles.columnCard]}
+              section="card"
+              panel
+            >
+              <Text style={styles.cardEyebrow}>
+                {t('gpsSystem.liveEyebrow')}
+              </Text>
+              <Text style={styles.cardTitle}>{t('gpsSystem.liveTitle')}</Text>
+              <WorkbenchBlock style={styles.metricGrid} section="metricGrid">
+                <Metric
+                  label={t('gpsSystem.satellites')}
+                  value={raw === undefined ? '—' : String(raw.satelliteCount)}
+                  testID="gps-live-satellites"
+                />
+                <Metric
+                  label={t('gpsSystem.altitude')}
+                  value={raw === undefined ? '—' : String(raw.altitudeMeters)}
+                  unit="m"
+                />
+                <Metric
+                  label={t('gpsSystem.speed')}
+                  value={
+                    raw === undefined
+                      ? '—'
+                      : (raw.groundSpeedCentimetersPerSecond / 100).toFixed(1)
+                  }
+                  unit="m/s"
+                />
+                <Metric
+                  label={t('gpsSystem.course')}
+                  value={
+                    raw === undefined
+                      ? '—'
+                      : (raw.groundCourseDecidegrees / 10).toFixed(1)
+                  }
+                  unit="°"
+                />
+                {/* Not a bare acronym any more. The number is the board's
                   own PDOP; the word beside it is Betaflight's own verdict
                   on that number, and the hint states the direction,
                   because this is the one metric on the screen where
                   LOWER is better. */}
-              <Metric
-                label={"Precision locatie."}
-                value={
-                  raw?.pdopHundredths === undefined
-                    ? '—'
-                    : `${(raw.pdopHundredths / 100).toFixed(2)} · ${GPS_QUALITY_TEXT[classifyGpsPositionQuality(raw.pdopHundredths)]}`
-                }
-                testID="gps-position-quality"
+                <Metric
+                  label={'Precision locatie.'}
+                  value={
+                    raw?.pdopHundredths === undefined
+                      ? '—'
+                      : `${(raw.pdopHundredths / 100).toFixed(2)} · ${
+                          GPS_QUALITY_TEXT[
+                            classifyGpsPositionQuality(raw.pdopHundredths)
+                          ]
+                        }`
+                  }
+                  testID="gps-position-quality"
+                />
+                <Metric
+                  label={t('gpsSystem.homeDistance')}
+                  value={
+                    home === undefined ? '—' : String(home.distanceToHomeMeters)
+                  }
+                  unit="m"
+                />
+                <Metric
+                  label={t('gpsSystem.homeDirection')}
+                  value={
+                    home === undefined
+                      ? '—'
+                      : String(home.directionToHomeDegrees)
+                  }
+                  unit="°"
+                />
+                <Metric
+                  label={t('gpsSystem.dataState')}
+                  value={
+                    rawTelemetry.status === 'FRESH'
+                      ? t('gpsSystem.live')
+                      : rawTelemetry.status === 'STALE'
+                      ? t('gpsSystem.stale')
+                      : t('gpsSystem.waiting')
+                  }
+                />
+              </WorkbenchBlock>
+            </WorkbenchBlock>
+            <WorkbenchBlock
+              style={[styles.card, styles.columnCard]}
+              section="card"
+              panel
+            >
+              <Text style={styles.cardEyebrow}>
+                {t('gpsSystem.positionEyebrow')}
+              </Text>
+              <Text style={styles.cardTitle}>
+                {t('gpsSystem.positionTitle')}
+              </Text>
+              <OfflinePositionMap
+                latitude={positionIsLive ? raw.latitudeDegrees : undefined}
+                longitude={positionIsLive ? raw.longitudeDegrees : undefined}
               />
-              <Metric
-                label={t('gpsSystem.homeDistance')}
-                value={
-                  home === undefined ? '—' : String(home.distanceToHomeMeters)
-                }
-                unit="m"
-              />
-              <Metric
-                label={t('gpsSystem.homeDirection')}
-                value={
-                  home === undefined ? '—' : String(home.directionToHomeDegrees)
-                }
-                unit="°"
-              />
-              <Metric
-                label={t('gpsSystem.dataState')}
-                value={
-                  rawTelemetry.status === 'FRESH'
-                    ? t('gpsSystem.live')
-                    : rawTelemetry.status === 'STALE'
-                    ? t('gpsSystem.stale')
-                    : t('gpsSystem.waiting')
-                }
-              />
-            </View>
-          </View>
-
-          <View style={[styles.card, styles.columnCard]}>
-            <Text style={styles.cardEyebrow}>
-              {t('gpsSystem.positionEyebrow')}
-            </Text>
-            <Text style={styles.cardTitle}>{t('gpsSystem.positionTitle')}</Text>
-            <View style={styles.positionPanel}>
-              {/* NO DATUM, NO ARROW.
+              <WorkbenchBlock
+                style={styles.positionPanel}
+                section="positionPanel"
+              >
+                {/* NO DATUM, NO ARROW.
                   This used to rotate by `home?.directionToHomeDegrees ?? 0`,
                   so with no home reading at all it pointed due north and
                   looked exactly like a real bearing - a fabricated
@@ -688,296 +1040,80 @@ export default function GpsScreen({
                   renders only when the flight controller has actually
                   reported a direction; otherwise the hint below says the
                   reading has not arrived, which is the truth. */}
-              {!homeIsLive ? (
-                <View style={styles.homeArrowAbsent} testID="gps-home-arrow-absent">
-                  <Icon name="navigation" size={30} color={colors.textMuted} />
-                </View>
-              ) : (
-                <View
-                  testID="gps-home-arrow"
-                  style={[
-                    styles.homeArrow,
-                    {
-                      transform: [
-                        { rotate: `${home.directionToHomeDegrees}deg` },
-                      ],
-                    },
-                  ]}
-                >
-                  {/* A physical compass bearing: raw geometry, never an
+                {!homeIsLive ? (
+                  <WorkbenchBlock
+                    style={styles.homeArrowAbsent}
+                    testID="gps-home-arrow-absent"
+                    section="homeArrowAbsent"
+                  >
+                    <Icon
+                      name="navigation"
+                      size={30}
+                      color={colors.textMuted}
+                    />
+                  </WorkbenchBlock>
+                ) : (
+                  <WorkbenchBlock
+                    testID="gps-home-arrow"
+                    style={[
+                      styles.homeArrow,
+                      {
+                        transform: [
+                          { rotate: `${home.directionToHomeDegrees}deg` },
+                        ],
+                      },
+                    ]}
+                    section="homeArrow"
+                  >
+                    {/* A physical compass bearing: raw geometry, never an
                       RTL-mirrored alias. */}
-                  <Icon name="navigation" size={30} color={colors.accentStrong} />
-                </View>
-              )}
-              <Text style={styles.positionHint} testID="gps-position-hint">
-                {positionIsLive
-                  ? t('gpsSystem.positionReady')
-                  : rawTelemetry.status === 'STALE'
-                  ? t('gpsSystem.positionStale')
-                  : t('gpsSystem.positionWaiting')}
-              </Text>
-            </View>
-            <View style={styles.coordinateRow}>
-              {/* A coordinate that is merely old is not a weaker fact, it
+                    <Icon
+                      name="navigation"
+                      size={30}
+                      color={colors.accentStrong}
+                    />
+                  </WorkbenchBlock>
+                )}
+                <Text style={styles.positionHint} testID="gps-position-hint">
+                  {positionIsLive
+                    ? t('gpsSystem.positionReady')
+                    : rawTelemetry.status === 'STALE'
+                    ? t('gpsSystem.positionStale')
+                    : t('gpsSystem.positionWaiting')}
+                </Text>
+              </WorkbenchBlock>
+              <WorkbenchBlock
+                style={styles.coordinateRow}
+                section="coordinateRow"
+              >
+                {/* A coordinate that is merely old is not a weaker fact, it
                   is a wrong one - so it is withheld rather than shown
                   next to a small "stale" label the eye skips. */}
-              <Metric
-                label={t('gpsSystem.latitude')}
-                value={positionIsLive ? raw.latitudeDegrees.toFixed(7) : '—'}
-              />
-              <Metric
-                label={t('gpsSystem.longitude')}
-                value={positionIsLive ? raw.longitudeDegrees.toFixed(7) : '—'}
-              />
-            </View>
-            <Button
-              label={t('gpsSystem.openMap')}
-              onPress={openMap}
-              variant="secondary"
-              icon="map-pin"
-              disabled={!positionIsLive}
-              style={styles.blockActionSpacing}
-              testID="gps-open-map"
-            />
-            <Text style={styles.privacyNote}>
-              {t('gpsSystem.positionPrivacy')}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.card} testID="gps-satellite-panel">
-          <Text style={styles.cardEyebrow}>{t('gpsSystem.signalEyebrow')}</Text>
-          <Text style={styles.cardTitle}>{t('gpsSystem.signalTitle')}</Text>
-          <Text style={styles.cardBody}>{t('gpsSystem.signalDetail')}</Text>
-          {satellites === undefined || satellites.satellites.length === 0 ? (
-            <Text style={styles.emptyText}>
-              {t('gpsSystem.noSatelliteDetails')}
-            </Text>
-          ) : (
-            <View style={styles.satelliteGrid}>
-              {satellites.satellites.map((satellite, index) => (
-                <View
-                  key={`${satellite.channelOrGnssId}-${satellite.satelliteId}-${index}`}
-                  style={[
-                    styles.satellite,
-                    satellite.used && styles.satelliteUsed,
-                  ]}
-                >
-                  <View style={styles.satelliteTop}>
-                    <Text style={styles.satelliteId}>
-                      {satellite.constellation === 'LEGACY'
-                        ? t('gpsSystem.legacyChannel')
-                        : satellite.constellation}{' '}
-                      {satellite.satelliteId}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.usedLabel,
-                        satellite.used && styles.usedLabelActive,
-                      ]}
-                    >
-                      {satellite.used
-                        ? t('gpsSystem.used')
-                        : t('gpsSystem.visible')}
-                    </Text>
-                  </View>
-                  <View style={styles.signalTrack}>
-                    <View
-                      style={[
-                        styles.signalFill,
-                        {
-                          width: `${Math.min(
-                            100,
-                            Math.max(0, satellite.signalToNoiseDbHz * 2),
-                          )}%`,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.signalValue}>
-                    {satellite.signalToNoiseDbHz} dB-Hz · Q{satellite.quality}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.card} testID="gps-configuration-panel">
-          <Text style={styles.cardEyebrow}>{t('gpsSystem.configEyebrow')}</Text>
-          <Text style={styles.cardTitle}>{t('gpsSystem.configTitle')}</Text>
-          <Text style={styles.cardBody}>{t('gpsSystem.configDetail')}</Text>
-
-          {phase === 'LOADING' ? (
-            <Text style={styles.stateText}>{t('gpsSystem.loading')}</Text>
-          ) : null}
-          {loadMessage !== undefined ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{loadMessage}</Text>
+                <Metric
+                  label={t('gpsSystem.latitude')}
+                  value={positionIsLive ? raw.latitudeDegrees.toFixed(7) : '—'}
+                />
+                <Metric
+                  label={t('gpsSystem.longitude')}
+                  value={positionIsLive ? raw.longitudeDegrees.toFixed(7) : '—'}
+                />
+              </WorkbenchBlock>
               <Button
-                label={t('gpsSystem.reload')}
-                onPress={requestReload}
+                label={t('gpsSystem.openMap')}
+                onPress={openMap}
                 variant="secondary"
-                icon="refresh-cw"
+                icon="map-pin"
+                disabled={!positionIsLive}
                 style={styles.blockActionSpacing}
-                testID="gps-retry-load"
+                testID="gps-open-map"
               />
-            </View>
-          ) : null}
-
-          {draft !== undefined ? (
-            <>
-              <ToggleRow
-                title={t('gpsSystem.enable')}
-                detail={t('gpsSystem.enableDetail')}
-                value={draft.enabled}
-                disabled={busy}
-                onChange={enabled => update({ enabled })}
-                testID="gps-enable"
-              />
-              <Text style={styles.groupTitle}>
-                {t('gpsSystem.providerTitle')}
+              <Text style={styles.privacyNote}>
+                {t('gpsSystem.positionPrivacy')}
               </Text>
-              <View style={styles.choiceWrap}>
-                <Choice
-                  label="UBLOX"
-                  selected={draft.provider === 1}
-                  disabled={busy}
-                  onPress={() => update({ provider: 1 })}
-                  testID="gps-provider-ublox"
-                />
-                <Choice
-                  label="NMEA"
-                  selected={draft.provider === 0}
-                  disabled={busy}
-                  onPress={() => update({ provider: 0 })}
-                  testID="gps-provider-nmea"
-                />
-                <Choice
-                  label="MSP"
-                  selected={draft.provider === 2}
-                  disabled={busy}
-                  onPress={() => update({ provider: 2 })}
-                  testID="gps-provider-msp"
-                />
-                {draft.provider === 3 ? (
-                  <Choice
-                    label="VIRTUAL"
-                    selected
-                    disabled
-                    onPress={() => {}}
-                    testID="gps-provider-virtual"
-                  />
-                ) : null}
-              </View>
-
-              <Text style={styles.groupTitle}>{t('gpsSystem.sbasTitle')}</Text>
-              <View style={styles.choiceWrap}>
-                {(
-                  ['AUTO', 'EGNOS', 'WAAS', 'MSAS', 'GAGAN', 'NONE'] as const
-                ).map((label, mode) => (
-                  <Choice
-                    key={label}
-                    label={label}
-                    selected={draft.sbasMode === mode}
-                    disabled={busy}
-                    onPress={() => update({ sbasMode: mode })}
-                    testID={`gps-sbas-${label.toLowerCase()}`}
-                  />
-                ))}
-              </View>
-
-              <ToggleRow
-                title={t('gpsSystem.autoConfig')}
-                detail={t('gpsSystem.autoConfigDetail')}
-                value={draft.autoConfig}
-                disabled={busy || draft.provider !== 1}
-                onChange={autoConfig => update({ autoConfig })}
-                testID="gps-auto-config"
-              />
-              <ToggleRow
-                title={t('gpsSystem.galileo')}
-                detail={t('gpsSystem.galileoDetail')}
-                value={draft.useGalileo}
-                disabled={busy || draft.provider !== 1 || !draft.autoConfig}
-                onChange={useGalileo => update({ useGalileo })}
-                testID="gps-galileo"
-              />
-              <ToggleRow
-                title={t('gpsSystem.homeOnce')}
-                detail={t('gpsSystem.homeOnceDetail')}
-                value={draft.homePointOnce}
-                disabled={busy}
-                onChange={homePointOnce => update({ homePointOnce })}
-                testID="gps-home-once"
-              />
-
-              <View style={styles.infoBox}>
-                <Text style={styles.infoTitle}>
-                  {t('gpsSystem.autoBaudTitle')}
-                </Text>
-                <Text style={styles.infoText}>
-                  {t('gpsSystem.autoBaudModern')}
-                </Text>
-              </View>
-              {/* One sentence per issue, naming the setting - the same
-                  contract Failsafe and Ports use. A generic "something is
-                  invalid" leaves the operator hunting through the screen for
-                  which of two dropdowns it means. */}
-              {invalid.map(code => (
-                <Text key={code} style={styles.errorText}>
-                  {t(`gpsSystem.validation.${code}`)}
-                </Text>
-              ))}
-              {saveOutcome !== undefined ? (
-                <Text
-                  style={[
-                    styles.outcomeText,
-                    saveOutcome.kind !== 'SAVED_VERIFIED' &&
-                      saveOutcome.kind !== 'NO_CHANGES' &&
-                      styles.errorText,
-                  ]}
-                  testID="gps-save-outcome"
-                >
-                  {t(outcomeKey(saveOutcome))}
-                </Text>
-              ) : null}
-              <View style={styles.actionRow}>
-                <Button
-                  label={t('gpsSystem.reset')}
-                  onPress={() => setDraft(originalDraft)}
-                  variant="secondary"
-                  icon="rotate-ccw"
-                  disabled={busy || !dirty}
-                  testID="gps-reset"
-                />
-                <Button
-                  label={t('gpsSystem.reload')}
-                  onPress={requestReload}
-                  variant="secondary"
-                  icon="refresh-cw"
-                  disabled={busy}
-                  testID="gps-reload"
-                />
-                <Button
-                  label={
-                    phase === 'SAVING'
-                      ? t('gpsSystem.saving')
-                      : t('gpsSystem.save')
-                  }
-                  onPress={handleSave}
-                  variant="primary"
-                  icon="save"
-                  disabled={busy || !dirty || invalid.length > 0 || saveBlockedBySession}
-                  accessibilityLabel={t('gpsSystem.save')}
-                  style={styles.saveGrow}
-                  testID="gps-save"
-                />
-              </View>
-            </>
-          ) : null}
-        </View>
-      </ScrollView>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
+      </WorkbenchScrollView>
       {/* Betaflight keeps the GPS save action in a fixed bottom toolbar.
           This screen contains live telemetry before the configuration card,
           so its in-page action can otherwise be several viewports away.
@@ -996,8 +1132,8 @@ export default function GpsScreen({
           saveBlockedBySession
             ? t(blockReasonKey('SESSION_CHANGED'))
             : invalid.length > 0
-              ? t('gpsSystem.invalidPending')
-              : undefined
+            ? t('gpsSystem.invalidPending')
+            : undefined
         }
         statusMessage={
           saveOutcome === undefined ? undefined : t(outcomeKey(saveOutcome))
@@ -1011,21 +1147,29 @@ export default function GpsScreen({
         busyLabel={t('gpsSystem.saving')}
         testID="gps-sticky-actions"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
 const styles = StyleSheet.create({
+  gpsWorkspace: { gap: spacing.lg },
+  gpsWorkspaceWide: { flexDirection: 'row', alignItems: 'flex-start' },
+  gpsSettings: { flex: 2, gap: spacing.lg, minWidth: 0 },
+  gpsTelemetry: { flex: 3, gap: spacing.lg, minWidth: 0 },
   root: { flex: 1, backgroundColor: colors.background },
   content: {
     width: '100%',
-    maxWidth: 1180,
+
     alignSelf: 'center',
     padding: spacing.md,
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
-  hero: { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
+  hero: {
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
   eyebrow: { ...typography.eyebrow, color: colors.accentStrong },
   title: {
     ...typography.display,
@@ -1059,7 +1203,9 @@ const styles = StyleSheet.create({
   statusText: {
     ...typography.caption,
     color: colors.textPrimary,
-    fontWeight: '700', maxWidth: PROSE_MEASURE},
+    fontWeight: '700',
+    maxWidth: PROSE_MEASURE,
+  },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -1080,7 +1226,9 @@ const styles = StyleSheet.create({
   cardBody: {
     ...typography.body,
     color: colors.textSecondary,
-    marginTop: spacing.xs, maxWidth: PROSE_MEASURE},
+    marginTop: spacing.xs,
+    maxWidth: PROSE_MEASURE,
+  },
   twoColumn: { flexDirection: 'row', gap: spacing.md },
   oneColumn: { flexDirection: 'column' },
   columnCard: { flex: 1 },
@@ -1130,12 +1278,16 @@ const styles = StyleSheet.create({
   positionHint: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginTop: spacing.sm, maxWidth: PROSE_MEASURE},
+    marginTop: spacing.sm,
+    maxWidth: PROSE_MEASURE,
+  },
   coordinateRow: { flexDirection: 'row', marginTop: spacing.sm },
   privacyNote: {
     ...typography.caption,
     color: colors.textMuted,
-    marginTop: spacing.sm, maxWidth: PROSE_MEASURE},
+    marginTop: spacing.sm,
+    maxWidth: PROSE_MEASURE,
+  },
   satelliteGrid: { gap: spacing.sm, marginTop: spacing.md },
   satellite: {
     borderWidth: 1,
@@ -1175,7 +1327,9 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.textMuted,
-    marginTop: spacing.md, maxWidth: PROSE_MEASURE},
+    marginTop: spacing.md,
+    maxWidth: PROSE_MEASURE,
+  },
   toggleRow: {
     minHeight: 68,
     flexDirection: 'row',
@@ -1194,7 +1348,9 @@ const styles = StyleSheet.create({
   controlDetail: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginTop: 2, maxWidth: PROSE_MEASURE},
+    marginTop: 2,
+    maxWidth: PROSE_MEASURE,
+  },
   groupTitle: {
     ...typography.body,
     color: colors.textPrimary,
@@ -1230,18 +1386,24 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   choiceTextSelected: { color: colors.accentStrong },
-  infoBox: {...noticeSurface, backgroundColor: colors.infoSoft,
+  infoBox: {
+    ...noticeSurface,
+    backgroundColor: colors.infoSoft,
     borderColor: colors.info,
-    marginTop: spacing.md},
+    marginTop: spacing.md,
+  },
   infoTitle: { ...typography.bodyStrong, color: colors.info },
   infoText: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: spacing.xs,
   },
-  errorBox: {...noticeSurface, borderColor: colors.error,
+  errorBox: {
+    ...noticeSurface,
+    borderColor: colors.error,
     backgroundColor: colors.errorSoft,
-    marginTop: spacing.md},
+    marginTop: spacing.md,
+  },
   errorText: { ...typography.body, color: colors.error },
   stateText: {
     ...typography.body,

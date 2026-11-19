@@ -973,7 +973,7 @@ export const SCREENS: readonly ScreenCase[] = [
             watched(
               {
                 loadIndex: async () => ({presets: [], categories: []}),
-                loadFirmwareVersion: async () => undefined,
+                loadFirmwareVersion: async () => ({year:2025,month:12,patch:5,versionString:'2025.12.5',suffix:null}),
                 loadPreset: async () => undefined,
                 commands: () => [],
               },

@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * The real Setup screen. SETUP R9 rebuilt its information hierarchy:
  *
@@ -47,9 +51,12 @@
  * gap stays unreachable.
  */
 
-import {SectionNavigation, useSectionNavigation} from '../components/navigation/SectionNavigation';
+import {
+  SectionNavigation,
+  useSectionNavigation,
+} from '../components/navigation/SectionNavigation';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -390,7 +397,9 @@ function SetupScreenContent({
   // {kind:'UNKNOWN'} and is deliberately dropped here rather than
   // degrading to a false all-clear or a fabricated warning.
   const batterySemantics =
-    battery.status === 'FRESH' ? deriveBatterySemantics(battery.value) : undefined;
+    battery.status === 'FRESH'
+      ? deriveBatterySemantics(battery.value)
+      : undefined;
   const batteryFirmwareState =
     typeof batterySemantics?.firmwareState === 'string'
       ? batterySemantics.firmwareState
@@ -465,7 +474,7 @@ function SetupScreenContent({
   };
 
   return (
-    <View style={styles.root} testID="setup-screen">
+    <WorkbenchBlock style={styles.root} testID="setup-screen" section="root">
       {/* THE ONLY FIXED CHROME: 48px, back + title + connection dot +
           disconnect. The 139px teal bar that used to sit here is gone,
           and so is every fact it carried that was not chrome - those are
@@ -475,12 +484,14 @@ function SetupScreenContent({
         onBack={onBack}
         onDisconnect={handleDisconnect}
       />
-      <ScrollView
+      <WorkbenchScrollView
         ref={sections.scrollRef}
         contentContainerStyle={[
           styles.scrollContent,
           { maxWidth: contentMaxWidth, paddingHorizontal: workspaceGutter },
-        ]}>
+        ]}
+        workspace="Setup"
+      >
         {/* ==============================================================
             SETUP R9 - THE ORDER, AND THE MEASUREMENT BEHIND IT.
 
@@ -518,13 +529,14 @@ function SetupScreenContent({
         {/* 1. THE COMPACT STATUS AREA. First content, not sticky chrome:
                on a phone an operator scrolls past it to the model, and
                on a desktop it never leaves the first viewport. */}
-        <SectionNavigation items={[{key: 'orientation', label: 'Oriëntatie'}, {key: 'status', label: 'Bord & telemetrie'}, {key: 'alignment', label: 'Uitlijning'}, {key: 'maintenance', label: 'Onderhoud'}]} onSelect={sections.jump} />
-        <SetupStatusBar
-          sessionId={sessionId}
-          armingReadiness={armingReadiness}
-          battery={batterySummary}
-          sensors={sensorSummary}
-          diagnostics={diagnosticsView}
+        <SectionNavigation
+          items={[
+            { key: 'orientation', label: 'Oriëntatie' },
+            { key: 'status', label: 'Bord & telemetrie' },
+            { key: 'alignment', label: 'Uitlijning' },
+            { key: 'maintenance', label: 'Onderhoud' },
+          ]}
+          onSelect={sections.jump}
         />
 
         {/* 2. THE SAFETY STRIP IS NOW AN ALERT, so it appears only when
@@ -543,44 +555,44 @@ function SetupScreenContent({
                carries its own eyebrow and title, so the heading restated
                what the card beneath it already said, at the cost of a
                tenth of a phone viewport. */}
-        <View onLayout={sections.register('orientation')}><LiveOrientationHero
-          sessionKey={sessionKey}
-          active={active}
-          orientationViewOffset={uiState.orientationViewOffset}
-          hasSeenResetHint={uiState.hasSeenOrientationResetHint}
-          onResetView={handleResetView}
-          onResetHintShown={handleResetHintShown}
-          calibrationSlot={
-            <OrientationCalibrationCard
-              sessionId={sessionId}
-              gate={fcToolGate}
-              variant="inline"
-            />
-          }
-        />
-
+        <View onLayout={sections.register('orientation')}>
+          <LiveOrientationHero
+            sessionKey={sessionKey}
+            active={active}
+            orientationViewOffset={uiState.orientationViewOffset}
+            hasSeenResetHint={uiState.hasSeenOrientationResetHint}
+            onResetView={handleResetView}
+            onResetHintShown={handleResetHintShown}
+            calibrationSlot={
+              <OrientationCalibrationCard
+                sessionId={sessionId}
+                gate={fcToolGate}
+                variant="inline"
+              />
+            }
+          />
         </View>
         {/* 4. THE DENSE GRID, directly under the model - Status, GPS and
                Build side by side on a desktop, stacking on a phone. This
                is what the four elevated telemetry cards became. */}
-        <View onLayout={sections.register('status')}><SetupInfoGrid
-          armingReadiness={armingReadiness}
-          battery={batterySummary}
-          connected={connected}
-          receiver={receiver}
-          receiverChannelState={receiverChannelState}
-          gps={gps}
-          gpsChannelState={gpsChannelState}
-          gpsPresent={gpsPresent}
-          fcStatus={fcStatus}
-          fcChannelState={fcChannelState}
-          diagnostics={diagnosticsView}
-          onOpenPower={onOpenPower}
-          onOpenReceiver={onOpenReceiver}
-          onOpenGps={onOpenGps}
-          onOpenSensors={onOpenSensors}
-        />
-
+        <View onLayout={sections.register('status')}>
+          <SetupInfoGrid
+            armingReadiness={armingReadiness}
+            battery={batterySummary}
+            connected={connected}
+            receiver={receiver}
+            receiverChannelState={receiverChannelState}
+            gps={gps}
+            gpsChannelState={gpsChannelState}
+            gpsPresent={gpsPresent}
+            fcStatus={fcStatus}
+            fcChannelState={fcChannelState}
+            diagnostics={diagnosticsView}
+            onOpenPower={onOpenPower}
+            onOpenReceiver={onOpenReceiver}
+            onOpenGps={onOpenGps}
+            onOpenSensors={onOpenSensors}
+          />
         </View>
         {/* 5. BOARD ALIGNMENT stays a full feature and moves BELOW the
                live information. It used to sit between the model and
@@ -590,15 +602,26 @@ function SetupScreenContent({
                firmware has ALREADY corrected with these angles, so it can
                never reveal that they are wrong - and the card still says
                so in words; it simply no longer interrupts. */}
-        <View onLayout={sections.register('alignment')}><BoardAlignmentCard sessionKey={sessionKey} active={active} /></View>
+        <SetupStatusBar
+          sessionId={sessionId}
+          armingReadiness={armingReadiness}
+          battery={batterySummary}
+          sensors={sensorSummary}
+          diagnostics={diagnosticsView}
+        />
+        <View onLayout={sections.register('alignment')}>
+          <BoardAlignmentCard sessionKey={sessionKey} active={active} />
+        </View>
 
         {/* 6. ADVANCED, from here down. */}
-        <View onLayout={sections.register('maintenance')}><SetupSectionHeading
-          eyebrow={t('setupSections.maintenance.eyebrow')}
-          title={t('setupSections.maintenance.title')}
-          description={t('setupSections.maintenance.description')}
-          testID="setup-maintenance-heading"
-        /></View>
+        <View onLayout={sections.register('maintenance')}>
+          <SetupSectionHeading
+            eyebrow={t('setupSections.maintenance.eyebrow')}
+            title={t('setupSections.maintenance.title')}
+            description={t('setupSections.maintenance.description')}
+            testID="setup-maintenance-heading"
+          />
+        </View>
         {/* DIAGNOSTICS, SECOND - not deleted, relocated.
 
             The full warning stack and the stability check used to open
@@ -629,8 +652,8 @@ function SetupScreenContent({
             The REPORT ITSELF IS KEPT (platforms/telemetryReport.ts) for
             diagnostics and for the suites that assert its contents; what
             is gone is the button. */}
-      </ScrollView>
-    </View>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
@@ -645,16 +668,25 @@ function SetupSectionHeading({
   testID: string;
 }): React.JSX.Element {
   return (
-    <View style={styles.sectionHeading} testID={testID}>
-      <View style={styles.sectionHeadingMark} />
-      <View style={styles.sectionHeadingCopy}>
+    <WorkbenchBlock
+      style={styles.sectionHeading}
+      testID={testID}
+      section="sectionHeading"
+    >
+      <WorkbenchBlock
+        style={styles.sectionHeadingMark}
+        section="sectionHeadingMark"
+      />
+      <WorkbenchBlock
+        style={styles.sectionHeadingCopy}
+        section="sectionHeadingCopy"
+      >
         <Text style={styles.sectionEyebrow}>{eyebrow}</Text>
         <Text style={styles.sectionTitle} accessibilityRole="header">
           {title}
         </Text>
-
-      </View>
-    </View>
+      </WorkbenchBlock>
+    </WorkbenchBlock>
   );
 }
 
@@ -790,5 +822,7 @@ const styles = StyleSheet.create({
   sectionDescription: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginTop: spacing.xs, maxWidth: PROSE_MEASURE},
+    marginTop: spacing.xs,
+    maxWidth: PROSE_MEASURE,
+  },
 });

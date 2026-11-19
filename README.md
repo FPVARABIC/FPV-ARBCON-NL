@@ -14,11 +14,17 @@ De Android-app heet **fiercon** en krijgt applicatie-ID `com.fpvarbcon.nl`, zoda
 
 ## Interface
 
-De volledige interface gebruikt een donkerblauw-gouden vormgeving, geïnspireerd op [Firecom](https://www.firecom.nl/), met lokaal meegeleverde Lato-lettertypen. De productnaam is **fiercon**. De indeling gebruikt compacte instellingenpanelen en gegroepeerde navigatie, met Betaflight als functionele referentie en een eigen vormgeving.
+De volledige interface gebruikt een donkerblauw-gouden vormgeving, geïnspireerd op [Firecom](https://www.firecom.nl/), met lokaal meegeleverde Lato-lettertypen. De productnaam is **fiercon**. De indeling gebruikt compacte instellingenpanelen en gegroepeerde navigatie, met indelingen en echte vliegtuigmodellen uit de open source Betaflight App, aangepast voor fiercon. Zie [bron- en licentievermeldingen](THIRD_PARTY_NOTICES.md).
 
 Alle 17 configuratieonderdelen staan in het overzicht op Home en in de werkruimtenavigatie. Op de telefoon opent **Alle functies** een complete lijst. De donatiesectie is verwijderd. De bestaande verbindingscontrole, motorbeveiligingen en schrijfbevestigingen blijven van kracht.
 
 [Verificatierapport van fiercon](docs/FIERCON_INTERFACE_REVIEW_NL.md).
+
+De desktopwerkruimten benutten de beschikbare breedte. PID, Rates, Filters en Expert hebben afzonderlijke tabbladen; de 3D-weergave gebruikt echte glTF-modellen, met een meshrenderer voor Android en browsers zonder WebGL.
+
+## Licentie
+
+GPL-3.0-or-later; zie [LICENSE](LICENSE). Het vliegtuigmodel heeft een afzonderlijke CC BY 4.0-vermelding. Alle bronbestanden en bouwscripts staan in deze repository.
 
 ## Lokaal controleren
 

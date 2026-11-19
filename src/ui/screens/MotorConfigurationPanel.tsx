@@ -1,12 +1,6 @@
+import { WorkbenchBlock } from '../components/workbench/Workbench';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -22,9 +16,16 @@ import {
   type MotorConfigurationLoadOutcome,
   type MotorConfigurationSaveOutcome,
 } from '../../platforms/react-native/protocol/MotorConfigurationController';
-import type {SetupUiSessionKey} from '../../platforms/react-native/protocol';
-import {isOwnedByDifferentConfigurationSession} from '../../core/state/configurationSessionOwnership';
-import {PROSE_MEASURE, colors, noticeSurface, radii, spacing, typography} from '../theme';
+import type { SetupUiSessionKey } from '../../platforms/react-native/protocol';
+import { isOwnedByDifferentConfigurationSession } from '../../core/state/configurationSessionOwnership';
+import {
+  PROSE_MEASURE,
+  colors,
+  noticeSurface,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
 import { SelectField, ToggleSwitch } from '../components/controls';
 import { BETAFLIGHT_MIXER_REFERENCE_V147 } from '../../core/firmware-adapters/betaflightMixerReferenceV147';
 import { formatMotorProtocol } from './MotorConfigurationSummary';
@@ -204,10 +205,10 @@ function outcomeText(
 
 function SectionHeading({ title, detail }: { title: string; detail: string }) {
   return (
-    <View style={styles.sectionHeading}>
+    <WorkbenchBlock style={styles.sectionHeading} section="sectionHeading">
       <Text style={styles.sectionTitle}>{title}</Text>
       <Text style={styles.caption}>{detail}</Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -227,11 +228,15 @@ function ToggleRow({
   testID: string;
 }) {
   return (
-    <View style={styles.settingRow} testID={testID}>
-      <View style={styles.flexOne}>
+    <WorkbenchBlock
+      style={styles.settingRow}
+      testID={testID}
+      section="settingRow"
+    >
+      <WorkbenchBlock style={styles.flexOne} section="flexOne">
         <Text style={styles.settingLabel}>{label}</Text>
         <Text style={styles.caption}>{detail}</Text>
-      </View>
+      </WorkbenchBlock>
       {/* The platform Switch drew accentSoft on accent here - pale teal
           on pale teal, so ON and OFF were nearly indistinguishable on a
           motor-configuration row. The shared control states it plainly. */}
@@ -241,7 +246,7 @@ function ToggleRow({
         onValueChange={onValueChange}
         accessibilityLabel={label}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -261,7 +266,11 @@ function NumberField({
   testID: string;
 }) {
   return (
-    <View style={styles.numberField} testID={testID}>
+    <WorkbenchBlock
+      style={styles.numberField}
+      testID={testID}
+      section="numberField"
+    >
       <Text style={styles.settingLabel}>{label}</Text>
       <Text style={styles.caption}>{detail}</Text>
       <TextInput
@@ -273,7 +282,7 @@ function NumberField({
         style={[styles.input, disabled && styles.disabled]}
         accessibilityLabel={label}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -382,8 +391,19 @@ export function MotorConfigurationPanel({
     [effectiveDraft],
   );
   const changed =
-    (original !== undefined && effectiveDraft !== undefined && !motorConfigurationDraftsEqual(createMotorConfigurationDraft(original), effectiveDraft)) ||
-    (draft !== undefined && numericText !== undefined && Object.keys(numericText).some(key => numericText[key as NumericField] !== numericTextFor(draft)[key as NumericField]));
+    (original !== undefined &&
+      effectiveDraft !== undefined &&
+      !motorConfigurationDraftsEqual(
+        createMotorConfigurationDraft(original),
+        effectiveDraft,
+      )) ||
+    (draft !== undefined &&
+      numericText !== undefined &&
+      Object.keys(numericText).some(
+        key =>
+          numericText[key as NumericField] !==
+          numericTextFor(draft)[key as NumericField],
+      ));
   useEffect(() => {
     onDirtyChange?.(changed);
     return () => onDirtyChange?.(false);
@@ -505,10 +525,20 @@ export function MotorConfigurationPanel({
       load().catch(() => undefined);
       return;
     }
-    Alert.alert(t('motorConfiguration.discardChangesTitle'), t('motorConfiguration.discardChangesBody'), [
-      { text: t('motorConfiguration.cancel'), style: 'cancel' },
-      { text: t('motorConfiguration.discardAndReload'), style: 'destructive', onPress: () => { load().catch(() => undefined); } },
-    ]);
+    Alert.alert(
+      t('motorConfiguration.discardChangesTitle'),
+      t('motorConfiguration.discardChangesBody'),
+      [
+        { text: t('motorConfiguration.cancel'), style: 'cancel' },
+        {
+          text: t('motorConfiguration.discardAndReload'),
+          style: 'destructive',
+          onPress: () => {
+            load().catch(() => undefined);
+          },
+        },
+      ],
+    );
   }, [changed, load, t]);
 
   const save = useCallback(async () => {
@@ -523,7 +553,11 @@ export function MotorConfigurationPanel({
     setPhase('SAVING');
     setSaveOutcome(undefined);
     try {
-      const result = await controller.save(sessionKey, original, effectiveDraft);
+      const result = await controller.save(
+        sessionKey,
+        original,
+        effectiveDraft,
+      );
       setSaveOutcome(result);
       if (result.kind === 'SAVED_VERIFIED' || result.kind === 'NO_CHANGES') {
         installSnapshot(result.snapshot);
@@ -562,12 +596,16 @@ export function MotorConfigurationPanel({
     effectiveDraft.motorProtocolRaw <= 4;
 
   return (
-    <View style={styles.root} testID="motor-configuration-panel">
-      <View style={styles.headerRow}>
-        <View style={styles.flexOne}>
+    <WorkbenchBlock
+      style={styles.root}
+      testID="motor-configuration-panel"
+      section="root"
+    >
+      <WorkbenchBlock style={styles.headerRow} section="headerRow">
+        <WorkbenchBlock style={styles.flexOne} section="flexOne">
           <Text style={styles.eyebrow}>{t('motorConfiguration.eyebrow')}</Text>
           <Text style={styles.title}>{t('motorConfiguration.title')}</Text>
-        </View>
+        </WorkbenchBlock>
         <Pressable
           onPress={requestReload}
           disabled={phase !== 'IDLE'}
@@ -578,7 +616,7 @@ export function MotorConfigurationPanel({
             {t('motorConfiguration.refresh')}
           </Text>
         </Pressable>
-      </View>
+      </WorkbenchBlock>
 
       {phase === 'LOADING' ? (
         <Text style={styles.infoText} testID="motor-config-loading">
@@ -586,19 +624,23 @@ export function MotorConfigurationPanel({
         </Text>
       ) : null}
       {loadError !== undefined ? (
-        <View style={styles.errorNotice} testID="motor-config-load-error">
+        <WorkbenchBlock
+          style={styles.errorNotice}
+          testID="motor-config-load-error"
+          section="errorNotice"
+        >
           <Text style={styles.errorText}>{loadError}</Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
 
       {draft !== undefined && numericText !== undefined ? (
         <>
-          <View style={styles.section}>
+          <WorkbenchBlock style={styles.section} section="section" panel>
             <SectionHeading
               title={t('motorConfiguration.protocolHeading')}
               detail={t('motorConfiguration.protocolDetail')}
             />
-            <View style={styles.protocolGrid}>
+            <WorkbenchBlock style={styles.protocolGrid} section="protocolGrid">
               {PROTOCOLS.map(protocol => {
                 const selected = draft.motorProtocolRaw === protocol;
                 return (
@@ -636,7 +678,7 @@ export function MotorConfigurationPanel({
                   </Pressable>
                 );
               })}
-            </View>
+            </WorkbenchBlock>
 
             <ToggleRow
               label={t('motorConfiguration.unsynced')}
@@ -647,7 +689,7 @@ export function MotorConfigurationPanel({
               testID="motor-config-unsynced"
             />
             {analogProtocol ? (
-              <View style={styles.numberGrid}>
+              <WorkbenchBlock style={styles.numberGrid} section="numberGrid">
                 <NumberField
                   label={t('motorConfiguration.pwmRate')}
                   detail={t('motorConfiguration.pwmRateDetail')}
@@ -672,11 +714,11 @@ export function MotorConfigurationPanel({
                   onChangeText={value => setNumber('minCommand', value)}
                   testID="motor-config-min-command"
                 />
-              </View>
+              </WorkbenchBlock>
             ) : null}
-          </View>
+          </WorkbenchBlock>
 
-          <View style={styles.section}>
+          <WorkbenchBlock style={styles.section} section="section" panel>
             <SectionHeading
               title={t('motorConfiguration.escHeading')}
               detail={t('motorConfiguration.escDetail')}
@@ -736,7 +778,7 @@ export function MotorConfigurationPanel({
               onValueChange={value => setBoolean('yawMotorsReversed', value)}
               testID="motor-config-yaw-reversed"
             />
-            <View style={styles.numberGrid}>
+            <WorkbenchBlock style={styles.numberGrid} section="numberGrid">
               <NumberField
                 label={t('motorConfiguration.motorIdle')}
                 detail={t('motorConfiguration.motorIdleDetail')}
@@ -753,10 +795,10 @@ export function MotorConfigurationPanel({
                 onChangeText={value => setNumber('motorPoleCount', value)}
                 testID="motor-config-poles"
               />
-            </View>
-          </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
 
-          <View style={styles.section}>
+          <WorkbenchBlock style={styles.section} section="section" panel>
             <SectionHeading
               title={t('motorConfiguration.threeDHeading')}
               detail={t('motorConfiguration.threeDDetail')}
@@ -770,7 +812,7 @@ export function MotorConfigurationPanel({
               testID="motor-config-3d-enabled"
             />
             {draft.feature3dEnabled ? (
-              <View style={styles.numberGrid}>
+              <WorkbenchBlock style={styles.numberGrid} section="numberGrid">
                 <NumberField
                   label={t('motorConfiguration.threeDLow')}
                   detail={t('motorConfiguration.externalRange')}
@@ -795,49 +837,56 @@ export function MotorConfigurationPanel({
                   onChangeText={value => setNumber('deadband3dHigh', value)}
                   testID="motor-config-3d-high"
                 />
-              </View>
+              </WorkbenchBlock>
             ) : null}
-          </View>
+          </WorkbenchBlock>
 
           {effectiveDraft === undefined || validation?.valid === false ? (
-            <View style={styles.errorNotice} testID="motor-config-invalid">
+            <WorkbenchBlock
+              style={styles.errorNotice}
+              testID="motor-config-invalid"
+              section="errorNotice"
+            >
               <Text style={styles.errorText}>
                 {t('motorConfiguration.invalidValues')}
               </Text>
-            </View>
+            </WorkbenchBlock>
           ) : null}
 
           {/* Disabling Save is not enough on its own: an operator who set
               a protocol and then found the button dead would read that as
               the app being broken. Say which fact stopped the write. */}
           {original !== undefined && saveBlockedBySession ? (
-            <View
+            <WorkbenchBlock
               style={styles.errorNotice}
               testID="motor-config-session-changed"
+              section="errorNotice"
             >
               <Text style={styles.errorText}>
                 {t('motorsScreen.blockSessionChanged')}
               </Text>
-            </View>
+            </WorkbenchBlock>
           ) : null}
 
           {outcome !== undefined ? (
-            <View
+            <WorkbenchBlock
               style={outcome.danger ? styles.errorNotice : styles.successNotice}
               testID="motor-config-outcome"
+              section="errorNotice"
             >
               <Text
                 style={outcome.danger ? styles.errorText : styles.successText}
               >
                 {outcome.text}
               </Text>
-            </View>
+            </WorkbenchBlock>
           ) : null}
 
           {confirming ? (
-            <View
+            <WorkbenchBlock
               style={styles.confirmation}
               testID="motor-config-confirmation"
+              section="confirmation"
             >
               <Text style={styles.confirmationTitle}>
                 {t('motorConfiguration.confirmTitle')}
@@ -845,7 +894,7 @@ export function MotorConfigurationPanel({
               <Text style={styles.caption}>
                 {t('motorConfiguration.confirmBody')}
               </Text>
-              <View style={styles.actionRow}>
+              <WorkbenchBlock style={styles.actionRow} section="actionRow">
                 <Pressable
                   onPress={() => setConfirming(false)}
                   style={styles.secondaryButton}
@@ -866,10 +915,10 @@ export function MotorConfigurationPanel({
                     {t('motorConfiguration.confirmSave')}
                   </Text>
                 </Pressable>
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
           ) : (
-            <View style={styles.actionRow}>
+            <WorkbenchBlock style={styles.actionRow} section="actionRow">
               <Pressable
                 onPress={resetDraft}
                 disabled={!changed || phase !== 'IDLE'}
@@ -895,11 +944,11 @@ export function MotorConfigurationPanel({
                     : t('motorConfiguration.reviewSave')}
                 </Text>
               </Pressable>
-            </View>
+            </WorkbenchBlock>
           )}
         </>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -921,19 +970,25 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.title,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   caption: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   infoText: {
     ...typography.body,
     color: colors.accentStrong,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   section: {
     gap: spacing.md,
     backgroundColor: colors.backgroundRaised,
@@ -946,7 +1001,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   settingRow: {
     minHeight: MIN_TOUCH_TARGET,
     flexDirection: 'row',
@@ -960,7 +1016,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   protocolGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   protocolChip: {
     minHeight: MIN_TOUCH_TARGET,
@@ -1032,7 +1089,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.accentText,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   secondaryButton: {
     flex: 1,
     minHeight: MIN_TOUCH_TARGET + 4,
@@ -1047,22 +1105,31 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
-  confirmation: {...noticeSurface, gap: spacing.md,
+    writingDirection: 'ltr',
+  },
+  confirmation: {
+    ...noticeSurface,
+    gap: spacing.md,
     borderColor: colors.warning,
-    backgroundColor: colors.warningSoft},
+    backgroundColor: colors.warningSoft,
+  },
   confirmationTitle: {
     ...typography.sectionTitle,
     color: colors.warning,
-    writingDirection: 'ltr'},
-  errorNotice: {...noticeSurface, backgroundColor: colors.errorSoft},
+    writingDirection: 'ltr',
+  },
+  errorNotice: { ...noticeSurface, backgroundColor: colors.errorSoft },
   errorText: {
     ...typography.body,
     color: colors.error,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  successNotice: {...noticeSurface, backgroundColor: colors.successSoft},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  successNotice: { ...noticeSurface, backgroundColor: colors.successSoft },
   successText: {
     ...typography.body,
     color: colors.success,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
 });

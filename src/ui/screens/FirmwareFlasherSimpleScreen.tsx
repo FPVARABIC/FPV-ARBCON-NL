@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * THE STANDARD FIRMWARE FLASHER - Betaflight capability, Arabic clarity.
  *
@@ -30,11 +34,17 @@
  * screen and are only RENDERED here.
  */
 
-import {resolveOperatorFacingText} from '../../core/firmware-flasher/flashErrorCodes';
-import {resolveOperatorMessage} from '../../core/firmware-flasher/operatorMessage';
-import {OperatorMessageError} from '../../core/firmware-flasher/operatorMessage';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { resolveOperatorFacingText } from '../../core/firmware-flasher/flashErrorCodes';
+import { resolveOperatorMessage } from '../../core/firmware-flasher/operatorMessage';
+import { OperatorMessageError } from '../../core/firmware-flasher/operatorMessage';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   ActivityIndicator,
   Alert,
@@ -42,14 +52,13 @@ import {
   Modal,
   PixelRatio,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 
-import type {RootStackParamList} from '../../navigation/types';
+import type { RootStackParamList } from '../../navigation/types';
 import {
   CloudBuildCoordinator,
   applyCustomDefaultsToFirmware,
@@ -99,7 +108,7 @@ import type {
   DfuDeviceDescriptor,
   UsbSerialTransportClient,
 } from '../../platforms/react-native/transport';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 /* operatorDetail() is a PURE exported function with its own suite, so it
  * cannot take a hook's `t`. The singleton is the same catalogue the hook
  * reads; importing it here keeps the coded-error sentences reachable
@@ -109,17 +118,29 @@ import {
   classifyFlashRejection,
   flashNextActionLabelKey,
 } from '../../core/firmware-flasher/flashCompletionModel';
-import {toFlashPhase} from '../../core/firmware-flasher/flashPhaseModel';
-import type {FlashPhase} from '../../core/firmware-flasher/flashPhaseModel';
+import { toFlashPhase } from '../../core/firmware-flasher/flashPhaseModel';
+import type { FlashPhase } from '../../core/firmware-flasher/flashPhaseModel';
 import {
   DfuPermissionRequiredError,
   FirmwareBootloaderController,
 } from '../../platforms/react-native/protocol/FirmwareBootloaderController';
-import {bytesToBase64} from '../../platforms/react-native/protocol/base64';
-import {getLastConnectionTrace} from '../../core/protocol/msp/identification/connectionTrace';
-import {FirmwareButton, FirmwareNotice, FirmwareProgress} from '../components/firmware';
-import {PROSE_MEASURE, colors, fonts, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {Icon} from '../icons';
+import { bytesToBase64 } from '../../platforms/react-native/protocol/base64';
+import { getLastConnectionTrace } from '../../core/protocol/msp/identification/connectionTrace';
+import {
+  FirmwareButton,
+  FirmwareNotice,
+  FirmwareProgress,
+} from '../components/firmware';
+import {
+  PROSE_MEASURE,
+  colors,
+  fonts,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { Icon } from '../icons';
 
 /**
  * LAZY. A static import here pulled the entire advanced screen - and
@@ -128,9 +149,13 @@ import {Icon} from '../icons';
  * code splitting the bundle scan checks for. It is only rendered behind
  * «متقدم», so it is only fetched then.
  */
-const FirmwareFlasherScreen = React.lazy(() => import('./FirmwareFlasherScreen'));
+const FirmwareFlasherScreen = React.lazy(
+  () => import('./FirmwareFlasherScreen'),
+);
 
-type Props = Partial<NativeStackScreenProps<RootStackParamList, 'FirmwareFlasher'>> & {
+type Props = Partial<
+  NativeStackScreenProps<RootStackParamList, 'FirmwareFlasher'>
+> & {
   readonly client?: UsbSerialTransportClient;
 };
 
@@ -182,16 +207,20 @@ export type FlasherProblemCategory =
  * was never the problem.
  */
 function codedTransportDetail(reason: unknown): string | undefined {
-  const code = (reason as {code?: unknown} | null)?.code;
+  const code = (reason as { code?: unknown } | null)?.code;
   if (typeof code !== 'string' || code.length === 0) return undefined;
   /* The SAME resolution chain the full flasher screen uses: the
    * flasher-specific key first, then the shared `errors.*` namespace. The
    * STM32 engine and the raw serial port now carry stable codes, so their
    * failures reach this screen as translated sentences too. */
-  const specific = i18n.t(`firmwareFlasher.reason.${code}`, {defaultValue: ''});
+  const specific = i18n.t(`firmwareFlasher.reason.${code}`, {
+    defaultValue: '',
+  });
   if (typeof specific === 'string' && specific.length > 0) return specific;
-  const sentence = i18n.t(`errors.${code}`, {defaultValue: ''});
-  return typeof sentence === 'string' && sentence.length > 0 ? sentence : undefined;
+  const sentence = i18n.t(`errors.${code}`, { defaultValue: '' });
+  return typeof sentence === 'string' && sentence.length > 0
+    ? sentence
+    : undefined;
 }
 
 /**
@@ -216,12 +245,16 @@ function codedTransportDetail(reason: unknown): string | undefined {
  * messages - a target mismatch naming the two boards, for instance, which
  * no static catalogue string could reproduce.
  */
-export function operatorDetail(reason: unknown, category: FlasherProblemCategory): string {
+export function operatorDetail(
+  reason: unknown,
+  category: FlasherProblemCategory,
+): string {
   const coded = codedTransportDetail(reason);
   if (coded !== undefined) return coded;
   /* A message this application WROTE, addressed by catalogue key. */
   const authored = resolveOperatorMessage(
-    (key: string, options?: Record<string, unknown>) => i18n.t(key, options) as string,
+    (key: string, options?: Record<string, unknown>) =>
+      i18n.t(key, options) as string,
     reason,
   );
   if (authored !== undefined) return authored;
@@ -229,14 +262,22 @@ export function operatorDetail(reason: unknown, category: FlasherProblemCategory
   return PROBLEM_FALLBACKS[category];
 }
 
-export const PROBLEM_FALLBACKS: Readonly<Record<FlasherProblemCategory, string>> = {
-  CATALOGUE: "De buildserver is niet bereikbaar. Controleer de internetverbinding en probeer het opnieuw.",
-  RELEASES: "De versies voor deze printplaat konden niet worden opgehaald. Controleer de internetverbinding en probeer het opnieuw.",
-  BUILD: "De buildopties voor deze versie konden niet worden opgehaald.",
-  PREPARE: "Firmware bouwen of downloaden is mislukt. Controleer de internetverbinding en probeer het opnieuw.",
-  SERIAL: "De USB-verbinding met de printplaat kon niet worden geopend. Sluit de kabel opnieuw aan en probeer het opnieuw.",
-  DFU_ACCESS: "Het DFU-apparaat is niet bereikbaar. Sluit de printplaat opnieuw in DFU-modus aan en kies het apparaat opnieuw.",
-  DFU_ENTRY: "DFU-modus kon niet worden voorbereid. Sluit de printplaat opnieuw aan en probeer het opnieuw.",
+export const PROBLEM_FALLBACKS: Readonly<
+  Record<FlasherProblemCategory, string>
+> = {
+  CATALOGUE:
+    'De buildserver is niet bereikbaar. Controleer de internetverbinding en probeer het opnieuw.',
+  RELEASES:
+    'De versies voor deze printplaat konden niet worden opgehaald. Controleer de internetverbinding en probeer het opnieuw.',
+  BUILD: 'De buildopties voor deze versie konden niet worden opgehaald.',
+  PREPARE:
+    'Firmware bouwen of downloaden is mislukt. Controleer de internetverbinding en probeer het opnieuw.',
+  SERIAL:
+    'De USB-verbinding met de printplaat kon niet worden geopend. Sluit de kabel opnieuw aan en probeer het opnieuw.',
+  DFU_ACCESS:
+    'Het DFU-apparaat is niet bereikbaar. Sluit de printplaat opnieuw in DFU-modus aan en kies het apparaat opnieuw.',
+  DFU_ENTRY:
+    'DFU-modus kon niet worden voorbereid. Sluit de printplaat opnieuw aan en probeer het opnieuw.',
 };
 
 /**
@@ -249,15 +290,16 @@ export const PROBLEM_FALLBACKS: Readonly<Record<FlasherProblemCategory, string>>
 export const RETRYABLE_PROBLEM_CATEGORIES: readonly FlasherProblemCategory[] =
   Object.freeze(['CATALOGUE', 'RELEASES', 'BUILD']);
 
-export const PROBLEM_TITLES: Readonly<Record<FlasherProblemCategory, string>> = {
-  CATALOGUE: "De lijst met printplaten kon niet worden geladen",
-  RELEASES: "De versielijst kon niet worden geladen",
-  BUILD: "De buildopties konden niet worden geladen",
-  PREPARE: "Firmware kon niet worden voorbereid",
-  SERIAL: "Verbinding met de printplaat mislukt",
-  DFU_ACCESS: "Het DFU-apparaat is niet bereikbaar",
-  DFU_ENTRY: "DFU-modus kon niet worden geopend",
-};
+export const PROBLEM_TITLES: Readonly<Record<FlasherProblemCategory, string>> =
+  {
+    CATALOGUE: 'De lijst met printplaten kon niet worden geladen',
+    RELEASES: 'De versielijst kon niet worden geladen',
+    BUILD: 'De buildopties konden niet worden geladen',
+    PREPARE: 'Firmware kon niet worden voorbereid',
+    SERIAL: 'Verbinding met de printplaat mislukt',
+    DFU_ACCESS: 'Het DFU-apparaat is niet bereikbaar',
+    DFU_ENTRY: 'DFU-modus kon niet worden geopend',
+  };
 
 /**
  * THE STANDARD SCREEN'S TERMINAL-FAILURE TRUTH, pure and exported for tests.
@@ -276,9 +318,10 @@ export function simpleFailurePresentation(
   reason: unknown,
   phaseAtFailure: FlashPhase | undefined,
   translate: (key: string, options?: Record<string, unknown>) => string,
-): {readonly phase: 'failed' | 'unconfirmed'; readonly text: string} {
-  const rawCode = (reason as {code?: unknown} | null)?.code;
-  const code = typeof rawCode === 'string' && rawCode.length > 0 ? rawCode : undefined;
+): { readonly phase: 'failed' | 'unconfirmed'; readonly text: string } {
+  const rawCode = (reason as { code?: unknown } | null)?.code;
+  const code =
+    typeof rawCode === 'string' && rawCode.length > 0 ? rawCode : undefined;
   /* THE SAME CONTRACT as every other operator line: a code, then a trusted
    * app-authored key, then the localized unknown - never raw text. */
   const reasonLine = resolveOperatorFacingText(translate, reason);
@@ -288,32 +331,40 @@ export function simpleFailurePresentation(
       text: `${reasonLine}\n${translate(flashNextActionLabelKey(code))}`,
     };
   }
-  return {phase: 'failed', text: reasonLine};
+  return { phase: 'failed', text: reasonLine };
 }
 
 /** Standard mode never silently falls from Stable to RC/Development. */
-export function defaultStableRelease(releases: readonly FirmwareRelease[]): string {
+export function defaultStableRelease(
+  releases: readonly FirmwareRelease[],
+): string {
   return defaultReleaseForChannel(releases, 'stable');
 }
 
 /** Waiting for the one-time DFU permission is part of the flash operation. */
-export function simpleFlasherNavigationLocked(phase: SimpleFlasherPhase): boolean {
-  return ['detecting', 'loading', 'waiting-permission', 'flashing'].includes(phase);
+export function simpleFlasherNavigationLocked(
+  phase: SimpleFlasherPhase,
+): boolean {
+  return ['detecting', 'loading', 'waiting-permission', 'flashing'].includes(
+    phase,
+  );
 }
 
 /** The Arabic heading for each official option category. */
-export const BUILD_CATEGORY_TITLES: Readonly<Record<StandardBuildCategory['key'], string>> = {
-  radio: "Radioprotocol",
-  telemetry: "Telemetrieprotocol",
-  osd: "OSD-protocol",
-  motor: "Motorprotocol",
-  general: "Overige opties",
+export const BUILD_CATEGORY_TITLES: Readonly<
+  Record<StandardBuildCategory['key'], string>
+> = {
+  radio: 'Radioprotocol',
+  telemetry: 'Telemetrieprotocol',
+  osd: 'OSD-protocol',
+  motor: 'Motorprotocol',
+  general: 'Overige opties',
 };
 
 const CHANNEL_TITLES: Readonly<Record<FirmwareReleaseChannel, string>> = {
-  stable: "Stabiel",
-  candidate: "Releasekandidaat",
-  development: "Ontwikkelversie",
+  stable: 'Stabiel',
+  candidate: 'Releasekandidaat',
+  development: 'Ontwikkelversie',
 };
 
 /* ------------------------------------------------------------------ *
@@ -353,7 +404,9 @@ const STEP_BADGE_BASE_SIZE = 28;
  * frozen at whatever the setting was when the bundle loaded.
  */
 function stepBadgeSize(): number {
-  return Math.ceil(STEP_BADGE_BASE_SIZE * Math.max(1, PixelRatio.getFontScale()));
+  return Math.ceil(
+    STEP_BADGE_BASE_SIZE * Math.max(1, PixelRatio.getFontScale()),
+  );
 }
 
 function StepHeader({
@@ -365,16 +418,18 @@ function StepHeader({
 }): React.JSX.Element {
   const size = stepBadgeSize();
   return (
-    <View style={styles.stepHeader}>
-      <View
+    <WorkbenchBlock style={styles.stepHeader} section="stepHeader">
+      <WorkbenchBlock
         style={[
           styles.stepNumber,
-          {minWidth: size, minHeight: size, borderRadius: size / 2},
-        ]}>
+          { minWidth: size, minHeight: size, borderRadius: size / 2 },
+        ]}
+        section="stepNumber"
+      >
         <Text style={styles.stepNumberText}>{number}</Text>
-      </View>
+      </WorkbenchBlock>
       <Text style={styles.stepTitle}>{title}</Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -405,24 +460,29 @@ function SingleChoiceGroup({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const selected = options.find(option => option.value === value);
-  const summary = lockedLabel ?? selected?.name ?? "Geen";
+  const summary = lockedLabel ?? selected?.name ?? 'Geen';
   const locked = lockedLabel !== undefined;
   return (
-    <View style={styles.optionGroup} testID={`${testIDPrefix}-group`}>
+    <WorkbenchBlock
+      style={styles.optionGroup}
+      testID={`${testIDPrefix}-group`}
+      section="optionGroup"
+    >
       {/* A locked group is dimmed and chevron-less, which alone reads as
           a dead row. The reason - and where to change it - is stated. */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${title}: ${summary}`}
-        accessibilityState={{disabled: disabled || locked, expanded: open}}
+        accessibilityState={{ disabled: disabled || locked, expanded: open }}
         disabled={disabled || locked}
         onPress={() => setOpen(current => !current)}
         style={[styles.optionHeader, (disabled || locked) && styles.dimmed]}
-        testID={`${testIDPrefix}-selector`}>
-        <View style={styles.optionCopy}>
+        testID={`${testIDPrefix}-selector`}
+      >
+        <WorkbenchBlock style={styles.optionCopy} section="optionCopy">
           <Text style={styles.optionLabel}>{title}</Text>
           <Text style={styles.optionValue}>{summary}</Text>
-        </View>
+        </WorkbenchBlock>
         {locked ? null : (
           <Icon
             name={open ? 'chevron-up' : 'chevron-down'}
@@ -433,34 +493,43 @@ function SingleChoiceGroup({
       </Pressable>
       {locked ? (
         <Text style={styles.lockedNote} testID={`${testIDPrefix}-locked-note`}>
-          {lockedReason ?? "Automatisch geselecteerd op basis van uw keuze in een andere groep."}
+          {lockedReason ??
+            'Automatisch geselecteerd op basis van uw keuze in een andere groep.'}
         </Text>
       ) : null}
       {open && !locked ? (
-        <View style={styles.optionChoices}>
+        <WorkbenchBlock style={styles.optionChoices} section="optionChoices">
           {options.map(option => {
             const isSelected = option.value === value;
             return (
               <Pressable
                 key={option.value === '' ? '__none__' : option.value}
                 accessibilityRole="radio"
-                accessibilityState={{selected: isSelected, disabled}}
+                accessibilityState={{ selected: isSelected, disabled }}
                 disabled={disabled}
                 onPress={() => {
                   onChange(option.value);
                   setOpen(false);
                 }}
                 style={[styles.choice, isSelected && styles.choiceSelected]}
-                testID={`${testIDPrefix}-option-${option.value === '' ? 'none' : option.value}`}>
-                <Text style={[styles.choiceText, isSelected && styles.choiceTextSelected]}>
+                testID={`${testIDPrefix}-option-${
+                  option.value === '' ? 'none' : option.value
+                }`}
+              >
+                <Text
+                  style={[
+                    styles.choiceText,
+                    isSelected && styles.choiceTextSelected,
+                  ]}
+                >
                   {option.name}
                 </Text>
               </Pressable>
             );
           })}
-        </View>
+        </WorkbenchBlock>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -482,21 +551,26 @@ function MultiChoiceGroup({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   return (
-    <View style={styles.optionGroup} testID={`${testIDPrefix}-group`}>
+    <WorkbenchBlock
+      style={styles.optionGroup}
+      testID={`${testIDPrefix}-group`}
+      section="optionGroup"
+    >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${title}: ${values.length}`}
-        accessibilityState={{disabled, expanded: open}}
+        accessibilityState={{ disabled, expanded: open }}
         disabled={disabled}
         onPress={() => setOpen(current => !current)}
         style={[styles.optionHeader, disabled && styles.dimmed]}
-        testID={`${testIDPrefix}-selector`}>
-        <View style={styles.optionCopy}>
+        testID={`${testIDPrefix}-selector`}
+      >
+        <WorkbenchBlock style={styles.optionCopy} section="optionCopy">
           <Text style={styles.optionLabel}>{title}</Text>
           <Text style={styles.optionValue}>
-            {values.length === 0 ? "Geen" : `${values.length} ingeschakeld`}
+            {values.length === 0 ? 'Geen' : `${values.length} ingeschakeld`}
           </Text>
-        </View>
+        </WorkbenchBlock>
         <Icon
           name={open ? 'chevron-up' : 'chevron-down'}
           size={18}
@@ -504,27 +578,33 @@ function MultiChoiceGroup({
         />
       </Pressable>
       {open ? (
-        <View style={styles.optionChoices}>
+        <WorkbenchBlock style={styles.optionChoices} section="optionChoices">
           {options.map(option => {
             const isSelected = values.includes(option.value);
             return (
               <Pressable
                 key={option.value}
                 accessibilityRole="checkbox"
-                accessibilityState={{checked: isSelected, disabled}}
+                accessibilityState={{ checked: isSelected, disabled }}
                 disabled={disabled}
                 onPress={() => onToggle(option.value)}
                 style={[styles.choice, isSelected && styles.choiceSelected]}
-                testID={`${testIDPrefix}-option-${option.value}`}>
-                <Text style={[styles.choiceText, isSelected && styles.choiceTextSelected]}>
+                testID={`${testIDPrefix}-option-${option.value}`}
+              >
+                <Text
+                  style={[
+                    styles.choiceText,
+                    isSelected && styles.choiceTextSelected,
+                  ]}
+                >
                   {option.name}
                 </Text>
               </Pressable>
             );
           })}
-        </View>
+        </WorkbenchBlock>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -532,12 +612,14 @@ export default function FirmwareFlasherSimpleScreen({
   navigation,
   client = usbSerialTransportClient,
 }: Props): React.JSX.Element {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [advanced, setAdvanced] = useState(false);
   /** True while the embedded advanced screen owns a running operation. */
   const [advancedBusy, setAdvancedBusy] = useState(false);
   const [phase, setPhase] = useState<SimpleFlasherPhase>('idle');
-  const [status, setStatus] = useState("Kies de printplaat en versie en bereid daarna de firmware voor.");
+  const [status, setStatus] = useState(
+    'Kies de printplaat en versie en bereid daarna de firmware voor.',
+  );
   const [progress, setProgress] = useState(0);
 
   const [targets, setTargets] = useState<readonly BetaflightTarget[]>([]);
@@ -552,10 +634,16 @@ export default function FirmwareFlasherSimpleScreen({
   const [selectedRelease, setSelectedRelease] = useState('');
 
   /** The official build document + options for the CURRENT selection. */
-  const [targetDetail, setTargetDetail] = useState<FirmwareTargetDetail | null>(null);
-  const [buildOptions, setBuildOptions] = useState<FirmwareBuildOptions | null>(null);
+  const [targetDetail, setTargetDetail] = useState<FirmwareTargetDetail | null>(
+    null,
+  );
+  const [buildOptions, setBuildOptions] = useState<FirmwareBuildOptions | null>(
+    null,
+  );
   const [buildOptionsLoading, setBuildOptionsLoading] = useState(false);
-  const [buildOptionsError, setBuildOptionsError] = useState<string | null>(null);
+  const [buildOptionsError, setBuildOptionsError] = useState<string | null>(
+    null,
+  );
   const [choices, setChoices] = useState<StandardBuildChoices | null>(null);
   const [customDefinesOpen, setCustomDefinesOpen] = useState(false);
 
@@ -566,7 +654,7 @@ export default function FirmwareFlasherSimpleScreen({
   const [detectionNote, setDetectionNote] = useState<string | null>(null);
   const [pendingFlash, setPendingFlash] = useState<{
     readonly pending: PendingBootloaderFlash;
-    readonly image: Extract<FirmwareImage, {kind: 'HEX'}>;
+    readonly image: Extract<FirmwareImage, { kind: 'HEX' }>;
   } | null>(null);
 
   /**
@@ -592,7 +680,9 @@ export default function FirmwareFlasherSimpleScreen({
   } | null>(null);
   /** A DFU device this session may flash (adopted or explicitly chosen). */
   const [dfuReady, setDfuReady] = useState<DfuDeviceDescriptor | null>(null);
-  const [dfuPresent, setDfuPresent] = useState<DfuDeviceDescriptor | null>(null);
+  const [dfuPresent, setDfuPresent] = useState<DfuDeviceDescriptor | null>(
+    null,
+  );
   /** Set only when software bootloader entry is genuinely unavailable. */
   const [manualDfuReason, setManualDfuReason] = useState<string | null>(null);
   /** A non-flash problem, kept apart from any flash verdict. */
@@ -606,7 +696,9 @@ export default function FirmwareFlasherSimpleScreen({
    * completes; the success notice reads it to decide whether it may say
    * the board came back.
    */
-  const [resetConfirmed, setResetConfirmed] = useState<boolean | undefined>(undefined);
+  const [resetConfirmed, setResetConfirmed] = useState<boolean | undefined>(
+    undefined,
+  );
 
   const abortRef = useRef<AbortController | null>(null);
   /** The last engine-reported phase - what classifyFlashRejection needs
@@ -616,12 +708,21 @@ export default function FirmwareFlasherSimpleScreen({
   const resetConfirmedRef = useRef<boolean | undefined>(undefined);
   /** True from the moment a flash starts until it settles. */
   const flashingRef = useRef(false);
-  const bootloader = useMemo(() => new FirmwareBootloaderController(client), [client]);
-  const cloudBuild = useMemo(() => new CloudBuildCoordinator(betaflightBuildApi), []);
-  const supportsSerialPicker = useMemo(() => client.supportsDevicePicker(), [client]);
+  const bootloader = useMemo(
+    () => new FirmwareBootloaderController(client),
+    [client],
+  );
+  const cloudBuild = useMemo(
+    () => new CloudBuildCoordinator(betaflightBuildApi),
+    [],
+  );
+  const supportsSerialPicker = useMemo(
+    () => client.supportsDevicePicker(),
+    [client],
+  );
   // The standard flasher is one column of steps, so it keeps the reading
   // column cap instead of stretching cards across a 1920px window.
-  const {maxWidth: contentMaxWidth} = useContentEnvelope(false);
+  const { maxWidth: contentMaxWidth } = useContentEnvelope(true);
   const isBusy = ['detecting', 'loading', 'flashing'].includes(phase);
   const navigationLocked = simpleFlasherNavigationLocked(phase);
   /**
@@ -647,19 +748,22 @@ export default function FirmwareFlasherSimpleScreen({
   );
 
   /** The board's own names, frozen for the DFU phase of this workflow. */
-  const freezeIdentity = useCallback((identity: {
-    readonly board: {
-      readonly targetName: string;
-      readonly boardName: string;
-      readonly boardIdentifier: string;
-    };
-  }) => {
-    // EVERY name the board answers to, board-name first - the shared,
-    // vendor-neutral list (flightControllerNaming.ts). A modern unified
-    // target answers "STM32F7X2" as its targetName, so a list that put
-    // that first could never agree with a catalogue selection.
-    setVerifiedIdentity({names: boardIdentityNames(identity.board)});
-  }, []);
+  const freezeIdentity = useCallback(
+    (identity: {
+      readonly board: {
+        readonly targetName: string;
+        readonly boardName: string;
+        readonly boardIdentifier: string;
+      };
+    }) => {
+      // EVERY name the board answers to, board-name first - the shared,
+      // vendor-neutral list (flightControllerNaming.ts). A modern unified
+      // target answers "STM32F7X2" as its targetName, so a list that put
+      // that first could never agree with a catalogue selection.
+      setVerifiedIdentity({ names: boardIdentityNames(identity.board) });
+    },
+    [],
+  );
 
   /**
    * THE DFU PRESENCE WATCHER. Polls the AUTHORIZED DFU list whenever the
@@ -742,8 +846,9 @@ export default function FirmwareFlasherSimpleScreen({
   const radioCarriesTelemetry = useMemo(() => {
     if (buildOptions === null || choices === null) return false;
     return (
-      buildOptions.radioProtocols.find(option => option.value === choices.radioProtocol)
-        ?.includesTelemetry === true
+      buildOptions.radioProtocols.find(
+        option => option.value === choices.radioProtocol,
+      )?.includesTelemetry === true
     );
   }, [buildOptions, choices]);
 
@@ -751,15 +856,18 @@ export default function FirmwareFlasherSimpleScreen({
    * A FLASH verdict. Only the engine's own rejection may reach this - it
    * is the one path allowed to say «فشل التفليش».
    */
-  const failFlash = useCallback((reason: unknown) => {
-    const presentation = simpleFailurePresentation(
-      reason,
-      lastFlashPhaseRef.current,
-      t,
-    );
-    setPhase(presentation.phase);
-    setStatus(presentation.text);
-  }, [t]);
+  const failFlash = useCallback(
+    (reason: unknown) => {
+      const presentation = simpleFailurePresentation(
+        reason,
+        lastFlashPhaseRef.current,
+        t,
+      );
+      setPhase(presentation.phase);
+      setStatus(presentation.text);
+    },
+    [t],
+  );
 
   /**
    * Everything else: a catalogue download, a permission, a build, a
@@ -767,7 +875,7 @@ export default function FirmwareFlasherSimpleScreen({
    */
   const failOperation = useCallback(
     (category: FlasherProblemCategory, reason: unknown) => {
-      setProblem({category, text: operatorDetail(reason, category)});
+      setProblem({ category, text: operatorDetail(reason, category) });
       setPhase('problem');
       setStatus(PROBLEM_TITLES[category]);
       // DEVELOPER DIAGNOSTICS, NOT UI. A failed connection is exactly the
@@ -805,7 +913,7 @@ export default function FirmwareFlasherSimpleScreen({
   const retryCatalogue = useCallback(() => {
     setProblem(null);
     setPhase('idle');
-    setStatus("Opnieuw proberen…");
+    setStatus('Opnieuw proberen…');
     setCatalogueAttempt(current => current + 1);
   }, []);
 
@@ -813,7 +921,8 @@ export default function FirmwareFlasherSimpleScreen({
   useEffect(() => {
     const controller = new AbortController();
     setTargetsLoading(true);
-    betaflightBuildApi.loadTargets(controller.signal)
+    betaflightBuildApi
+      .loadTargets(controller.signal)
       .then(items => {
         if (!controller.signal.aborted) setTargets(items);
       })
@@ -840,7 +949,8 @@ export default function FirmwareFlasherSimpleScreen({
     }
     const controller = new AbortController();
     setReleasesLoading(true);
-    betaflightBuildApi.loadTargetReleases(selectedTarget, controller.signal)
+    betaflightBuildApi
+      .loadTargetReleases(selectedTarget, controller.signal)
       .then(parseTargetReleases)
       .then(items => {
         if (controller.signal.aborted) return;
@@ -850,7 +960,7 @@ export default function FirmwareFlasherSimpleScreen({
         // the operator a release candidate.
         const preferred = availableChannels(items).includes('stable')
           ? 'stable'
-          : (availableChannels(items)[0] ?? 'stable');
+          : availableChannels(items)[0] ?? 'stable';
         setChannel(preferred);
         setSelectedRelease(defaultReleaseForChannel(items, preferred));
       })
@@ -912,7 +1022,11 @@ export default function FirmwareFlasherSimpleScreen({
         selectedRelease,
         controller.signal,
       );
-      const detail = parseTargetDetail(detailInput, selectedTarget, selectedRelease);
+      const detail = parseTargetDetail(
+        detailInput,
+        selectedTarget,
+        selectedRelease,
+      );
       if (controller.signal.aborted) return;
       setTargetDetail(detail);
       const optionInput = await betaflightBuildApi.loadOptions(
@@ -923,94 +1037,111 @@ export default function FirmwareFlasherSimpleScreen({
       if (controller.signal.aborted) return;
       setBuildOptions(options);
       setChoices(defaultStandardChoices(detail, options));
-    })().catch(() => {
-      if (controller.signal.aborted) return;
-      // A missing options document is not a dead end: the official core
-      // build still works, and that is what the screen offers instead of
-      // pretending the categories exist.
-      setBuildOptions(null);
-      setChoices({
-        coreBuild: true,
-        radioProtocol: '',
-        telemetryProtocol: '',
-        osdProtocol: '',
-        motorProtocol: '',
-        generalOptions: [],
-        customDefines: '',
+    })()
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        // A missing options document is not a dead end: the official core
+        // build still works, and that is what the screen offers instead of
+        // pretending the categories exist.
+        setBuildOptions(null);
+        setChoices({
+          coreBuild: true,
+          radioProtocol: '',
+          telemetryProtocol: '',
+          osdProtocol: '',
+          motorProtocol: '',
+          generalOptions: [],
+          customDefines: '',
+        });
+        // The raw engine text stays out of the operator's view; the
+        // helper line below says what it means for the build.
+        setBuildOptionsError('CORE_ONLY');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBuildOptionsLoading(false);
       });
-      // The raw engine text stays out of the operator's view; the
-      // helper line below says what it means for the build.
-      setBuildOptionsError('CORE_ONLY');
-    }).finally(() => {
-      if (!controller.signal.aborted) setBuildOptionsLoading(false);
-    });
     return () => controller.abort();
   }, [catalogueAttempt, selectedRelease, selectedTarget]);
 
   /* ---- Live flash progress ---- */
-  useEffect(() => client.onDfuFlashProgress(update => {
-    // Gated on a ref, not on the rendered phase: an engine that emits
-    // its terminal event in the same tick the flash starts would
-    // otherwise have it dropped by a stale closure - and with it the
-    // reset observation the success line reads.
-    if (!flashingRef.current) return;
-    lastFlashPhaseRef.current = toFlashPhase(update.phase);
-    if (typeof update.resetConfirmed === 'boolean') {
-      // The terminal event's second truth. Held in a ref because the
-      // resolved promise reads it in the same tick.
-      resetConfirmedRef.current = update.resetConfirmed;
-    }
-    // 100 is reserved for the resolved flash promise. A progress event alone
-    // is never allowed to visually claim success.
-    setProgress(Math.max(0, Math.min(99, update.percent)));
-    const label = update.phase === 'erasing'
-      ? "Geheugen wissen…"
-      : update.phase === 'writing'
-        ? "Firmware schrijven…"
-        : update.phase === 'verifying'
-          ? "Geschreven gegevens verifiëren…"
-          : update.phase === 'manifesting' ||
+  useEffect(
+    () =>
+      client.onDfuFlashProgress(update => {
+        // Gated on a ref, not on the rendered phase: an engine that emits
+        // its terminal event in the same tick the flash starts would
+        // otherwise have it dropped by a stale closure - and with it the
+        // reset observation the success line reads.
+        if (!flashingRef.current) return;
+        lastFlashPhaseRef.current = toFlashPhase(update.phase);
+        if (typeof update.resetConfirmed === 'boolean') {
+          // The terminal event's second truth. Held in a ref because the
+          // resolved promise reads it in the same tick.
+          resetConfirmedRef.current = update.resetConfirmed;
+        }
+        // 100 is reserved for the resolved flash promise. A progress event alone
+        // is never allowed to visually claim success.
+        setProgress(Math.max(0, Math.min(99, update.percent)));
+        const label =
+          update.phase === 'erasing'
+            ? 'Geheugen wissen…'
+            : update.phase === 'writing'
+            ? 'Firmware schrijven…'
+            : update.phase === 'verifying'
+            ? 'Geschreven gegevens verifiëren…'
+            : update.phase === 'manifesting' ||
               update.phase === 'resetting' ||
               update.phase === 'finalizing'
-            ? "Flashen afronden en opnieuw opstarten…"
-            : "Firmware flashen…";
-    setStatus(label);
-  }), [client]);
+            ? 'Flashen afronden en opnieuw opstarten…'
+            : 'Firmware flashen…';
+        setStatus(label);
+      }),
+    [client],
+  );
 
-  const updateChoices = useCallback((next: StandardBuildChoices) => {
-    setChoices(buildOptions === null ? next : applyRadioTelemetryRule(next, buildOptions));
-    // The prepared image no longer matches the configuration.
-    setFirmware(null);
-  }, [buildOptions]);
+  const updateChoices = useCallback(
+    (next: StandardBuildChoices) => {
+      setChoices(
+        buildOptions === null
+          ? next
+          : applyRadioTelemetryRule(next, buildOptions),
+      );
+      // The prepared image no longer matches the configuration.
+      setFirmware(null);
+    },
+    [buildOptions],
+  );
 
-  const selectTarget = useCallback((target: string) => {
-    if (navigationLocked) return;
-    setSelectedTarget(target);
-    setTargetQuery('');
-    setTargetPickerOpen(false);
-    setDetectedTarget(null);
-    setPendingFlash(null);
-    /*
-     * THE NOTE THAT OUTLIVED ITS OWN INSTRUCTION.
-     *
-     * A detection that reads a board the catalogue does not list leaves
-     * "…اسم اللوحة غير موجود في قائمة Targets الرسمية. اختر Target يدويًا"
-     * on screen. It was cleared only when a NEW detection started - so
-     * the operator who did exactly what it asked, and picked a target by
-     * hand, was still being told to pick a target by hand. Advice that
-     * has already been followed is not advice any more.
-     */
-    setDetectionNote(null);
-    // DELIBERATELY KEPT: dfuReady and verifiedIdentity. The board being
-    // in DFU is a physical fact a catalogue choice cannot change, and
-    // the frozen identity stays what the board said - whether it MATCHES
-    // the new selection is derived (dfuTargetVerified). Clearing the
-    // transport here was half of the real hardware-test trap: pick target
-    // after entering DFU and the flasher demanded normal USB again.
-    setProgress(0);
-    setPhase('idle');
-    setStatus("Kies de versie en controleer daarna de buildinstellingen.");
-  }, [navigationLocked]);
+  const selectTarget = useCallback(
+    (target: string) => {
+      if (navigationLocked) return;
+      setSelectedTarget(target);
+      setTargetQuery('');
+      setTargetPickerOpen(false);
+      setDetectedTarget(null);
+      setPendingFlash(null);
+      /*
+       * THE NOTE THAT OUTLIVED ITS OWN INSTRUCTION.
+       *
+       * A detection that reads a board the catalogue does not list leaves
+       * "…اسم اللوحة غير موجود في قائمة Targets الرسمية. اختر Target يدويًا"
+       * on screen. It was cleared only when a NEW detection started - so
+       * the operator who did exactly what it asked, and picked a target by
+       * hand, was still being told to pick a target by hand. Advice that
+       * has already been followed is not advice any more.
+       */
+      setDetectionNote(null);
+      // DELIBERATELY KEPT: dfuReady and verifiedIdentity. The board being
+      // in DFU is a physical fact a catalogue choice cannot change, and
+      // the frozen identity stays what the board said - whether it MATCHES
+      // the new selection is derived (dfuTargetVerified). Clearing the
+      // transport here was half of the real hardware-test trap: pick target
+      // after entering DFU and the flasher demanded normal USB again.
+      setProgress(0);
+      setPhase('idle');
+      setStatus('Kies de versie en controleer daarna de buildinstellingen.');
+    },
+    [navigationLocked],
+  );
 
   /**
    * Enumerates exactly one usable serial board, or says why not. Callers
@@ -1028,25 +1159,31 @@ export default function FirmwareFlasherSimpleScreen({
     if (devices.length === 0) {
       if (attached.length > 0) {
         throw new OperatorMessageError(
-          {key: 'flasherSimple.e08'},
-          "USB-apparaat gevonden, maar zonder seriële poort die kan worden geopend. Controleer de datakabel en de normale modus; gebruik geen DFU-modus.",
+          { key: 'flasherSimple.e08' },
+          'USB-apparaat gevonden, maar zonder seriële poort die kan worden geopend. Controleer de datakabel en de normale modus; gebruik geen DFU-modus.',
         );
       }
       throw supportsSerialPicker
         ? new OperatorMessageError(
-            {key: 'flasherSimple.e09'},
-            "Geen seriële poort toegestaan. Tik op USB kiezen voor normale modus, of op DFU kiezen voor DFU-modus.",
+            { key: 'flasherSimple.e09' },
+            'Geen seriële poort toegestaan. Tik op USB kiezen voor normale modus, of op DFU kiezen voor DFU-modus.',
           )
         : new OperatorMessageError(
-            {key: 'flasherSimple.e10'},
-            "Geen USB-apparaat in normale modus gevonden. De app detecteert een printplaat in DFU-modus automatisch.",
+            { key: 'flasherSimple.e10' },
+            'Geen USB-apparaat in normale modus gevonden. De app detecteert een printplaat in DFU-modus automatisch.',
           );
     }
     if (devices.length > 1) {
-      throw new OperatorMessageError({key: 'flasherSimple.e01'}, "Meerdere vluchtcontrollers gevonden. Laat één printplaat aangesloten en probeer het opnieuw.");
+      throw new OperatorMessageError(
+        { key: 'flasherSimple.e01' },
+        'Meerdere vluchtcontrollers gevonden. Laat één printplaat aangesloten en probeer het opnieuw.',
+      );
     }
     if (devices[0].portCount !== 1) {
-      throw new OperatorMessageError({key: 'flasherSimple.e02'}, "Meerdere seriële USB-poorten beschikbaar. Kies handmatig een poort onder Geavanceerd.");
+      throw new OperatorMessageError(
+        { key: 'flasherSimple.e02' },
+        'Meerdere seriële USB-poorten beschikbaar. Kies handmatig een poort onder Geavanceerd.',
+      );
     }
     return devices[0];
   }, [client, supportsSerialPicker]);
@@ -1059,13 +1196,16 @@ export default function FirmwareFlasherSimpleScreen({
     setProblem(null);
     setManualDfuReason(null);
     setDetectionNote(null);
-    setStatus("Vluchtcontroller identificeren…");
+    setStatus('Vluchtcontroller identificeren…');
     try {
       const device = await requireSingleSerialDevice();
-      const detected = await bootloader.detectFlightController(controller.signal, {
-        deviceId: device.deviceId,
-        portIndex: 0,
-      });
+      const detected = await bootloader.detectFlightController(
+        controller.signal,
+        {
+          deviceId: device.deviceId,
+          portIndex: 0,
+        },
+      );
       try {
         const identity = detected.identity;
         // THE BOARD, not the MCU family. Betaflight's unified targets
@@ -1075,7 +1215,9 @@ export default function FirmwareFlasherSimpleScreen({
         // See flightControllerNaming.ts.
         const target = resolveCatalogTarget(identity.board);
         const hardware = describeFlightControllerHardware(identity.board);
-        const match = targets.find(item => item.target.toUpperCase() === target);
+        const match = targets.find(
+          item => item.target.toUpperCase() === target,
+        );
         if (!match) {
           // Honest, and still usable: the board answered, its identity is
           // simply not a catalogue target, so manual selection stands.
@@ -1100,15 +1242,23 @@ export default function FirmwareFlasherSimpleScreen({
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
     }
-  }, [bootloader, failOperation, freezeIdentity, navigationLocked, requireSingleSerialDevice, targets]);
+  }, [
+    bootloader,
+    failOperation,
+    freezeIdentity,
+    navigationLocked,
+    requireSingleSerialDevice,
+    targets,
+  ]);
 
   const chooseSerialAndDetect = useCallback(() => {
     if (navigationLocked) return;
     // Web Serial's chooser must be opened directly by this press.
-    client.requestDevicePermission()
+    client
+      .requestDevicePermission()
       .then(device => {
         if (device === null) return;
-        setStatus("USB-toegang verleend. Printplaat identificeren…");
+        setStatus('USB-toegang verleend. Printplaat identificeren…');
         autoDetect().catch(() => undefined);
       })
       .catch(reason => failOperation('SERIAL', reason));
@@ -1127,9 +1277,12 @@ export default function FirmwareFlasherSimpleScreen({
     setPhase('loading');
     setProblem(null);
     setProgress(0);
-    setStatus("Officiële firmware voorbereiden…");
+    setStatus('Officiële firmware voorbereiden…');
     try {
-      const request = createBuildRequest(targetDetail, toBuildSelection(choices));
+      const request = createBuildRequest(
+        targetDetail,
+        toBuildSelection(choices),
+      );
       const result = await cloudBuild.buildAndDownload(
         request,
         update => {
@@ -1139,7 +1292,8 @@ export default function FirmwareFlasherSimpleScreen({
         controller.signal,
       );
       let parsed = parseFirmwareFile(result.response.file, result.firmware);
-      const configuration = result.configuration ?? targetDetail.configuration ?? null;
+      const configuration =
+        result.configuration ?? targetDetail.configuration ?? null;
       if (parsed.kind === 'HEX' && configuration !== null) {
         parsed = applyCustomDefaultsToFirmware(parsed, configuration);
       }
@@ -1162,65 +1316,78 @@ export default function FirmwareFlasherSimpleScreen({
     targetDetail,
   ]);
 
-  const completeFlash = useCallback(async (
-    dfu: DfuDeviceDescriptor,
-    image: Extract<FirmwareImage, {kind: 'HEX'}>,
-  ) => {
-    setPhase('flashing');
-    flashingRef.current = true;
-    setProgress(0);
-    setProblem(null);
-    // A stale phase - and a stale reset observation - from an earlier
-    // attempt must not describe this one.
-    lastFlashPhaseRef.current = undefined;
-    resetConfirmedRef.current = undefined;
-    setResetConfirmed(undefined);
-    setStatus("Firmware flashen starten…");
-    try {
-      // Bind to the LIVE enumeration of the device, not a remembered
-      // one: a replug between discovery and this press re-enumerates
-      // under a new id, and opening the dead id is exactly the "USB is
-      // no longer readable" dead end from the hardware report. One
-      // visible device is the flash device; zero is an honest failure
-      // to START (nothing was erased); the engine itself never guesses.
-      let bound = dfu;
+  const completeFlash = useCallback(
+    async (
+      dfu: DfuDeviceDescriptor,
+      image: Extract<FirmwareImage, { kind: 'HEX' }>,
+    ) => {
+      setPhase('flashing');
+      flashingRef.current = true;
+      setProgress(0);
+      setProblem(null);
+      // A stale phase - and a stale reset observation - from an earlier
+      // attempt must not describe this one.
+      lastFlashPhaseRef.current = undefined;
+      resetConfirmedRef.current = undefined;
+      setResetConfirmed(undefined);
+      setStatus('Firmware flashen starten…');
       try {
-        const live = await client.listDfuDevices();
-        if (live.length === 1) {
-          bound = live[0];
-        } else if (live.length === 0 && supportsSerialPicker) {
-          throw new OperatorMessageError({key: 'flasherSimple.e03'}, "Het DFU-apparaat is niet meer zichtbaar. Sluit de printplaat opnieuw in DFU-modus aan en probeer het opnieuw.");
+        // Bind to the LIVE enumeration of the device, not a remembered
+        // one: a replug between discovery and this press re-enumerates
+        // under a new id, and opening the dead id is exactly the "USB is
+        // no longer readable" dead end from the hardware report. One
+        // visible device is the flash device; zero is an honest failure
+        // to START (nothing was erased); the engine itself never guesses.
+        let bound = dfu;
+        try {
+          const live = await client.listDfuDevices();
+          if (live.length === 1) {
+            bound = live[0];
+          } else if (live.length === 0 && supportsSerialPicker) {
+            throw new OperatorMessageError(
+              { key: 'flasherSimple.e03' },
+              'Het DFU-apparaat is niet meer zichtbaar. Sluit de printplaat opnieuw in DFU-modus aan en probeer het opnieuw.',
+            );
+          }
+        } catch (probeError) {
+          if (
+            probeError instanceof OperatorMessageError &&
+            probeError.operatorMessage.key === 'flasherSimple.e03'
+          ) {
+            throw probeError;
+          }
+          // A transient enumeration error must not veto a device we
+          // already hold - the engine will report the truth either way.
         }
-      } catch (probeError) {
-        if (probeError instanceof OperatorMessageError && probeError.operatorMessage.key === 'flasherSimple.e03') {
-          throw probeError;
-        }
-        // A transient enumeration error must not veto a device we
-        // already hold - the engine will report the truth either way.
+        await client.flashDfuFirmware(
+          bound.deviceId,
+          bytesToBase64(image.bytes),
+          false,
+        );
+        setProgress(100);
+        // TWO TRUTHS, REPORTED SEPARATELY. The resolved promise means the
+        // firmware was written and read back byte-for-byte. Whether the
+        // board was SEEN coming back is the engine's separate observation,
+        // and it only chooses which success sentence is honest.
+        const observedReset = resetConfirmedRef.current;
+        setResetConfirmed(observedReset);
+        setPhase('success');
+        setStatus(
+          observedReset === true
+            ? 'Firmware geschreven en geverifieerd. De printplaat heeft opnieuw verbinding gemaakt.'
+            : 'Firmware geschreven en geverifieerd.',
+        );
+        setPendingFlash(null);
+        setDfuReady(null);
+        setDfuPresent(null);
+      } catch (reason) {
+        failFlash(reason);
+      } finally {
+        flashingRef.current = false;
       }
-      await client.flashDfuFirmware(bound.deviceId, bytesToBase64(image.bytes), false);
-      setProgress(100);
-      // TWO TRUTHS, REPORTED SEPARATELY. The resolved promise means the
-      // firmware was written and read back byte-for-byte. Whether the
-      // board was SEEN coming back is the engine's separate observation,
-      // and it only chooses which success sentence is honest.
-      const observedReset = resetConfirmedRef.current;
-      setResetConfirmed(observedReset);
-      setPhase('success');
-      setStatus(
-        observedReset === true
-          ? "Firmware geschreven en geverifieerd. De printplaat heeft opnieuw verbinding gemaakt."
-          : "Firmware geschreven en geverifieerd.",
-      );
-      setPendingFlash(null);
-      setDfuReady(null);
-      setDfuPresent(null);
-    } catch (reason) {
-      failFlash(reason);
-    } finally {
-      flashingRef.current = false;
-    }
-  }, [client, failFlash, supportsSerialPicker]);
+    },
+    [client, failFlash, supportsSerialPicker],
+  );
 
   /**
    * ENTER DFU - phase-aware. Three legitimate starting points, none of
@@ -1246,47 +1413,69 @@ export default function FirmwareFlasherSimpleScreen({
     if (dfuReady !== null || dfuPresent !== null) {
       if (dfuReady === null && dfuPresent !== null) setDfuReady(dfuPresent);
       setPhase(firmware ? 'ready' : 'idle');
-      setStatus("De printplaat staat al in DFU-modus en is gereed om te flashen.");
+      setStatus(
+        'De printplaat staat al in DFU-modus en is gereed om te flashen.',
+      );
       return;
     }
     const controller = new AbortController();
     abortRef.current = controller;
     setPhase('detecting');
     setManualDfuReason(null);
-    setStatus("Printplaat controleren vóór overschakelen naar DFU…");
+    setStatus('Printplaat controleren vóór overschakelen naar DFU…');
     try {
       const device = await requireSingleSerialDevice();
-      const detected = await bootloader.detectFlightController(controller.signal, {
-        deviceId: device.deviceId,
-        portIndex: 0,
-      });
+      const detected = await bootloader.detectFlightController(
+        controller.signal,
+        {
+          deviceId: device.deviceId,
+          portIndex: 0,
+        },
+      );
       if (selectedTarget && !detected.targetMatches(selectedTarget)) {
-        const actual = describeFlightControllerHardware(detected.identity.board);
+        const actual = describeFlightControllerHardware(
+          detected.identity.board,
+        );
         await detected.release();
-        throw new OperatorMessageError({key: 'flasherSimple.e04', values: {v0: selectedTarget, v1: actual}}, `Target ${selectedTarget} komt niet overeen met printplaat ${actual}. Corrigeer het Target voordat u doorgaat.`);
+        throw new OperatorMessageError(
+          {
+            key: 'flasherSimple.e04',
+            values: { v0: selectedTarget, v1: actual },
+          },
+          `Target ${selectedTarget} komt niet overeen met printplaat ${actual}. Corrigeer het Target voordat u doorgaat.`,
+        );
       }
       if (detected.identity.firmware.knownFamily !== 'BETAFLIGHT') {
         await detected.release();
         setPhase('idle');
         setManualDfuReason(
-          "Deze firmware ondersteunt geen softwarematige herstart naar DFU. Start DFU handmatig door BOOT ingedrukt te houden terwijl u USB aansluit. Het apparaat wordt automatisch gevonden of via DFU-apparaat kiezen.",
+          'Deze firmware ondersteunt geen softwarematige herstart naar DFU. Start DFU handmatig door BOOT ingedrukt te houden terwijl u USB aansluit. Het apparaat wordt automatisch gevonden of via DFU-apparaat kiezen.',
         );
-        setStatus("DFU-modus moet handmatig worden gestart.");
+        setStatus('DFU-modus moet handmatig worden gestart.');
         return;
       }
-      setDetectedTarget(describeFlightControllerHardware(detected.identity.board));
+      setDetectedTarget(
+        describeFlightControllerHardware(detected.identity.board),
+      );
       freezeIdentity(detected.identity);
-      setStatus("Printplaat herkend. Overschakelen naar DFU-modus…");
+      setStatus('Printplaat herkend. Overschakelen naar DFU-modus…');
       await detected.rebootToBootloader(selectedTarget, false);
       // From here the NORMAL device is gone BY DESIGN. Its session was
       // released cleanly inside rebootToBootloader; nothing below may
       // reference it again.
-      setStatus("De configuratieverbinding is volgens verwachting gesloten. Wachten op het DFU-apparaat…");
+      setStatus(
+        'De configuratieverbinding is volgens verwachting gesloten. Wachten op het DFU-apparaat…',
+      );
       try {
-        const dfu = await bootloader.waitForOneDfuDevice(20_000, controller.signal);
+        const dfu = await bootloader.waitForOneDfuDevice(
+          20_000,
+          controller.signal,
+        );
         setDfuReady(dfu);
         setPhase(firmware ? 'ready' : 'idle');
-        setStatus("De printplaat staat nu in DFU-modus en is gereed om te flashen.");
+        setStatus(
+          'De printplaat staat nu in DFU-modus en is gereed om te flashen.',
+        );
       } catch (reason) {
         if (!(reason instanceof DfuPermissionRequiredError)) throw reason;
         // No AUTHORIZED device appeared inside the bounded wait. On the
@@ -1299,11 +1488,11 @@ export default function FirmwareFlasherSimpleScreen({
         setManualDfuReason(
           supportsSerialPicker
             ? firmware !== null
-              ? "Firmware gereed. Kies het DFU-apparaat om door te gaan."
-              : "De printplaat staat in DFU-modus. Tik één keer op DFU-apparaat kiezen om de browser toegang te geven."
-            : "Het DFU-apparaat is nog niet verschenen. Als de printplaat niet automatisch herstart, houdt u BOOT ingedrukt terwijl u USB aansluit. Het apparaat wordt gevonden zodra het verschijnt.",
+              ? 'Firmware gereed. Kies het DFU-apparaat om door te gaan.'
+              : 'De printplaat staat in DFU-modus. Tik één keer op DFU-apparaat kiezen om de browser toegang te geven.'
+            : 'Het DFU-apparaat is nog niet verschenen. Als de printplaat niet automatisch herstart, houdt u BOOT ingedrukt terwijl u USB aansluit. Het apparaat wordt gevonden zodra het verschijnt.',
         );
-        setStatus("Wachten op het DFU-apparaat…");
+        setStatus('Wachten op het DFU-apparaat…');
       }
     } catch (reason) {
       if (!controller.signal.aborted) failOperation('DFU_ENTRY', reason);
@@ -1331,13 +1520,14 @@ export default function FirmwareFlasherSimpleScreen({
    */
   const chooseDfuDevice = useCallback(() => {
     if (navigationLocked) return;
-    client.requestDfuDevicePermission()
+    client
+      .requestDfuDevicePermission()
       .then(device => {
         if (device === null) return;
         setDfuReady(device);
         setDfuPresent(device);
         setManualDfuReason(null);
-        setStatus("DFU-apparaat gekozen. U kunt nu flashen.");
+        setStatus('DFU-apparaat gekozen. U kunt nu flashen.');
       })
       .catch(reason => failOperation('DFU_ACCESS', reason));
   }, [client, failOperation, navigationLocked]);
@@ -1350,7 +1540,9 @@ export default function FirmwareFlasherSimpleScreen({
       // It is a capability limit, not a flash failure.
       failOperation(
         'PREPARE',
-        new Error("De standaardmodus gebruikt officiële HEX-bestanden. Gebruik Geavanceerd voor andere bestandstypen."),
+        new Error(
+          'De standaardmodus gebruikt officiële HEX-bestanden. Gebruik Geavanceerd voor andere bestandstypen.',
+        ),
       );
       return;
     }
@@ -1373,27 +1565,43 @@ export default function FirmwareFlasherSimpleScreen({
     abortRef.current = controller;
     setPhase('detecting');
     setProgress(0);
-    setStatus("Printplaat controleren vóór het flashen…");
+    setStatus('Printplaat controleren vóór het flashen…');
     try {
       const device = await requireSingleSerialDevice();
-      const detected = await bootloader.detectFlightController(controller.signal, {
-        deviceId: device.deviceId,
-        portIndex: 0,
-      });
+      const detected = await bootloader.detectFlightController(
+        controller.signal,
+        {
+          deviceId: device.deviceId,
+          portIndex: 0,
+        },
+      );
       if (!detected.targetMatches(selectedTarget)) {
-        const actual = describeFlightControllerHardware(detected.identity.board);
+        const actual = describeFlightControllerHardware(
+          detected.identity.board,
+        );
         await detected.release();
-        throw new OperatorMessageError({key: 'flasherSimple.e05', values: {v0: selectedTarget, v1: actual}}, `Flashen geblokkeerd: Target ${selectedTarget} komt niet overeen met printplaat ${actual}.`);
+        throw new OperatorMessageError(
+          {
+            key: 'flasherSimple.e05',
+            values: { v0: selectedTarget, v1: actual },
+          },
+          `Flashen geblokkeerd: Target ${selectedTarget} komt niet overeen met printplaat ${actual}.`,
+        );
       }
       setDetectedTarget(selectedTarget);
       freezeIdentity(detected.identity);
-      setStatus("Printplaat herkend. Overschakelen naar DFU-modus…");
+      setStatus('Printplaat herkend. Overschakelen naar DFU-modus…');
       await detected.rebootToBootloader(selectedTarget, false);
       // The serial device is now gone BY DESIGN - the expected phase
       // transition, not a disconnect.
-      setStatus("De configuratieverbinding is volgens verwachting gesloten. Wachten op het DFU-apparaat…");
+      setStatus(
+        'De configuratieverbinding is volgens verwachting gesloten. Wachten op het DFU-apparaat…',
+      );
       try {
-        const dfu = await bootloader.waitForOneDfuDevice(20_000, controller.signal);
+        const dfu = await bootloader.waitForOneDfuDevice(
+          20_000,
+          controller.signal,
+        );
         await completeFlash(dfu, firmware);
       } catch (reason) {
         if (!(reason instanceof DfuPermissionRequiredError)) throw reason;
@@ -1403,9 +1611,9 @@ export default function FirmwareFlasherSimpleScreen({
           rebootAlreadySent: true,
           writeAlreadyStarted: false,
         };
-        setPendingFlash({pending, image: firmware});
+        setPendingFlash({ pending, image: firmware });
         setPhase('waiting-permission');
-        setStatus("Firmware gereed. Kies het DFU-apparaat om door te gaan.");
+        setStatus('Firmware gereed. Kies het DFU-apparaat om door te gaan.');
       }
     } catch (reason) {
       // Everything in this block happens BEFORE the first destructive
@@ -1430,7 +1638,8 @@ export default function FirmwareFlasherSimpleScreen({
 
   const chooseDfuAndContinue = useCallback(() => {
     if (!pendingFlash || phase !== 'waiting-permission') return;
-    client.requestDfuDevicePermission()
+    client
+      .requestDfuDevicePermission()
       .then(async device => {
         if (device === null) {
           // A dismissed chooser is the operator changing their mind -
@@ -1445,7 +1654,10 @@ export default function FirmwareFlasherSimpleScreen({
           pendingFlash.pending.operationId,
         );
         if (!verdict.ok) {
-          throw new OperatorMessageError({key: 'flasherSimple.e06'}, "Het gekozen DFU-apparaat is niet geschikt voor deze bewerking. Kies de juiste vluchtcontroller.");
+          throw new OperatorMessageError(
+            { key: 'flasherSimple.e06' },
+            'Het gekozen DFU-apparaat is niet geschikt voor deze bewerking. Kies de juiste vluchtcontroller.',
+          );
         }
         await completeFlash(device, pendingFlash.image);
       })
@@ -1455,18 +1667,24 @@ export default function FirmwareFlasherSimpleScreen({
   const confirmFlash = useCallback(() => {
     if (!flashable || navigationLocked) return;
     Alert.alert(
-      "Firmware flashen",
+      'Firmware flashen',
       `${selectedRelease} wordt geïnstalleerd op ${selectedTarget}. Verwijder de propellers en laat USB aangesloten tot het eindresultaat verschijnt.`,
       [
-        {text: "Annuleren", style: 'cancel'},
+        { text: 'Annuleren', style: 'cancel' },
         {
-          text: "Flashen starten",
+          text: 'Flashen starten',
           style: 'destructive',
           onPress: () => flashPreparedFirmware().catch(() => undefined),
         },
       ],
     );
-  }, [flashPreparedFirmware, flashable, navigationLocked, selectedRelease, selectedTarget]);
+  }, [
+    flashPreparedFirmware,
+    flashable,
+    navigationLocked,
+    selectedRelease,
+    selectedTarget,
+  ]);
 
   const cancel = useCallback(() => {
     if (phase === 'waiting-permission') {
@@ -1475,9 +1693,11 @@ export default function FirmwareFlasherSimpleScreen({
       setPendingFlash(null);
       setProgress(0);
       setPhase(firmware ? 'ready' : 'idle');
-      setStatus(firmware
-        ? "Flashen geannuleerd voordat schrijven is gestart. De firmware blijft gereed."
-        : "Flashen geannuleerd voordat schrijven is gestart.");
+      setStatus(
+        firmware
+          ? 'Flashen geannuleerd voordat schrijven is gestart. De firmware blijft gereed.'
+          : 'Flashen geannuleerd voordat schrijven is gestart.',
+      );
       return;
     }
 
@@ -1486,19 +1706,21 @@ export default function FirmwareFlasherSimpleScreen({
       // WebUSB may still own one native transfer. Do not announce cancellation
       // as complete until the transport settles the actual terminal result.
       client.cancelDfuFlash().catch(() => undefined);
-      setStatus("Stop aangevraagd. Wachten tot de huidige stap veilig is afgerond…");
+      setStatus(
+        'Stop aangevraagd. Wachten tot de huidige stap veilig is afgerond…',
+      );
       return;
     }
 
     setPhase(firmware ? 'ready' : 'idle');
     setProgress(0);
-    setStatus("De bewerking is geannuleerd.");
+    setStatus('De bewerking is geannuleerd.');
   }, [client, firmware, phase]);
 
   if (advanced) {
     return (
-      <View style={styles.advancedRoot}>
-        <View style={styles.advancedBar}>
+      <WorkbenchBlock style={styles.advancedRoot} section="advancedRoot">
+        <WorkbenchBlock style={styles.advancedBar} section="advancedBar">
           {/* GUARDED. This used to be unconditionally live: pressing it
               during an advanced flash unmounted the screen mid-write,
               which silently aborted the operation and showed no terminal
@@ -1506,29 +1728,33 @@ export default function FirmwareFlasherSimpleScreen({
               finished or cancelled explicitly, never navigated away
               from. */}
           <FirmwareButton
-            title={"Terug naar standaardmodus"}
+            title={'Terug naar standaardmodus'}
             tone="secondary"
             size="compact"
             onPress={() => setAdvanced(false)}
             disabled={advancedBusy}
             testID="flasher-simple-mode"
           />
-        </View>
-        <View style={styles.advancedBody}>
+        </WorkbenchBlock>
+        <WorkbenchBlock style={styles.advancedBody} section="advancedBody">
           <React.Suspense
             fallback={
-              <View style={styles.advancedLoading}>
+              <WorkbenchBlock
+                style={styles.advancedLoading}
+                section="advancedLoading"
+              >
                 <ActivityIndicator color={colors.accent} />
-              </View>
-            }>
+              </WorkbenchBlock>
+            }
+          >
             <FirmwareFlasherScreen
               navigation={navigation}
               client={client}
               onBusyChange={setAdvancedBusy}
             />
           </React.Suspense>
-        </View>
-      </View>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
     );
   }
 
@@ -1536,30 +1762,36 @@ export default function FirmwareFlasherSimpleScreen({
     selectedTarget !== '' && !releasesLoading && !channels.includes('stable');
 
   return (
-    <View style={styles.root} testID="firmware-flasher-simple-screen">
+    <WorkbenchBlock
+      style={styles.root}
+      testID="firmware-flasher-simple-screen"
+      section="root"
+    >
       <Modal
         visible={targetPickerOpen}
         animationType="slide"
         onRequestClose={() => {
           if (!navigationLocked) setTargetPickerOpen(false);
-        }}>
-        <View style={styles.modal}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{"Vluchtcontroller kiezen"}</Text>
+        }}
+      >
+        <WorkbenchBlock style={styles.modal} section="modal">
+          <WorkbenchBlock style={styles.modalHeader} section="modalHeader">
+            <Text style={styles.modalTitle}>{'Vluchtcontroller kiezen'}</Text>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={"Sluiten"}
+              accessibilityLabel={'Sluiten'}
               disabled={navigationLocked}
               onPress={() => setTargetPickerOpen(false)}
-              style={[styles.closeButton, navigationLocked && styles.dimmed]}>
+              style={[styles.closeButton, navigationLocked && styles.dimmed]}
+            >
               <Text style={styles.closeText}>×</Text>
             </Pressable>
-          </View>
+          </WorkbenchBlock>
           <TextInput
             value={targetQuery}
             onChangeText={setTargetQuery}
             editable={!navigationLocked}
-            placeholder={"Zoek op Target, fabrikant of MCU"}
+            placeholder={'Zoek op Target, fabrikant of MCU'}
             placeholderTextColor={colors.textMuted}
             style={styles.search}
             autoFocus
@@ -1569,12 +1801,13 @@ export default function FirmwareFlasherSimpleScreen({
             data={filteredTargets}
             keyExtractor={item => item.target}
             keyboardShouldPersistTaps="handled"
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <Pressable
                 disabled={navigationLocked}
                 onPress={() => selectTarget(item.target)}
                 style={styles.targetRow}
-                testID={`simple-target-${item.target}`}>
+                testID={`simple-target-${item.target}`}
+              >
                 <Text style={styles.targetName}>{item.target}</Text>
                 <Text style={styles.targetMeta}>
                   {[item.manufacturer, item.mcu].filter(Boolean).join(' • ')}
@@ -1582,10 +1815,10 @@ export default function FirmwareFlasherSimpleScreen({
               </Pressable>
             )}
           />
-        </View>
+        </WorkbenchBlock>
       </Modal>
 
-      <View style={styles.header}>
+      <WorkbenchBlock style={styles.header} section="header" heading>
         {/* Rendered only when there is somewhere to go back TO. It used
             to render unconditionally with an optional-chained handler,
             so in any host without a navigator it looked live and did
@@ -1593,37 +1826,43 @@ export default function FirmwareFlasherSimpleScreen({
         {navigation !== undefined ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={"Terug"}
+            accessibilityLabel={'Terug'}
             /* Dimmed AND announced. A control that is visually dim but
                reports itself enabled tells a screen-reader user nothing
                about why pressing it does nothing. */
-            accessibilityState={{disabled: navigationLocked}}
+            accessibilityState={{ disabled: navigationLocked }}
             onPress={() => navigation.goBack()}
             disabled={navigationLocked}
             style={[styles.backButton, navigationLocked && styles.dimmed]}
-            testID="simple-back">
+            testID="simple-back"
+          >
             <Icon name="chevron-back" size={24} color={colors.textPrimary} />
           </Pressable>
         ) : null}
-        <View style={styles.headerCopy}>
+        <WorkbenchBlock style={styles.headerCopy} section="headerCopy">
           <Text style={styles.title}>Firmware Flasher</Text>
-          <Text style={styles.subtitle}>{"Printplaat · versie · instellingen · flashen"}</Text>
-        </View>
+          <Text style={styles.subtitle}>
+            {'Printplaat · versie · instellingen · flashen'}
+          </Text>
+        </WorkbenchBlock>
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{disabled: navigationLocked}}
+          accessibilityState={{ disabled: navigationLocked }}
           onPress={() => setAdvanced(true)}
           disabled={navigationLocked}
           style={[styles.advancedLink, navigationLocked && styles.dimmed]}
-          testID="flasher-advanced-mode">
-          <Text style={styles.advancedLinkText}>{"Geavanceerd"}</Text>
+          testID="flasher-advanced-mode"
+        >
+          <Text style={styles.advancedLinkText}>{'Geavanceerd'}</Text>
         </Pressable>
-      </View>
+      </WorkbenchBlock>
 
-      <ScrollView
+      <WorkbenchScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, {maxWidth: contentMaxWidth}]}
-        keyboardShouldPersistTaps="handled">
+        contentContainerStyle={[styles.content, { maxWidth: contentMaxWidth }]}
+        keyboardShouldPersistTaps="handled"
+        workspace="FirmwareFlasherSimple"
+      >
         {/* A problem that is NOT a flash verdict: a catalogue download, a
             permission, a build, a detection. The board was never written
             to, and this notice never claims otherwise. */}
@@ -1653,26 +1892,29 @@ export default function FirmwareFlasherSimpleScreen({
                 in steps ١ and ٥, and a second copy of those here would
                 be the clutter this notice is trying not to be. */}
             {RETRYABLE_PROBLEM_CATEGORIES.includes(problem.category) ? (
-              <View style={styles.problemActionRow}>
+              <WorkbenchBlock
+                style={styles.problemActionRow}
+                section="problemActionRow"
+              >
                 <FirmwareButton
-                  title={"Opnieuw proberen"}
+                  title={'Opnieuw proberen'}
                   tone="secondary"
                   size="compact"
                   onPress={retryCatalogue}
                   testID="simple-retry-catalogue"
                 />
-              </View>
+              </WorkbenchBlock>
             ) : null}
           </View>
         ) : null}
 
         {/* 1 — the board */}
-        <View style={styles.card}>
-          <StepHeader number={"1"} title={"Printplaat"} />
-          <View style={styles.actionRow}>
+        <WorkbenchBlock style={styles.card} section="card" panel>
+          <StepHeader number={'1'} title={'Printplaat'} />
+          <WorkbenchBlock style={styles.actionRow} section="actionRow">
             {supportsSerialPicker ? (
               <FirmwareButton
-                title={"USB-apparaat kiezen"}
+                title={'USB-apparaat kiezen'}
                 tone="secondary"
                 size="compact"
                 onPress={chooseSerialAndDetect}
@@ -1681,26 +1923,34 @@ export default function FirmwareFlasherSimpleScreen({
               />
             ) : null}
             <FirmwareButton
-              title={phase === 'detecting' ? "Identificeren…" : "Aangesloten printplaat identificeren"}
+              title={
+                phase === 'detecting'
+                  ? 'Identificeren…'
+                  : 'Aangesloten printplaat identificeren'
+              }
               tone="secondary"
               size="compact"
               onPress={() => autoDetect().catch(() => undefined)}
               disabled={navigationLocked || targetsLoading}
               testID="simple-auto-detect"
             />
-          </View>
+          </WorkbenchBlock>
           <Pressable
             accessibilityRole="button"
             onPress={() => setTargetPickerOpen(true)}
             disabled={navigationLocked}
             style={[styles.selector, navigationLocked && styles.dimmed]}
-            testID="simple-target-selector">
+            testID="simple-target-selector"
+          >
             <Text style={styles.selectorLabel}>Target</Text>
-            <Text style={styles.selectorValue}>{selectedTarget || "Printplaat kiezen"}</Text>
+            <Text style={styles.selectorValue}>
+              {selectedTarget || 'Printplaat kiezen'}
+            </Text>
           </Pressable>
           {detectedTarget ? (
             <Text style={styles.detected} testID="simple-detected-target">
-              {"Printplaat herkend: "}{detectedTarget}
+              {'Printplaat herkend: '}
+              {detectedTarget}
             </Text>
           ) : null}
           {detectionNote !== null ? (
@@ -1708,22 +1958,27 @@ export default function FirmwareFlasherSimpleScreen({
               {detectionNote}
             </Text>
           ) : null}
-        </View>
+        </WorkbenchBlock>
 
         {/* 2 — the version */}
-        <View style={styles.card}>
-          <StepHeader number={"2"} title={"Versie"} />
+        <WorkbenchBlock style={styles.card} section="card" panel>
+          <StepHeader number={'2'} title={'Versie'} />
           {releasesLoading ? <ActivityIndicator color={colors.accent} /> : null}
           {channels.length > 1 ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityState={{expanded: channelPickerOpen, disabled: navigationLocked}}
+              accessibilityState={{
+                expanded: channelPickerOpen,
+                disabled: navigationLocked,
+              }}
               disabled={navigationLocked}
               onPress={() => setChannelPickerOpen(current => !current)}
               style={[styles.channelToggle, navigationLocked && styles.dimmed]}
-              testID="simple-channel-toggle">
+              testID="simple-channel-toggle"
+            >
               <Text style={styles.channelToggleText}>
-                {"Kanaal: "}{CHANNEL_TITLES[channel]}
+                {'Kanaal: '}
+                {CHANNEL_TITLES[channel]}
               </Text>
               <Icon
                 name={channelPickerOpen ? 'chevron-up' : 'chevron-down'}
@@ -1733,30 +1988,48 @@ export default function FirmwareFlasherSimpleScreen({
             </Pressable>
           ) : null}
           {channelPickerOpen ? (
-            <View style={styles.optionChoices}>
+            <WorkbenchBlock
+              style={styles.optionChoices}
+              section="optionChoices"
+            >
               {channels.map(item => (
                 <Pressable
                   key={item}
                   accessibilityRole="radio"
-                  accessibilityState={{selected: item === channel, disabled: navigationLocked}}
+                  accessibilityState={{
+                    selected: item === channel,
+                    disabled: navigationLocked,
+                  }}
                   disabled={navigationLocked}
                   onPress={() => {
                     setChannel(item);
-                    setSelectedRelease(defaultReleaseForChannel(releases, item));
+                    setSelectedRelease(
+                      defaultReleaseForChannel(releases, item),
+                    );
                     setChannelPickerOpen(false);
                   }}
-                  style={[styles.choice, item === channel && styles.choiceSelected]}
-                  testID={`simple-channel-${item}`}>
-                  <Text style={[styles.choiceText, item === channel && styles.choiceTextSelected]}>
+                  style={[
+                    styles.choice,
+                    item === channel && styles.choiceSelected,
+                  ]}
+                  testID={`simple-channel-${item}`}
+                >
+                  <Text
+                    style={[
+                      styles.choiceText,
+                      item === channel && styles.choiceTextSelected,
+                    ]}
+                  >
                     {CHANNEL_TITLES[item]}
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </WorkbenchBlock>
           ) : null}
           {noStableForTarget ? (
             <Text style={styles.helper} testID="simple-no-stable">
-              {"Geen stabiele versie voor deze printplaat. Getoond kanaal: "}{CHANNEL_TITLES[channel]}.
+              {'Geen stabiele versie voor deze printplaat. Getoond kanaal: '}
+              {CHANNEL_TITLES[channel]}.
             </Text>
           ) : null}
           {/* A NUMBERED STEP WITH NOTHING UNDER IT IS NOT A STEP.
@@ -1769,18 +2042,18 @@ export default function FirmwareFlasherSimpleScreen({
           {channelReleases.length === 0 && !releasesLoading ? (
             <Text style={styles.helper} testID="simple-release-placeholder">
               {selectedTarget
-                ? "Geen versies voor deze printplaat in het huidige kanaal."
-                : "Kies eerst een printplaat om de beschikbare versies te zien."}
+                ? 'Geen versies voor deze printplaat in het huidige kanaal.'
+                : 'Kies eerst een printplaat om de beschikbare versies te zien.'}
             </Text>
           ) : null}
-          <View style={styles.releaseWrap}>
+          <WorkbenchBlock style={styles.releaseWrap} section="releaseWrap">
             {channelReleases.slice(0, 6).map(release => {
               const selected = release.release === selectedRelease;
               return (
                 <Pressable
                   key={release.release}
                   accessibilityRole="radio"
-                  accessibilityState={{selected, disabled: navigationLocked}}
+                  accessibilityState={{ selected, disabled: navigationLocked }}
                   onPress={() => setSelectedRelease(release.release)}
                   disabled={navigationLocked}
                   style={[
@@ -1788,30 +2061,56 @@ export default function FirmwareFlasherSimpleScreen({
                     selected && styles.choiceSelected,
                     navigationLocked && styles.dimmed,
                   ]}
-                  testID={`simple-release-${release.release}`}>
-                  <Text style={[styles.choiceText, selected && styles.choiceTextSelected]}>
+                  testID={`simple-release-${release.release}`}
+                >
+                  <Text
+                    style={[
+                      styles.choiceText,
+                      selected && styles.choiceTextSelected,
+                    ]}
+                  >
                     {release.release}
                   </Text>
                 </Pressable>
               );
             })}
-          </View>
-        </View>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
         {/* 3 — the official build configuration */}
-        <View style={styles.card} testID="simple-build-configuration">
-          <StepHeader number={"3"} title={"Buildinstellingen"} />
-          {buildOptionsLoading ? <ActivityIndicator color={colors.accent} /> : null}
+        <WorkbenchBlock
+          style={styles.card}
+          testID="simple-build-configuration"
+          section="card"
+          panel
+        >
+          <StepHeader number={'3'} title={'Buildinstellingen'} />
+          {buildOptionsLoading ? (
+            <ActivityIndicator color={colors.accent} />
+          ) : null}
           {!selectedRelease ? (
-            <Text style={styles.helper}>{"Kies de printplaat en versie om de officiële buildopties te zien."}</Text>
+            <Text style={styles.helper}>
+              {
+                'Kies de printplaat en versie om de officiële buildopties te zien.'
+              }
+            </Text>
           ) : null}
           {buildOptionsError !== null ? (
             <Text style={styles.helper} testID="simple-build-options-error">
-              {"De buildopties konden niet worden geladen. De basisbuild (Core) wordt gebruikt."}</Text>
+              {
+                'De buildopties konden niet worden geladen. De basisbuild (Core) wordt gebruikt.'
+              }
+            </Text>
           ) : null}
-          {selectedRelease && !buildOptionsLoading && buildOptionsError === null && !configurable ? (
+          {selectedRelease &&
+          !buildOptionsLoading &&
+          buildOptionsError === null &&
+          !configurable ? (
             <Text style={styles.helper} testID="simple-core-build-only">
-              {"Deze versie biedt alleen een basisbuild (Core) voor deze printplaat. Er zijn geen instelbare opties."}</Text>
+              {
+                'Deze versie biedt alleen een basisbuild (Core) voor deze printplaat. Er zijn geen instelbare opties.'
+              }
+            </Text>
           ) : null}
           {configurable && choices !== null && buildOptions !== null ? (
             <>
@@ -1828,7 +2127,9 @@ export default function FirmwareFlasherSimpleScreen({
                       updateChoices({
                         ...choices,
                         generalOptions: choices.generalOptions.includes(value)
-                          ? choices.generalOptions.filter(item => item !== value)
+                          ? choices.generalOptions.filter(
+                              item => item !== value,
+                            )
                           : [...choices.generalOptions, value],
                       })
                     }
@@ -1842,33 +2143,33 @@ export default function FirmwareFlasherSimpleScreen({
                       category.key === 'radio'
                         ? choices.radioProtocol
                         : category.key === 'telemetry'
-                          ? choices.telemetryProtocol
-                          : category.key === 'osd'
-                            ? choices.osdProtocol
-                            : choices.motorProtocol
+                        ? choices.telemetryProtocol
+                        : category.key === 'osd'
+                        ? choices.osdProtocol
+                        : choices.motorProtocol
                     }
                     disabled={navigationLocked}
                     testIDPrefix={`simple-build-${category.key}`}
                     lockedLabel={
                       category.key === 'telemetry' && radioCarriesTelemetry
-                        ? "Automatisch opgenomen bij het radioprotocol"
+                        ? 'Automatisch opgenomen bij het radioprotocol'
                         : undefined
                     }
                     lockedReason={
                       category.key === 'telemetry' && radioCarriesTelemetry
-                        ? "Het gekozen radioprotocol levert zelf telemetrie. Kies een ander radioprotocol om deze optie te wijzigen."
+                        ? 'Het gekozen radioprotocol levert zelf telemetrie. Kies een ander radioprotocol om deze optie te wijzigen.'
                         : undefined
                     }
                     onChange={value =>
                       updateChoices({
                         ...choices,
                         ...(category.key === 'radio'
-                          ? {radioProtocol: value}
+                          ? { radioProtocol: value }
                           : category.key === 'telemetry'
-                            ? {telemetryProtocol: value}
-                            : category.key === 'osd'
-                              ? {osdProtocol: value}
-                              : {motorProtocol: value}),
+                          ? { telemetryProtocol: value }
+                          : category.key === 'osd'
+                          ? { osdProtocol: value }
+                          : { motorProtocol: value }),
                       })
                     }
                   />
@@ -1876,17 +2177,23 @@ export default function FirmwareFlasherSimpleScreen({
               )}
               <Pressable
                 accessibilityRole="button"
-                accessibilityState={{expanded: customDefinesOpen, disabled: navigationLocked}}
+                accessibilityState={{
+                  expanded: customDefinesOpen,
+                  disabled: navigationLocked,
+                }}
                 disabled={navigationLocked}
                 onPress={() => setCustomDefinesOpen(current => !current)}
                 style={[styles.optionHeader, navigationLocked && styles.dimmed]}
-                testID="simple-custom-defines-toggle">
-                <View style={styles.optionCopy}>
+                testID="simple-custom-defines-toggle"
+              >
+                <WorkbenchBlock style={styles.optionCopy} section="optionCopy">
                   <Text style={styles.optionLabel}>Custom Defines</Text>
                   <Text style={styles.optionValue}>
-                    {choices.customDefines.trim().length === 0 ? "Geen" : choices.customDefines.trim()}
+                    {choices.customDefines.trim().length === 0
+                      ? 'Geen'
+                      : choices.customDefines.trim()}
                   </Text>
-                </View>
+                </WorkbenchBlock>
                 <Icon
                   name={customDefinesOpen ? 'chevron-up' : 'chevron-down'}
                   size={18}
@@ -1896,9 +2203,11 @@ export default function FirmwareFlasherSimpleScreen({
               {customDefinesOpen ? (
                 <TextInput
                   value={choices.customDefines}
-                  onChangeText={value => updateChoices({...choices, customDefines: value})}
+                  onChangeText={value =>
+                    updateChoices({ ...choices, customDefines: value })
+                  }
                   editable={!navigationLocked}
-                  placeholder={"Voorbeeld: USE_SOMETHING USE_OTHER=1"}
+                  placeholder={'Voorbeeld: USE_SOMETHING USE_OTHER=1'}
                   placeholderTextColor={colors.textMuted}
                   style={styles.definesInput}
                   autoCapitalize="characters"
@@ -1907,32 +2216,40 @@ export default function FirmwareFlasherSimpleScreen({
               ) : null}
             </>
           ) : null}
-        </View>
+        </WorkbenchBlock>
 
         {/* 4 — prepare */}
-        <View style={styles.card}>
-          <StepHeader number={"4"} title={"Firmware voorbereiden"} />
+        <WorkbenchBlock style={styles.card} section="card" panel>
+          <StepHeader number={'4'} title={'Firmware voorbereiden'} />
           {/* Downloading a build is reversible and repeatable, so it is
               a normal action - deliberately NOT the same mint slab the
               irreversible write used to share with it. */}
           <FirmwareButton
-            title={phase === 'loading'
-              ? "Voorbereiden…"
-              : firmware
-                ? "Firmware opnieuw voorbereiden"
-                : "Firmware voorbereiden"}
+            title={
+              phase === 'loading'
+                ? 'Voorbereiden…'
+                : firmware
+                ? 'Firmware opnieuw voorbereiden'
+                : 'Firmware voorbereiden'
+            }
             tone="secondary"
             size="compact"
             onPress={() => loadFirmware().catch(() => undefined)}
-            disabled={navigationLocked || !selectedTarget || !selectedRelease || choices === null}
+            disabled={
+              navigationLocked ||
+              !selectedTarget ||
+              !selectedRelease ||
+              choices === null
+            }
             testID="simple-load-firmware"
           />
           {firmware ? (
             <Text style={styles.readyText} testID="simple-firmware-ready">
-              {"Gereed: "}{firmware.filename}
+              {'Gereed: '}
+              {firmware.filename}
             </Text>
           ) : null}
-        </View>
+        </WorkbenchBlock>
 
         {/* 5 — DFU + flash.
             ONE readiness line, at most ONE warning, ONE dominant
@@ -1941,29 +2258,35 @@ export default function FirmwareFlasherSimpleScreen({
             notice, acknowledgement pill, safety line and footer, all at
             equal weight around the primary action - is what buried the
             thing the operator actually came here to press. */}
-        <View style={styles.card}>
-          <StepHeader number={"5"} title={"Flashen"} />
-          {isBusy ? <FirmwareProgress percent={progress} label={status} /> : null}
+        <WorkbenchBlock style={styles.card} section="card" panel>
+          <StepHeader number={'5'} title={'Flashen'} />
+          {isBusy ? (
+            <FirmwareProgress percent={progress} label={status} />
+          ) : null}
 
           {phase === 'success' ? (
             <View testID="simple-flash-success">
               <FirmwareNotice
-                title={"Firmware geschreven en geverifieerd"}
+                title={'Firmware geschreven en geverifieerd'}
                 text={
                   resetConfirmed === true
-                    ? "De printplaat heeft opnieuw verbinding gemaakt."
-                    : "Automatisch opnieuw verbinden kon niet worden bevestigd. Als de printplaat niet snel verschijnt, koppelt u USB los en sluit u opnieuw aan."
+                    ? 'De printplaat heeft opnieuw verbinding gemaakt.'
+                    : 'Automatisch opnieuw verbinden kon niet worden bevestigd. Als de printplaat niet snel verschijnt, koppelt u USB los en sluit u opnieuw aan.'
                 }
                 tone="success"
               />
             </View>
           ) : null}
           {phase === 'failed' ? (
-            <FirmwareNotice title={"Flashen mislukt"} text={status} tone="error" />
+            <FirmwareNotice
+              title={'Flashen mislukt'}
+              text={status}
+              tone="error"
+            />
           ) : null}
           {phase === 'unconfirmed' ? (
             <FirmwareNotice
-              title={"Voltooiing niet bevestigd"}
+              title={'Voltooiing niet bevestigd'}
               text={status}
               tone="warning"
             />
@@ -1974,15 +2297,15 @@ export default function FirmwareFlasherSimpleScreen({
           {dfuReady !== null ? (
             <Text style={styles.detected} testID="simple-dfu-ready">
               {dfuTargetVerified
-                ? "De printplaat staat in DFU-modus en de identiteit komt overeen met het gekozen Target."
-                : "De printplaat staat in DFU-modus. De identiteit kan in deze modus niet worden uitgelezen. Controleer of het gekozen Target klopt."}
+                ? 'De printplaat staat in DFU-modus en de identiteit komt overeen met het gekozen Target.'
+                : 'De printplaat staat in DFU-modus. De identiteit kan in deze modus niet worden uitgelezen. Controleer of het gekozen Target klopt.'}
             </Text>
           ) : null}
 
-          <View style={styles.actionRow}>
+          <WorkbenchBlock style={styles.actionRow} section="actionRow">
             {dfuReady === null ? (
               <FirmwareButton
-                title={"DFU-modus starten"}
+                title={'DFU-modus starten'}
                 tone="secondary"
                 size="compact"
                 onPress={() => enterDfuMode().catch(() => undefined)}
@@ -1995,9 +2318,11 @@ export default function FirmwareFlasherSimpleScreen({
                 previous session, a replug) has no serial device to detect.
                 Android needs no chooser - the presence watcher adopts any
                 DFU device automatically. */}
-            {supportsSerialPicker && dfuReady === null && phase !== 'waiting-permission' ? (
+            {supportsSerialPicker &&
+            dfuReady === null &&
+            phase !== 'waiting-permission' ? (
               <FirmwareButton
-                title={"DFU-apparaat kiezen"}
+                title={'DFU-apparaat kiezen'}
                 tone="secondary"
                 size="compact"
                 onPress={chooseDfuDevice}
@@ -2007,29 +2332,39 @@ export default function FirmwareFlasherSimpleScreen({
             ) : null}
             {isBusy || phase === 'waiting-permission' ? (
               <FirmwareButton
-                title={phase === 'waiting-permission' ? "Annuleren vóór het schrijven" : "Annuleren"}
+                title={
+                  phase === 'waiting-permission'
+                    ? 'Annuleren vóór het schrijven'
+                    : 'Annuleren'
+                }
                 tone="secondary"
                 size="compact"
                 onPress={cancel}
                 testID="simple-cancel-flash"
               />
             ) : null}
-          </View>
+          </WorkbenchBlock>
 
           {manualDfuReason !== null ? (
             <View testID="simple-manual-dfu">
-              <FirmwareNotice title={"DFU-modus"} text={manualDfuReason} tone="warning" />
+              <FirmwareNotice
+                title={'DFU-modus'}
+                text={manualDfuReason}
+                tone="warning"
+              />
             </View>
           ) : null}
 
           {phase === 'waiting-permission' ? (
             <>
               <FirmwareNotice
-                title={"DFU-apparaat kiezen"}
-                text={"De firmware is gereed en de printplaat staat in DFU. Schrijven is nog niet gestart. Kies het DFU-apparaat om dezelfde bewerking voort te zetten."}
+                title={'DFU-apparaat kiezen'}
+                text={
+                  'De firmware is gereed en de printplaat staat in DFU. Schrijven is nog niet gestart. Kies het DFU-apparaat om dezelfde bewerking voort te zetten.'
+                }
               />
               <FirmwareButton
-                title={"DFU kiezen en doorgaan"}
+                title={'DFU kiezen en doorgaan'}
                 onPress={chooseDfuAndContinue}
                 testID="simple-choose-dfu"
               />
@@ -2038,7 +2373,7 @@ export default function FirmwareFlasherSimpleScreen({
             /* THE destructive action: the only danger-toned control on
                the screen, and the only one that writes the board. */
             <FirmwareButton
-              title={phase === 'flashing' ? "Flashen…" : "Firmware flashen"}
+              title={phase === 'flashing' ? 'Flashen…' : 'Firmware flashen'}
               tone="danger"
               onPress={confirmFlash}
               disabled={navigationLocked || !flashable}
@@ -2048,19 +2383,25 @@ export default function FirmwareFlasherSimpleScreen({
 
           {firmware !== null && phase === 'ready' ? (
             <Text style={styles.helper} testID="simple-flash-safety">
-              {"Verwijder de propellers vóór het flashen en laat USB aangesloten tot het eindresultaat verschijnt."}</Text>
+              {
+                'Verwijder de propellers vóór het flashen en laat USB aangesloten tot het eindresultaat verschijnt.'
+              }
+            </Text>
           ) : null}
-        </View>
+        </WorkbenchBlock>
 
         <Text style={styles.footerNote}>
-          {"Volledig wissen, handmatige baudsnelheid, herstelgereedschap en lokale firmwarebestanden vindt u onder Geavanceerd."}</Text>
-      </ScrollView>
-    </View>
+          {
+            'Volledig wissen, handmatige baudsnelheid, herstelgereedschap en lokale firmwarebestanden vindt u onder Geavanceerd.'
+          }
+        </Text>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
+  root: { flex: 1, backgroundColor: colors.background },
   header: {
     minHeight: 68,
     paddingHorizontal: spacing.md,
@@ -2071,13 +2412,30 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSoft,
   },
-  backButton: {width: 44, height: 44, alignItems: 'center', justifyContent: 'center'},
-  headerCopy: {flex: 1},
-  title: {...typography.title, color: colors.textPrimary},
-  subtitle: {...typography.caption, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  advancedLink: {minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.sm},
-  advancedLinkText: {...typography.caption, color: colors.accentStrong, fontWeight: '700'},
-  scroll: {flex: 1},
+  backButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: { flex: 1 },
+  title: { ...typography.title, color: colors.textPrimary },
+  subtitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  advancedLink: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+  advancedLinkText: {
+    ...typography.caption,
+    color: colors.accentStrong,
+    fontWeight: '700',
+  },
+  scroll: { flex: 1 },
   content: {
     padding: spacing.md,
     gap: spacing.md,
@@ -2088,7 +2446,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   /** Supporting actions sit on one wrapping row, sized to their labels. */
-  actionRow: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   /* Trails the notice rather than stretching under it: this is a
      secondary recovery, not the page's main action. */
   problemActionRow: {
@@ -2096,8 +2454,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingTop: spacing.sm,
   },
-  lockedNote: {...typography.caption, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  advancedLoading: {paddingVertical: spacing.xl, alignItems: 'center'},
+  lockedNote: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  advancedLoading: { paddingVertical: spacing.xl, alignItems: 'center' },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
@@ -2106,7 +2468,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.md,
   },
-  stepHeader: {flexDirection: 'row', alignItems: 'center', gap: spacing.sm},
+  stepHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   // minWidth/minHeight/borderRadius are supplied per render by
   // stepBadgeSize() - see its note. They are floors here so the badge can
   // still grow past them if the glyph itself is wider, and are never a
@@ -2117,8 +2479,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.accentSoft,
   },
-  stepNumberText: {...typography.caption, color: colors.accentStrong, fontWeight: '800'},
-  stepTitle: {...typography.sectionTitle, color: colors.textPrimary},
+  stepNumberText: {
+    ...typography.caption,
+    color: colors.accentStrong,
+    fontWeight: '800',
+  },
+  stepTitle: { ...typography.sectionTitle, color: colors.textPrimary },
   selector: {
     minHeight: 58,
     borderRadius: radii.md,
@@ -2129,10 +2495,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     justifyContent: 'center',
   },
-  selectorLabel: {...typography.caption, color: colors.textMuted},
-  selectorValue: {...typography.sectionTitle, color: colors.textPrimary},
-  detected: {...typography.caption, color: colors.success},
-  helper: {...typography.caption, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
+  selectorLabel: { ...typography.caption, color: colors.textMuted },
+  selectorValue: { ...typography.sectionTitle, color: colors.textPrimary },
+  detected: { ...typography.caption, color: colors.success },
+  helper: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
   channelToggle: {
     minHeight: 44,
     flexDirection: 'row',
@@ -2145,8 +2515,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSoft,
   },
-  channelToggleText: {...typography.caption, color: colors.textSecondary, fontWeight: '700'},
-  optionGroup: {gap: spacing.sm},
+  channelToggleText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '700',
+  },
+  optionGroup: { gap: spacing.sm },
   optionHeader: {
     minHeight: 58,
     flexDirection: 'row',
@@ -2159,11 +2533,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surfaceAlt,
   },
-  optionCopy: {flex: 1, gap: 2},
-  optionLabel: {...typography.caption, color: colors.textMuted},
-  optionValue: {...typography.bodyStrong, color: colors.textPrimary},
-  optionChoices: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
-  releaseWrap: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},
+  optionCopy: { flex: 1, gap: 2 },
+  optionLabel: { ...typography.caption, color: colors.textMuted },
+  optionValue: { ...typography.bodyStrong, color: colors.textPrimary },
+  optionChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  releaseWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   choice: {
     minHeight: 44,
     justifyContent: 'center',
@@ -2174,9 +2548,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  choiceSelected: {backgroundColor: colors.accentSoft, borderColor: colors.accent},
-  choiceText: {...typography.caption, color: colors.textSecondary, fontWeight: '700'},
-  choiceTextSelected: {color: colors.accentStrong},
+  choiceSelected: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accent,
+  },
+  choiceText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '700',
+  },
+  choiceTextSelected: { color: colors.accentStrong },
   definesInput: {
     minHeight: 48,
     borderRadius: radii.md,
@@ -2189,13 +2570,27 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     writingDirection: 'ltr',
   },
-  readyText: {...typography.caption, color: colors.success},
-  footerNote: {...typography.caption, color: colors.textMuted, textAlign: 'center'},
-  modal: {flex: 1, backgroundColor: colors.background, padding: spacing.md, gap: spacing.md},
-  modalHeader: {flexDirection: 'row', alignItems: 'center', gap: spacing.md},
-  modalTitle: {...typography.title, color: colors.textPrimary, flex: 1},
-  closeButton: {width: 44, height: 44, alignItems: 'center', justifyContent: 'center'},
-  closeText: {fontSize: 30, color: colors.textPrimary},
+  readyText: { ...typography.caption, color: colors.success },
+  footerNote: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  modalTitle: { ...typography.title, color: colors.textPrimary, flex: 1 },
+  closeButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeText: { fontSize: 30, color: colors.textPrimary },
   search: {
     minHeight: 48,
     borderRadius: radii.md,
@@ -2214,10 +2609,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSoft,
   },
-  targetName: {...typography.sectionTitle, color: colors.textPrimary},
-  targetMeta: {...typography.caption, color: colors.textSecondary},
-  dimmed: {opacity: 0.5},
-  advancedRoot: {flex: 1, backgroundColor: colors.background},
-  advancedBar: {padding: spacing.sm, backgroundColor: colors.backgroundRaised},
-  advancedBody: {flex: 1},
+  targetName: { ...typography.sectionTitle, color: colors.textPrimary },
+  targetMeta: { ...typography.caption, color: colors.textSecondary },
+  dimmed: { opacity: 0.5 },
+  advancedRoot: { flex: 1, backgroundColor: colors.background },
+  advancedBar: {
+    padding: spacing.sm,
+    backgroundColor: colors.backgroundRaised,
+  },
+  advancedBody: { flex: 1 },
 });

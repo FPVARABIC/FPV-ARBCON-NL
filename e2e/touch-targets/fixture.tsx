@@ -32,6 +32,7 @@ import '../../src/i18n';
 import OrientationHero from '../../src/ui/components/setup/OrientationHero';
 import {sceneAirframeFor} from '../../src/ui/orientation3d/airframeSceneModel';
 import '../../src/web/lato.css';
+import '../../src/web/fiercon-workbench.css';
 import { MotorAirframeControls } from '../../src/ui/screens/MotorAirframeControls';
 import { FirmwareChoice } from '../../src/ui/components/firmware';
 import FirmwareFlasherScreen from '../../src/ui/screens/FirmwareFlasherScreen';
@@ -485,7 +486,7 @@ function OrientationPresentationScene(): React.JSX.Element {
   const [mixer, setMixer] = React.useState('3:4');
   const [mode, count] = mixer.split(':').map(Number);
   const airframe = React.useMemo(() => sceneAirframeFor({mixerModeRaw: mode, motorCount: count, sessionId: 'presentation-fixture'}), [mode, count]);
-  return <Shell><div data-testid="model-presentation" style={{overflow: 'auto', color: '#F8F7FC', background: '#181626', padding: 18}}>
+  return <Shell><div data-testid="model-presentation" style={{overflow: 'auto', color: '#F8F7FC', background: '#11151e', padding: 18}}>
     <p>Lokale weergavetest · voorbeeldoriëntatie · geen hardware</p>
     <label>Model <select aria-label="Model" value={mixer} onChange={e => setMixer(e.target.value)}>
       <option value="3:4">Quad X</option><option value="6:6">Y6</option><option value="8:1">Vliegende vleugel</option><option value="14:1">Vliegtuig</option><option value="255:4">Onbekend</option>
@@ -497,7 +498,15 @@ function OrientationPresentationScene(): React.JSX.Element {
   </div></Shell>;
 }
 
+/** Read-only motor-count scenario. This fixture has no hardware transport or write owner. */
+function MotorBenchPreview():React.JSX.Element{
+ const [element,setElement]=React.useState<React.ReactElement|null>(null);
+ React.useEffect(()=>{let live=true;SCREENS.find(s=>s.name==='Motors')!.mount(recorder()).then(e=>{if(!live)return;const domain={motorCount:4,protocolFamily:'DSHOT',feature3dEnabled:false,commandDomainMin:1000,commandDomainMax:2000,domainSource:'FIRMWARE_CONSTRAIN',stopValue:1000,notKnowableFromMsp:[]};const snapshot={phase:'IDLE',setupStep:'READY',outcome:{kind:'IDLE'},activation:{allowed:false,reasons:[]},motorScope:{motorCount:4,motorProtocolRaw:7,mixerModeRaw:3,yawMotorsReversed:false,feature3dEnabled:false},motorDomain:domain,motorRuntimeScope:{eligible:true,domain},telemetryHeld:false,warnings:[],stopDescriptors:[],pulse:{attemptId:0},stopExecution:{attempts:0}};const port={getSnapshot:()=>snapshot,subscribe:()=>()=>undefined,requestStop:()=> 'ACCEPTED',stopAll:()=> 'ACCEPTED',endSession:async()=>snapshot,beginSession:async()=>snapshot,setMotorValue:()=>({kind:'REFUSED'}),setMotorValues:()=>({kind:'REFUSED'}),setMaster:()=>({kind:'REFUSED'})};setElement(React.cloneElement(e as React.ReactElement<any>,{operator:port}));});return()=>{live=false;};},[]);
+ return <View style={{flex:1}} testID="motors-preview-ready"><Shell activeTab="MOTORS">{element}</Shell></View>;
+}
+
 const SCENES: Record<string, () => React.JSX.Element> = {
+  'motors-preview':()=> <MotorBenchPreview/>,
   'orientation-preview': () => <OrientationPresentationScene />,
   /* The shell scenes. Each mounts the REAL screen inside the REAL
      browser composition; `verify-desktop-workspace.mjs` measures these. */

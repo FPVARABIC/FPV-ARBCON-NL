@@ -148,8 +148,8 @@ describe('MotorWorkspace - structure', () => {
     expect(findAll(renderer, 'motor-slider-master')).toHaveLength(1);
     expect(findAll(renderer, 'motor-workspace-stop')).toHaveLength(1);
     const body = text(renderer);
-    expect(body).toContain("motoren sessie");
-    expect(body).toContain("Beheer van motoren");
+    expect(body).toContain("Motortestsessie");
+    expect(body).toContain("Motorbediening");
     expect(body).toContain("Stop motoren.");
     // The propeller warning lives ONCE at page level, not inside the
     // workspace - asserted in MotorsScreen.test.tsx.

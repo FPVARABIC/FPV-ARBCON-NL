@@ -34,6 +34,8 @@ const EXECUTABLE = SCREEN.replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/^\s*\/\/.*$/gm, '');
 
+function expectCode(needle:string):void{expect(EXECUTABLE.replace(/\s+/g,'')).toContain(needle.replace(/\s+/g,''));}
+
 describe('the position card does not name itself like a button', () => {
   it('no longer titles itself with an action-shaped phrase', () => {
     // «مركز ...» reads as "centre the ...", which is why it was pressed.
@@ -55,20 +57,20 @@ describe('no fabricated bearing', () => {
   });
 
   it('rotates only on a value the flight controller actually sent', () => {
-    expect(EXECUTABLE).toContain('rotate: `${home.directionToHomeDegrees}deg`');
+    expectCode('rotate: `${home.directionToHomeDegrees}deg`');
     // Guarded by an explicit absence branch, not by optional chaining.
-    expect(EXECUTABLE).toContain('home === undefined ?');
+    expectCode('home === undefined ?');
   });
 
   it('still shows the dial in an unknown state rather than collapsing', () => {
     // Removing it entirely would reflow the card every time a fix
     // arrives or drops.
-    expect(EXECUTABLE).toContain('gps-home-arrow-absent');
-    expect(EXECUTABLE).toContain('gps-home-arrow');
+    expectCode('gps-home-arrow-absent');
+    expectCode('gps-home-arrow');
   });
 
   it('explains the absence in words too', () => {
-    expect(EXECUTABLE).toContain("t('gpsSystem.positionWaiting')");
+    expectCode("t('gpsSystem.positionWaiting')");
     expect(ar.gpsSystem.positionWaiting).toContain("Coördinaten en thuisrichting verschijnen na een geldige positiebepaling.");
   });
 });
@@ -89,10 +91,10 @@ describe('no fabricated bearing', () => {
  */
 describe('a stale position is never presented as a live one', () => {
   it('derives liveness from FRESH, not from hasFix alone', () => {
-    expect(EXECUTABLE).toContain(
+    expectCode(
       "const positionIsLive = rawTelemetry.status === 'FRESH' && raw?.hasFix === true",
     );
-    expect(EXECUTABLE).toContain(
+    expectCode(
       "const homeIsLive = homeTelemetry.status === 'FRESH' && home !== undefined",
     );
   });
@@ -105,21 +107,21 @@ describe('a stale position is never presented as a live one', () => {
   });
 
   it('disables the map link on a stale reading, not just on no fix', () => {
-    expect(EXECUTABLE).toContain('disabled={!positionIsLive}');
+    expectCode('disabled={!positionIsLive}');
     // And the handler refuses independently of the prop.
-    expect(EXECUTABLE).toContain(
+    expectCode(
       "if (rawTelemetry.status !== 'FRESH' || raw?.hasFix !== true) return;",
     );
   });
 
   it('withholds the home bearing on a stale reading', () => {
-    expect(EXECUTABLE).toContain('{!homeIsLive ? (');
+    expectCode('{!homeIsLive ? (');
   });
 
   it('says which of the three states it is in', () => {
-    expect(EXECUTABLE).toContain("t('gpsSystem.positionStale')");
-    expect(EXECUTABLE).toContain("t('gpsSystem.positionWaiting')");
-    expect(EXECUTABLE).toContain("t('gpsSystem.positionReady')");
+    expectCode("t('gpsSystem.positionStale')");
+    expectCode("t('gpsSystem.positionWaiting')");
+    expectCode("t('gpsSystem.positionReady')");
     // The stale wording must name the actual risk, not just say "old".
     expect(ar.gpsSystem.positionStale).toContain("verouderd");
     expect(ar.gpsSystem.positionStale).toContain("positie van het toestel");
@@ -131,17 +133,17 @@ describe('the map action is real, and stays real', () => {
     // The gate got STRICTER: it was `hasFix` alone, which let a stale
     // reading through. `positionIsLive` requires a fix AND a fresh
     // reading - see the staleness block below.
-    expect(EXECUTABLE).toContain('disabled={!positionIsLive}');
+    expectCode('disabled={!positionIsLive}');
     // The handler re-checks rather than trusting the disabled prop.
-    expect(EXECUTABLE).toContain(
+    expectCode(
       "if (rawTelemetry.status !== 'FRESH' || raw?.hasFix !== true) return;",
     );
   });
 
   it('calls the real platform opener with the real coordinates', () => {
-    expect(EXECUTABLE).toContain('openMapLocation({');
-    expect(EXECUTABLE).toContain('latitudeDegrees: raw.latitudeDegrees');
-    expect(EXECUTABLE).toContain('longitudeDegrees: raw.longitudeDegrees');
+    expectCode('openMapLocation({');
+    expectCode('latitudeDegrees: raw.latitudeDegrees');
+    expectCode('longitudeDegrees: raw.longitudeDegrees');
   });
 
   it('has a platform implementation on both sides', () => {

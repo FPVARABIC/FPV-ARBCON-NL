@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 import React, {
   useCallback,
   useEffect,
@@ -8,11 +12,9 @@ import React, {
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  View,
   useWindowDimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +46,14 @@ import {
   useMspOwnershipState,
   useTelemetryValue,
 } from '../../platforms/react-native/protocol';
-import { colors, radii, spacing, typography, useContentEnvelope } from '../theme';
-import {PROSE_MEASURE} from '../theme';
+import {
+  colors,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { PROSE_MEASURE } from '../theme';
 import { StickyActionBar } from '../components/editing';
 import {
   Button,
@@ -57,9 +65,7 @@ import { readInteraction } from '../components/controls/interaction';
 import { Icon } from '../icons';
 
 export interface GeneralConfigurationControllerPort {
-  load(
-    sessionKey: SetupUiSessionKey,
-  ): Promise<GeneralConfigurationLoadOutcome>;
+  load(sessionKey: SetupUiSessionKey): Promise<GeneralConfigurationLoadOutcome>;
   save(
     sessionKey: SetupUiSessionKey,
     original: GeneralConfigurationSnapshot,
@@ -158,13 +164,16 @@ function ToggleRow({
   readonly onChange: (value: boolean) => void;
 }) {
   return (
-    <View style={[styles.controlRow, disabled && styles.disabled]}>
-      <View style={styles.controlCopy}>
+    <WorkbenchBlock
+      style={[styles.controlRow, disabled && styles.disabled]}
+      section="controlRow"
+    >
+      <WorkbenchBlock style={styles.controlCopy} section="controlCopy">
         <Text style={styles.controlTitle}>{title}</Text>
         {detail === undefined ? null : (
           <Text style={styles.controlDetail}>{detail}</Text>
         )}
-      </View>
+      </WorkbenchBlock>
       <ToggleSwitch
         value={value}
         disabled={disabled}
@@ -172,7 +181,7 @@ function ToggleRow({
         accessibilityLabel={title}
         testID={testID}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -198,11 +207,14 @@ function NumberControl({
   readonly onChange: (value: number) => void;
 }) {
   return (
-    <View style={[styles.numberRow, disabled && styles.disabled]}>
-      <View style={styles.controlCopy}>
+    <WorkbenchBlock
+      style={[styles.numberRow, disabled && styles.disabled]}
+      section="numberRow"
+    >
+      <WorkbenchBlock style={styles.controlCopy} section="controlCopy">
         <Text style={styles.controlTitle}>{title}</Text>
         <Text style={styles.controlDetail}>{detail}</Text>
-      </View>
+      </WorkbenchBlock>
       <Stepper
         value={`${value} ${unit}`}
         onDecrement={() => onChange(Math.max(minimum, value - 1))}
@@ -215,16 +227,22 @@ function NumberControl({
         decrementTestID={`${testID}-decrement`}
         incrementTestID={`${testID}-increment`}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
-function Metric({ label, value }: { readonly label: string; readonly value: string }) {
+function Metric({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}) {
   return (
-    <View style={styles.metric}>
+    <WorkbenchBlock style={styles.metric} section="metric">
       <Text style={styles.metricLabel}>{label}</Text>
       <Text style={styles.metricValue}>{value}</Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -253,10 +271,10 @@ function DestinationCard({
       accessibilityLabel={`${title}: ${detail}`}
       testID={testID}
     >
-      <View style={styles.destinationCopy}>
+      <WorkbenchBlock style={styles.destinationCopy} section="destinationCopy">
         <Text style={styles.destinationTitle}>{title}</Text>
         <Text style={styles.destinationDetail}>{detail}</Text>
-      </View>
+      </WorkbenchBlock>
       {/* Navigation semantics, so the RTL-aware alias: "forward" points
           left in this Arabic layout and would flip in an LTR one. */}
       <Icon name="chevron-forward" size={22} color={colors.accentStrong} />
@@ -449,10 +467,18 @@ export default function ConfigurationsScreen({
   }, []);
   const requestReload = useCallback(() => {
     if (!dirty) return reloadNow();
-    Alert.alert(t('configurationsSystem.discardChangesTitle'), t('configurationsSystem.discardChangesBody'), [
-      { text: t('configurationsSystem.cancel'), style: 'cancel' },
-      { text: t('configurationsSystem.discardAndReload'), style: 'destructive', onPress: reloadNow },
-    ]);
+    Alert.alert(
+      t('configurationsSystem.discardChangesTitle'),
+      t('configurationsSystem.discardChangesBody'),
+      [
+        { text: t('configurationsSystem.cancel'), style: 'cancel' },
+        {
+          text: t('configurationsSystem.discardAndReload'),
+          style: 'destructive',
+          onPress: reloadNow,
+        },
+      ],
+    );
   }, [dirty, reloadNow, t]);
 
   const loadMessage =
@@ -478,31 +504,37 @@ export default function ConfigurationsScreen({
     [5, 6, 7, 8].includes(snapshot.advanced.motorProtocolRaw);
 
   return (
-    <View style={styles.root} testID="configurations-screen">
-      <ScrollView
+    <WorkbenchBlock
+      style={styles.root}
+      testID="configurations-screen"
+      section="root"
+    >
+      <WorkbenchScrollView
         contentContainerStyle={[styles.content, { maxWidth: contentMaxWidth }]}
         keyboardShouldPersistTaps="handled"
+        workspace="Configurations"
       >
-        <View style={styles.hero}>
+        <WorkbenchBlock style={styles.hero} section="hero" heading>
           <Text style={styles.eyebrow}>
             {t('configurationsSystem.eyebrow')}
           </Text>
           <Text style={styles.title}>{t('configurationsSystem.title')}</Text>
 
-          <View style={styles.badgeRow}>
-            <View
-              style={[
-                styles.badge,
-                ownership === 'ACTIVE' && styles.badgeGood,
-              ]}
+          <WorkbenchBlock style={styles.badgeRow} section="badgeRow">
+            <WorkbenchBlock
+              style={[styles.badge, ownership === 'ACTIVE' && styles.badgeGood]}
+              section="badge"
             >
               <Text style={styles.badgeText}>
                 {ownership === 'ACTIVE'
                   ? t('configurationsSystem.connected')
                   : t('configurationsSystem.disconnected')}
               </Text>
-            </View>
-            <View style={[styles.badge, dirty && styles.badgeWarning]}>
+            </WorkbenchBlock>
+            <WorkbenchBlock
+              style={[styles.badge, dirty && styles.badgeWarning]}
+              section="badge"
+            >
               <Text style={styles.badgeText}>
                 {dirty
                   ? t('configurationsSystem.changedCount', {
@@ -510,18 +542,23 @@ export default function ConfigurationsScreen({
                     })
                   : t('configurationsSystem.synchronized')}
               </Text>
-            </View>
-          </View>
-        </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
-        <View style={styles.card} testID="configurations-system-summary">
+        <WorkbenchBlock
+          style={styles.card}
+          testID="configurations-system-summary"
+          section="card"
+          panel
+        >
           <Text style={styles.cardEyebrow}>
             {t('configurationsSystem.systemEyebrow')}
           </Text>
           <Text style={styles.cardTitle}>
             {t('configurationsSystem.systemTitle')}
           </Text>
-          <View style={styles.metrics}>
+          <WorkbenchBlock style={styles.metrics} section="metrics">
             <Metric
               label={t('configurationsSystem.gyroRate')}
               value={
@@ -542,23 +579,28 @@ export default function ConfigurationsScreen({
               label={t('configurationsSystem.cpuLoad')}
               value={status === undefined ? '—' : `${status.cpuLoadPercent}%`}
             />
-          </View>
+          </WorkbenchBlock>
           <Text style={styles.readOnlyNote}>
             {t('configurationsSystem.telemetryReuse')}
           </Text>
-        </View>
+        </WorkbenchBlock>
 
         {phase === 'LOADING' ? (
-          <View style={styles.card}>
+          <WorkbenchBlock style={styles.card} section="card" panel>
             <Text style={styles.stateText}>
               {t('configurationsSystem.loading')}
             </Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
         {loadMessage === undefined ? null : (
-          <View style={[styles.card, styles.errorCard]}>
+          <WorkbenchBlock
+            style={[styles.card, styles.errorCard]}
+            section="card"
+            panel
+          >
             <Text style={styles.errorText}>{loadMessage}</Text>
-            {loadOutcome?.kind === 'REJECTED' && loadOutcome.reason === 'MOTOR_TEST_ACTIVE' ? (
+            {loadOutcome?.kind === 'REJECTED' &&
+            loadOutcome.reason === 'MOTOR_TEST_ACTIVE' ? (
               <Button
                 label={t('configurationsSystem.openMotors')}
                 onPress={onOpenMotors}
@@ -576,13 +618,20 @@ export default function ConfigurationsScreen({
               style={styles.blockActionSpacing}
               testID="configurations-retry"
             />
-          </View>
+          </WorkbenchBlock>
         )}
 
         {draft === undefined || snapshot === undefined ? null : (
           <>
-            <View style={[styles.columns, !wide && styles.singleColumn]}>
-              <View style={[styles.card, styles.column]}>
+            <WorkbenchBlock
+              style={[styles.columns, !wide && styles.singleColumn]}
+              section="columns"
+            >
+              <WorkbenchBlock
+                style={[styles.card, styles.column]}
+                section="card"
+                panel
+              >
                 <Text style={styles.cardEyebrow}>
                   {t('configurationsSystem.identityEyebrow')}
                 </Text>
@@ -638,9 +687,13 @@ export default function ConfigurationsScreen({
                   }
                   testID="configurations-camera-angle"
                 />
-              </View>
+              </WorkbenchBlock>
 
-              <View style={[styles.card, styles.column]}>
+              <WorkbenchBlock
+                style={[styles.card, styles.column]}
+                section="card"
+                panel
+              >
                 <Text style={styles.cardEyebrow}>
                   {t('configurationsSystem.armingEyebrow')}
                 </Text>
@@ -699,10 +752,15 @@ export default function ConfigurationsScreen({
                   onChange={pidProcessDenom => update({ pidProcessDenom })}
                   testID="configurations-pid-denom"
                 />
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
 
-            <View style={styles.card} testID="configurations-features">
+            <WorkbenchBlock
+              style={styles.card}
+              testID="configurations-features"
+              section="card"
+              panel
+            >
               <Text style={styles.cardEyebrow}>
                 {t('configurationsSystem.featuresEyebrow')}
               </Text>
@@ -715,9 +773,7 @@ export default function ConfigurationsScreen({
               {availableFeatures.map(feature => (
                 <ToggleRow
                   key={feature.key}
-                  title={t(
-                    `configurationsSystem.feature.${feature.key}.title`,
-                  )}
+                  title={t(`configurationsSystem.feature.${feature.key}.title`)}
                   detail={t(
                     `configurationsSystem.feature.${feature.key}.detail`,
                   )}
@@ -740,10 +796,17 @@ export default function ConfigurationsScreen({
                   {t('configurationsSystem.compiledFilter')}
                 </Text>
               ) : null}
-            </View>
+            </WorkbenchBlock>
 
-            <View style={[styles.columns, !wide && styles.singleColumn]}>
-              <View style={[styles.card, styles.column]}>
+            <WorkbenchBlock
+              style={[styles.columns, !wide && styles.singleColumn]}
+              section="columns"
+            >
+              <WorkbenchBlock
+                style={[styles.card, styles.column]}
+                section="card"
+                panel
+              >
                 <Text style={styles.cardEyebrow}>
                   {t('configurationsSystem.beeperEyebrow')}
                 </Text>
@@ -756,12 +819,8 @@ export default function ConfigurationsScreen({
                 {BEEPER_CONDITIONS.map(condition => (
                   <ToggleRow
                     key={condition.key}
-                    title={t(
-                      `configurationsSystem.beeper.${condition.key}`,
-                    )}
-                    value={
-                      !bitEnabled(draft.disabledBeeperMask, condition.bit)
-                    }
+                    title={t(`configurationsSystem.beeper.${condition.key}`)}
+                    value={!bitEnabled(draft.disabledBeeperMask, condition.bit)}
                     disabled={busy}
                     onChange={enabled =>
                       update({
@@ -775,9 +834,13 @@ export default function ConfigurationsScreen({
                     testID={`configurations-beeper-${condition.key}`}
                   />
                 ))}
-              </View>
+              </WorkbenchBlock>
 
-              <View style={[styles.card, styles.column]}>
+              <WorkbenchBlock
+                style={[styles.card, styles.column]}
+                section="card"
+                panel
+              >
                 <Text style={styles.cardEyebrow}>
                   {t('configurationsSystem.dshotEyebrow')}
                 </Text>
@@ -795,7 +858,7 @@ export default function ConfigurationsScreen({
                 <Text style={styles.groupTitle}>
                   {t('configurationsSystem.dshotTone')}
                 </Text>
-                <View style={styles.choiceRow}>
+                <WorkbenchBlock style={styles.choiceRow} section="choiceRow">
                   {[0, 1, 2, 3, 4, 5].map(tone => (
                     <Pressable
                       key={tone}
@@ -825,18 +888,13 @@ export default function ConfigurationsScreen({
                       </Text>
                     </Pressable>
                   ))}
-                </View>
+                </WorkbenchBlock>
                 {DSHOT_BEACON_CONDITIONS.map(condition => (
                   <ToggleRow
                     key={condition.key}
-                    title={t(
-                      `configurationsSystem.dshot.${condition.key}`,
-                    )}
+                    title={t(`configurationsSystem.dshot.${condition.key}`)}
                     value={
-                      !bitEnabled(
-                        draft.disabledDshotBeaconMask,
-                        condition.bit,
-                      )
+                      !bitEnabled(draft.disabledDshotBeaconMask, condition.bit)
                     }
                     disabled={
                       busy || !dshotCapable || draft.dshotBeaconTone === 0
@@ -853,10 +911,15 @@ export default function ConfigurationsScreen({
                     testID={`configurations-dshot-${condition.key}`}
                   />
                 ))}
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
 
-            <View style={styles.card} testID="configurations-destinations">
+            <WorkbenchBlock
+              style={styles.card}
+              testID="configurations-destinations"
+              section="card"
+              panel
+            >
               <Text style={styles.cardEyebrow}>
                 {t('configurationsSystem.integratedEyebrow')}
               </Text>
@@ -866,7 +929,10 @@ export default function ConfigurationsScreen({
               <Text style={styles.cardBody}>
                 {t('configurationsSystem.integratedDetail')}
               </Text>
-              <View style={[styles.destinationGrid, !wide && styles.singleColumn]}>
+              <WorkbenchBlock
+                style={[styles.destinationGrid, !wide && styles.singleColumn]}
+                section="destinationGrid"
+              >
                 <DestinationCard
                   title={t('tabs.setup')}
                   detail={t('configurationsSystem.destination.setup')}
@@ -891,10 +957,14 @@ export default function ConfigurationsScreen({
                   onPress={onOpenGps}
                   testID="configurations-open-gps"
                 />
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
 
-            <View style={[styles.card, dirty && styles.reviewCard]}>
+            <WorkbenchBlock
+              style={[styles.card, dirty && styles.reviewCard]}
+              section="card"
+              panel
+            >
               <Text style={styles.cardEyebrow}>
                 {t('configurationsSystem.reviewEyebrow')}
               </Text>
@@ -926,7 +996,7 @@ export default function ConfigurationsScreen({
                   {t(outcomeKey(saveOutcome))}
                 </Text>
               )}
-              <View style={styles.actionRow}>
+              <WorkbenchBlock style={styles.actionRow} section="actionRow">
                 <Button
                   label={t('configurationsSystem.reset')}
                   onPress={() => setDraft(originalDraft)}
@@ -957,11 +1027,11 @@ export default function ConfigurationsScreen({
                   style={styles.saveGrow}
                   testID="configurations-save"
                 />
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
           </>
         )}
-      </ScrollView>
+      </WorkbenchScrollView>
       {/* OUTSIDE the ScrollView, for the same reason Ports needs it: the
           in-scroll actions sit below every settings card. */}
       <StickyActionBar
@@ -990,7 +1060,7 @@ export default function ConfigurationsScreen({
         busyLabel={t('configurationsSystem.saving')}
         testID="configurations-sticky-actions"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1004,9 +1074,17 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
-  hero: { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
+  hero: {
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
   eyebrow: { ...typography.eyebrow, color: colors.accentStrong },
-  title: { ...typography.display, color: colors.textPrimary, marginTop: spacing.xs },
+  title: {
+    ...typography.display,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
+  },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
@@ -1027,7 +1105,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  badgeGood: { borderColor: colors.success, backgroundColor: colors.accentSoft },
+  badgeGood: {
+    borderColor: colors.success,
+    backgroundColor: colors.accentSoft,
+  },
   badgeWarning: { borderColor: colors.warning },
   badgeText: { ...typography.label, color: colors.textPrimary },
   card: {
@@ -1040,8 +1121,17 @@ const styles = StyleSheet.create({
   errorCard: { borderColor: colors.error },
   reviewCard: { borderColor: colors.warning },
   cardEyebrow: { ...typography.eyebrow, color: colors.accentStrong },
-  cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginTop: spacing.xs },
-  cardBody: { ...typography.body, color: colors.textSecondary, marginTop: spacing.xs, maxWidth: PROSE_MEASURE},
+  cardTitle: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
+  },
+  cardBody: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+    maxWidth: PROSE_MEASURE,
+  },
   columns: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
   singleColumn: { flexDirection: 'column' },
   column: { flex: 1, width: '100%' },
@@ -1055,8 +1145,17 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     marginTop: spacing.xs,
   },
-  readOnlyNote: { ...typography.helper, color: colors.textMuted, marginTop: spacing.sm, maxWidth: PROSE_MEASURE},
-  stateText: { ...typography.body, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
+  readOnlyNote: {
+    ...typography.helper,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    maxWidth: PROSE_MEASURE,
+  },
+  stateText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
   controlRow: {
     minHeight: 66,
     flexDirection: 'row',
@@ -1078,7 +1177,12 @@ const styles = StyleSheet.create({
   },
   controlCopy: { flex: 1, minWidth: 190 },
   controlTitle: { ...typography.bodyStrong, color: colors.textPrimary },
-  controlDetail: { ...typography.caption, color: colors.textSecondary, marginTop: spacing.xs, maxWidth: PROSE_MEASURE},
+  controlDetail: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+    maxWidth: PROSE_MEASURE,
+  },
   inputLabel: {
     ...typography.label,
     color: colors.textPrimary,
@@ -1099,13 +1203,23 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
     textAlign: 'left',
   },
-  limitNote: { ...typography.caption, color: colors.warning, marginTop: spacing.sm, maxWidth: PROSE_MEASURE},
+  limitNote: {
+    ...typography.caption,
+    color: colors.warning,
+    marginTop: spacing.sm,
+    maxWidth: PROSE_MEASURE,
+  },
   groupTitle: {
     ...typography.label,
     color: colors.textPrimary,
     marginTop: spacing.lg,
   },
-  choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+  choiceRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
   choice: {
     minWidth: 64,
     minHeight: MIN_TOUCH_TARGET,
@@ -1116,10 +1230,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
-  choiceActive: { borderColor: colors.accentStrong, backgroundColor: colors.accentSoft },
+  choiceActive: {
+    borderColor: colors.accentStrong,
+    backgroundColor: colors.accentSoft,
+  },
   choiceText: { ...typography.label, color: colors.textSecondary },
   choiceTextActive: { color: colors.accentStrong },
-  destinationGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
+  destinationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
   destination: {
     flexGrow: 1,
     // 260 rather than a 45% basis: inside the single-column layout a
@@ -1139,11 +1261,30 @@ const styles = StyleSheet.create({
   destinationActive: { backgroundColor: colors.surfaceHover },
   destinationCopy: { flex: 1 },
   destinationTitle: { ...typography.bodyStrong, color: colors.accentStrong },
-  destinationDetail: { ...typography.caption, color: colors.textSecondary, marginTop: spacing.xs, maxWidth: PROSE_MEASURE},
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
+  destinationDetail: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+    maxWidth: PROSE_MEASURE,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
   blockActionSpacing: { marginTop: spacing.md },
   saveGrow: { flexGrow: 1 },
-  outcomeText: { ...typography.body, color: colors.success, marginTop: spacing.md },
-  errorText: { ...typography.body, color: colors.error, marginTop: spacing.md, maxWidth: PROSE_MEASURE},
+  outcomeText: {
+    ...typography.body,
+    color: colors.success,
+    marginTop: spacing.md,
+  },
+  errorText: {
+    ...typography.body,
+    color: colors.error,
+    marginTop: spacing.md,
+    maxWidth: PROSE_MEASURE,
+  },
   disabled: { opacity: 0.45 },
 });

@@ -1,4 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   Pressable,
@@ -6,7 +16,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -17,11 +26,19 @@ import {
   type RawCliPhase,
   type SetupUiSessionKey,
 } from '../../platforms/react-native/protocol';
-import {PROSE_MEASURE, colors, noticeSurface, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {Icon} from '../icons';
-import {firmwareFamilyLabel} from '../presentation/brandSafeText';
-import {readInteraction} from '../components/controls/interaction';
-import {MIN_TOUCH_TARGET} from '../components/controls';
+import {
+  PROSE_MEASURE,
+  colors,
+  noticeSurface,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import { Icon } from '../icons';
+import { firmwareFamilyLabel } from '../presentation/brandSafeText';
+import { readInteraction } from '../components/controls/interaction';
+import { MIN_TOUCH_TARGET } from '../components/controls';
 
 export type CliScreenPort = Pick<
   typeof rawCliSessionController,
@@ -45,12 +62,12 @@ interface Props {
 }
 
 const QUICK_COMMANDS = Object.freeze([
-  { command: 'status', label: "Status" },
-  { command: 'version', label: "Versie" },
+  { command: 'status', label: 'Status' },
+  { command: 'version', label: 'Versie' },
   { command: 'diff all', label: 'diff all' },
   { command: 'dump all', label: 'dump all' },
-  { command: 'tasks', label: "Taken" },
-  { command: 'resource show all', label: "Resources" },
+  { command: 'tasks', label: 'Taken' },
+  { command: 'resource show all', label: 'Resources' },
 ]);
 
 /**
@@ -66,15 +83,15 @@ function errorText(error: unknown): string {
 function phaseLabel(phase: RawCliPhase): string {
   switch (phase) {
     case 'IDLE':
-      return "Inactief";
+      return 'Inactief';
     case 'ENTERING':
-      return "CLI openen…";
+      return 'CLI openen…';
     case 'ACTIVE':
-      return "Gereed voor opdrachten";
+      return 'Gereed voor opdrachten';
     case 'SENDING':
-      return "Wachten op prompt…";
+      return 'Wachten op prompt…';
     case 'CLOSING':
-      return "Sessie sluiten…";
+      return 'Sessie sluiten…';
   }
 }
 
@@ -94,7 +111,7 @@ export default function CliScreen({
   const [failure, setFailure] = useState<string>();
   const [hasCliError, setHasCliError] = useState(false);
   const [status, setStatus] = useState(
-    "Begin de CLI sessie openlijk. De telemetrie zal tijdelijk stoppen tot het uitkomt.",
+    'Begin de CLI sessie openlijk. De telemetrie zal tijdelijk stoppen tot het uitkomt.',
   );
 
   /**
@@ -114,7 +131,8 @@ export default function CliScreen({
   const stickToBottom = useRef(true);
   const onTerminalScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
+      const { contentOffset, contentSize, layoutMeasurement } =
+        event.nativeEvent;
       const distanceFromBottom =
         contentSize.height - layoutMeasurement.height - contentOffset.y;
       stickToBottom.current = distanceFromBottom <= TERMINAL_STICK_SLACK;
@@ -123,7 +141,7 @@ export default function CliScreen({
   );
   const onTerminalContentSizeChange = useCallback(() => {
     if (stickToBottom.current)
-      terminalRef.current?.scrollToEnd({animated: false});
+      terminalRef.current?.scrollToEnd({ animated: false });
   }, []);
 
   const sync = useCallback(() => {
@@ -175,13 +193,15 @@ export default function CliScreen({
   useEffect(() => {
     if (sessionKey === undefined && cli.getPhase() !== 'IDLE') {
       cli.exitWithoutSave().catch(() => undefined);
-      setFailure("De verbinding met de vluchtcontroller is verbroken. De CLI-sessie is beëindigd en de verbinding is veilig vrijgegeven.");
+      setFailure(
+        'De verbinding met de vluchtcontroller is verbroken. De CLI-sessie is beëindigd en de verbinding is veilig vrijgegeven.',
+      );
       onCliBusyChange(false);
     }
   }, [cli, onCliBusyChange, sessionKey]);
 
   const identity = useMemo(() => {
-    if (!sessionKey) return "Er is geen Flight Controller. sessie.";
+    if (!sessionKey) return 'Er is geen Flight Controller. sessie.';
     const state = cli.getIdentification(sessionKey.sessionId);
     if (state.status === 'SUCCEEDED') {
       /*
@@ -212,7 +232,7 @@ export default function CliScreen({
        * still prints whatever the board itself answers to `version`,
        * because that text is the board speaking, not this application.
        */
-      const {firmware, apiVersion, board} = state.identity;
+      const { firmware, apiVersion, board } = state.identity;
       const parts = [
         firmwareFamilyLabel(firmware.knownFamily),
         `MSP ${apiVersion.apiVersionMajor}.${apiVersion.apiVersionMinor}`,
@@ -225,10 +245,11 @@ export default function CliScreen({
       }
       return parts.join(' · ');
     }
-    if (state.status === 'FAILED') return "De controller is niet geïnstalleerd.";
+    if (state.status === 'FAILED')
+      return 'De controller is niet geïnstalleerd.';
     return state.status === 'RUNNING'
-      ? "Een naaste bevestigt de identiteit van de controleur."
-      : "I.D. is niet klaar.";
+      ? 'Een naaste bevestigt de identiteit van de controleur.'
+      : 'I.D. is niet klaar.';
   }, [cli, sessionKey]);
 
   const isOpen = phase !== 'IDLE';
@@ -240,12 +261,16 @@ export default function CliScreen({
     setHasCliError(false);
     setHistory([]);
     setHistoryCursor(-1);
-    setStatus("Stop het MSP-onderzoek en reserveer de verbinding en wacht op CLI prompt...");
+    setStatus(
+      'Stop het MSP-onderzoek en reserveer de verbinding en wacht op CLI prompt...',
+    );
     onCliBusyChange(true);
     try {
       await cli.begin(sessionKey);
       sync();
-      setStatus("De zitting is klaar. save wordt alleen verzonden via de open save knop.");
+      setStatus(
+        'De zitting is klaar. save wordt alleen verzonden via de open save knop.',
+      );
     } catch (error) {
       setFailure(errorText(error));
       sync();
@@ -273,7 +298,7 @@ export default function CliScreen({
         if (result.error) {
           setHasCliError(true);
           setFailure(
-            "CLI heeft een fout gemaakt. save is verboden voor deze sessie; Ga zonder te bewaren en kijk ernaar.",
+            'CLI heeft een fout gemaakt. save is verboden voor deze sessie; Ga zonder te bewaren en kijk ernaar.',
           );
         } else {
           setStatus(`${normalized} voltooid; prompt ontvangen.`);
@@ -308,8 +333,8 @@ export default function CliScreen({
         `fpv-arbcon-cli-${Date.now()}.txt`,
         output,
       );
-      if (!saved) throw new Error("Het CLI-record is nog niet voltooid.");
-      setStatus("Het CLI-log is opgeslagen in een tekstbestand.");
+      if (!saved) throw new Error('Het CLI-record is nog niet voltooid.');
+      setStatus('Het CLI-log is opgeslagen in een tekstbestand.');
     } catch (error) {
       setFailure(errorText(error));
     }
@@ -319,7 +344,7 @@ export default function CliScreen({
     setFailure(undefined);
     try {
       await cli.exitWithoutSave();
-      setStatus("CLI afgesloten zonder save te verzenden.");
+      setStatus('CLI afgesloten zonder save te verzenden.');
     } catch (error) {
       setFailure(errorText(error));
     } finally {
@@ -330,12 +355,12 @@ export default function CliScreen({
 
   const confirmSave = useCallback(() => {
     Alert.alert(
-      "Opslaan en de vluchtcontroller opnieuw opstarten",
-      "save wordt nu verzonden, en USB kan worden uitgeschakeld tijdens het opnieuw opstarten van Flight Controller.. Heb je diff all gecontroleerd?",
+      'Opslaan en de vluchtcontroller opnieuw opstarten',
+      'save wordt nu verzonden, en USB kan worden uitgeschakeld tijdens het opnieuw opstarten van Flight Controller.. Heb je diff all gecontroleerd?',
       [
-        { text: "Annuleren", style: 'cancel' },
+        { text: 'Annuleren', style: 'cancel' },
         {
-          text: "Opslaan en opnieuw opstarten",
+          text: 'Opslaan en opnieuw opstarten',
           style: 'destructive',
           onPress: () => {
             // THE THREE STAGES, SAID OUT LOUD.
@@ -353,13 +378,13 @@ export default function CliScreen({
             // as a fault, and the connection workspace reconnects on its
             // own. All this has to do is narrate it honestly.
             setStatus(
-              "save wordt verzonden → Flight wordt hersteld → Controller wordt hersteld...",
+              'save wordt verzonden → Flight wordt hersteld → Controller wordt hersteld...',
             );
             cli
               .saveAndClose()
               .then(() => {
                 setStatus(
-                  "De instellingen zijn opgeslagen en Flight Controller. wordt hersteld. De oproep komt automatisch binnen.",
+                  'De instellingen zijn opgeslagen en Flight Controller. wordt hersteld. De oproep komt automatisch binnen.',
                 );
                 setHasCliError(false);
               })
@@ -375,25 +400,35 @@ export default function CliScreen({
   }, [cli, onCliBusyChange, sync]);
 
   return (
-    <View style={styles.root} testID="cli-screen">
-      <ScrollView contentContainerStyle={[styles.content, { maxWidth }]}>
+    <WorkbenchBlock style={styles.root} testID="cli-screen" section="root">
+      <WorkbenchScrollView
+        contentContainerStyle={[styles.content, { maxWidth }]}
+        workspace="Cli"
+      >
         {/* CLI FINAL: ONE compact header - the terminal is the product
             here, so nothing bulky stands before it. The full safety
             teaching lives where it acts: the save confirmation. */}
-        <View style={styles.header}>
-          <View style={styles.headerCopy}>
-            <Text style={styles.title}>{"Opdrachtregel"}</Text>
+        <WorkbenchBlock style={styles.header} section="header" heading>
+          <WorkbenchBlock style={styles.headerCopy} section="headerCopy">
+            <Text style={styles.title}>{'Opdrachtregel'}</Text>
             <Text style={styles.identity}>{identity}</Text>
-          </View>
+          </WorkbenchBlock>
           <Text style={[styles.phase, isOpen && styles.phaseOpen]}>
             {phaseLabel(phase)}
           </Text>
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.safetyLine} accessibilityRole="alert">
-          {"Trek propellers uit, en maak USB niet af tijdens een order. De telemetrie staat de hele tijd stil. CLI heeft een verbinding, en save wordt alleen verzonden via zijn directe knop."}</Text>
+          {
+            'Trek propellers uit, en maak USB niet af tijdens een order. De telemetrie staat de hele tijd stil. CLI heeft een verbinding, en save wordt alleen verzonden via zijn directe knop.'
+          }
+        </Text>
 
         {failure ? (
-          <View style={styles.error} accessibilityRole="alert">
+          <WorkbenchBlock
+            style={styles.error}
+            accessibilityRole="alert"
+            section="error"
+          >
             <Text style={styles.errorText}>{failure}</Text>
             {!isOpen && sessionKey !== undefined && active ? (
               <Pressable
@@ -401,34 +436,53 @@ export default function CliScreen({
                 onPress={() => start().catch(() => undefined)}
                 style={styles.retry}
               >
-                <Text style={styles.retryText}>{"Opnieuw openen"}</Text>
+                <Text style={styles.retryText}>{'Opnieuw openen'}</Text>
               </Pressable>
             ) : null}
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {sessionKey === undefined ? (
-          <View style={styles.noSession} testID="cli-no-session">
+          <WorkbenchBlock
+            style={styles.noSession}
+            testID="cli-no-session"
+            section="noSession"
+          >
             <Text style={styles.noSessionText}>
-              {"Er is geen Flight Controller. sessie. Bel eerst de controller en dan open. CLI; De partij komt automatisch in de sessie."}</Text>
-          </View>
+              {
+                'Er is geen Flight Controller. sessie. Bel eerst de controller en dan open. CLI; De partij komt automatisch in de sessie.'
+              }
+            </Text>
+          </WorkbenchBlock>
         ) : (
           <>
-            <View style={styles.terminalCard}>
-              <View style={styles.terminalHeader}>
-                <Text style={styles.terminalTitle}>{"Live-uitvoer vluchtcontroller"}</Text>
-                <View style={styles.terminalTools}>
+            <WorkbenchBlock
+              style={styles.terminalCard}
+              section="terminalCard"
+              panel
+            >
+              <WorkbenchBlock
+                style={styles.terminalHeader}
+                section="terminalHeader"
+              >
+                <Text style={styles.terminalTitle}>
+                  {'Live-uitvoer vluchtcontroller'}
+                </Text>
+                <WorkbenchBlock
+                  style={styles.terminalTools}
+                  section="terminalTools"
+                >
                   <Pressable
                     testID="cli-download-output"
                     accessibilityRole="button"
-                    accessibilityLabel={"Log downloaden"}
+                    accessibilityLabel={'Log downloaden'}
                     accessibilityState={{
                       disabled: !output.trim() || phase !== 'ACTIVE',
                     }}
                     disabled={!output.trim() || phase !== 'ACTIVE'}
                     onPress={() => downloadOutput().catch(() => undefined)}
                     style={state => {
-                      const {pressed, hovered} = readInteraction(state);
+                      const { pressed, hovered } = readInteraction(state);
                       return [
                         styles.tool,
                         (hovered || pressed) && styles.toolActive,
@@ -438,16 +492,16 @@ export default function CliScreen({
                     }}
                   >
                     <Icon name="download" size={18} color={colors.accent} />
-                    <Text style={styles.toolText}>{"Log downloaden"}</Text>
+                    <Text style={styles.toolText}>{'Log downloaden'}</Text>
                   </Pressable>
                   <Pressable
                     testID="cli-clear-output"
                     accessibilityRole="button"
-                    accessibilityLabel={"Weergave wissen"}
-                    accessibilityState={{disabled: phase !== 'ACTIVE'}}
+                    accessibilityLabel={'Weergave wissen'}
+                    accessibilityState={{ disabled: phase !== 'ACTIVE' }}
                     disabled={phase !== 'ACTIVE'}
                     style={state => {
-                      const {pressed, hovered} = readInteraction(state);
+                      const { pressed, hovered } = readInteraction(state);
                       return [
                         styles.tool,
                         (hovered || pressed) && styles.toolActive,
@@ -464,10 +518,10 @@ export default function CliScreen({
                     }}
                   >
                     <Icon name="trash-2" size={18} color={colors.accent} />
-                    <Text style={styles.toolText}>{"Weergave wissen"}</Text>
+                    <Text style={styles.toolText}>{'Weergave wissen'}</Text>
                   </Pressable>
-                </View>
-              </View>
+                </WorkbenchBlock>
+              </WorkbenchBlock>
               <ScrollView
                 ref={terminalRef}
                 style={styles.terminal}
@@ -487,10 +541,10 @@ export default function CliScreen({
                   style={styles.terminalText}
                   testID="cli-output"
                 >
-                  {output || "# Wachten op uitvoer…"}
+                  {output || '# Wachten op uitvoer…'}
                 </Text>
               </ScrollView>
-              <View style={styles.commandRow}>
+              <WorkbenchBlock style={styles.commandRow} section="commandRow">
                 <TextInput
                   testID="cli-command-input"
                   value={command}
@@ -501,7 +555,7 @@ export default function CliScreen({
                   editable={phase === 'ACTIVE'}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  placeholder={"Voorbeeld: get gyro_lpf1_static_hz"}
+                  placeholder={'Voorbeeld: get gyro_lpf1_static_hz'}
                   placeholderTextColor={colors.textMuted}
                   style={styles.commandInput}
                 />
@@ -511,47 +565,55 @@ export default function CliScreen({
                   onPress={() => runCommand(command).catch(() => undefined)}
                   style={[styles.send, !canSend && styles.disabled]}
                 >
-                  <Text style={styles.sendText}>{"Verzenden"}</Text>
+                  <Text style={styles.sendText}>{'Verzenden'}</Text>
                 </Pressable>
-              </View>
-              <View style={styles.historyRow}>
+              </WorkbenchBlock>
+              <WorkbenchBlock style={styles.historyRow} section="historyRow">
                 <Pressable
                   onPress={() => browseHistory(1)}
                   accessibilityRole="button"
-                  accessibilityLabel={"Vorige opdracht"}
+                  accessibilityLabel={'Vorige opdracht'}
                   style={state => {
-                    const {pressed, hovered} = readInteraction(state);
-                    return [styles.tool, (hovered || pressed) && styles.toolActive];
+                    const { pressed, hovered } = readInteraction(state);
+                    return [
+                      styles.tool,
+                      (hovered || pressed) && styles.toolActive,
+                    ];
                   }}
                 >
                   {/* Vertical: 'earlier in the list', not a reading
                       direction, so raw geometry and never an alias. */}
                   <Icon name="arrow-up" size={18} color={colors.accent} />
-                  <Text style={styles.toolText}>{"Vorige"}</Text>
+                  <Text style={styles.toolText}>{'Vorige'}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => browseHistory(-1)}
                   accessibilityRole="button"
-                  accessibilityLabel={"Nieuwste opdracht"}
+                  accessibilityLabel={'Nieuwste opdracht'}
                   style={state => {
-                    const {pressed, hovered} = readInteraction(state);
-                    return [styles.tool, (hovered || pressed) && styles.toolActive];
+                    const { pressed, hovered } = readInteraction(state);
+                    return [
+                      styles.tool,
+                      (hovered || pressed) && styles.toolActive,
+                    ];
                   }}
                 >
                   <Icon name="arrow-down" size={18} color={colors.accent} />
-                  <Text style={styles.toolText}>{"Nieuwste"}</Text>
+                  <Text style={styles.toolText}>{'Nieuwste'}</Text>
                 </Pressable>
                 <Text style={styles.historyCount}>
-                  {"Geschiedenis van deze sessie:"}{history.length}
+                  {'Geschiedenis van deze sessie:'}
+                  {history.length}
                 </Text>
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
 
-            <View style={styles.quickCard}>
-              <Text style={styles.sectionTitle}>{"Snelle leesopdrachten"}</Text>
+            <WorkbenchBlock style={styles.quickCard} section="quickCard" panel>
+              <Text style={styles.sectionTitle}>{'Snelle leesopdrachten'}</Text>
               <Text style={styles.hint}>
-                {"Bekende knoppen voor lezen en diagnosticeren; Niets bewaren."}</Text>
-              <View style={styles.quickGrid}>
+                {'Bekende knoppen voor lezen en diagnosticeren; Niets bewaren.'}
+              </Text>
+              <WorkbenchBlock style={styles.quickGrid} section="quickGrid">
                 {QUICK_COMMANDS.map(item => (
                   <Pressable
                     key={item.command}
@@ -569,23 +631,34 @@ export default function CliScreen({
                     <Text style={styles.quickCode}>{item.command}</Text>
                   </Pressable>
                 ))}
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
 
-            <View style={styles.decision}>
-              <View style={styles.decisionCopy}>
-                <Text style={styles.sectionTitle}>{"Sessie beëindigen"}</Text>
+            <WorkbenchBlock style={styles.decision} section="decision">
+              <WorkbenchBlock
+                style={styles.decisionCopy}
+                section="decisionCopy"
+              >
+                <Text style={styles.sectionTitle}>{'Sessie beëindigen'}</Text>
                 <Text style={styles.hint}>
-                  {"Afsluiten zonder opslaan maakt de tijdelijke wijzigingen ongedaan. save installeert en revert. De controller aan."}</Text>
-              </View>
-              <View style={styles.decisionActions}>
+                  {
+                    'Afsluiten zonder opslaan maakt de tijdelijke wijzigingen ongedaan. save installeert en revert. De controller aan.'
+                  }
+                </Text>
+              </WorkbenchBlock>
+              <WorkbenchBlock
+                style={styles.decisionActions}
+                section="decisionActions"
+              >
                 <Pressable
                   testID="cli-discard"
                   disabled={phase !== 'ACTIVE'}
                   onPress={() => discard().catch(() => undefined)}
                   style={styles.discard}
                 >
-                  <Text style={styles.discardText}>{"Afsluiten zonder opslaan"}</Text>
+                  <Text style={styles.discardText}>
+                    {'Afsluiten zonder opslaan'}
+                  </Text>
                 </Pressable>
                 <Pressable
                   testID="cli-save"
@@ -596,20 +669,26 @@ export default function CliScreen({
                     (phase !== 'ACTIVE' || hasCliError) && styles.disabled,
                   ]}
                 >
-                  <Text style={styles.saveText}>{"save en opnieuw opstarten"}</Text>
+                  <Text style={styles.saveText}>
+                    {'save en opnieuw opstarten'}
+                  </Text>
                 </Pressable>
-              </View>
-            </View>
+              </WorkbenchBlock>
+            </WorkbenchBlock>
           </>
         )}
 
-        <View style={styles.status}>
+        <WorkbenchBlock style={styles.status} section="status">
           <Text style={styles.statusText}>{status}</Text>
-        </View>
+        </WorkbenchBlock>
         <Text style={styles.hardware}>
-          {t('hardwareVerification.behaviourTitle')} {"Een CLI-prompt bewijst niet dat een opdracht correct is of dat de afstelling bij het toestel past. Controleer de CLI-uitvoer en test op de werkbank zonder propellers."}</Text>
-      </ScrollView>
-    </View>
+          {t('hardwareVerification.behaviourTitle')}{' '}
+          {
+            'Een CLI-prompt bewijst niet dat een opdracht correct is of dat de afstelling bij het toestel past. Controleer de CLI-uitvoer en test op de werkbank zonder propellers.'
+          }
+        </Text>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
@@ -646,7 +725,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.warningSoft,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm, maxWidth: PROSE_MEASURE},
+    paddingVertical: spacing.sm,
+    maxWidth: PROSE_MEASURE,
+  },
   noSession: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -657,7 +738,9 @@ const styles = StyleSheet.create({
   noSessionText: {
     ...typography.body,
     color: colors.textSecondary,
-    textAlign: 'left', maxWidth: PROSE_MEASURE},
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   retry: {
     marginTop: spacing.sm,
     minHeight: MIN_TOUCH_TARGET,
@@ -678,9 +761,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   phaseOpen: { color: colors.success, backgroundColor: colors.accentSoft },
-  error: {...noticeSurface, backgroundColor: colors.errorSoft,
-    borderColor: colors.error},
-  errorText: { ...typography.body, color: colors.error, textAlign: 'left', maxWidth: PROSE_MEASURE},
+  error: {
+    ...noticeSurface,
+    backgroundColor: colors.errorSoft,
+    borderColor: colors.error,
+  },
+  errorText: {
+    ...typography.body,
+    color: colors.error,
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   disabled: { opacity: 0.42 },
   quickCard: {
     backgroundColor: colors.surface,
@@ -695,7 +786,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     textAlign: 'left',
   },
-  hint: { ...typography.caption, color: colors.textMuted, textAlign: 'left', maxWidth: PROSE_MEASURE},
+  hint: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   quick: {
     minWidth: 145,
@@ -733,7 +829,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#111C27',
   },
   terminalTitle: { ...typography.sectionTitle, color: '#E7F5F3' },
-  terminalTools: { flexDirection: 'row', flexWrap: 'wrap', maxWidth: '100%', gap: spacing.lg },
+  terminalTools: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
+    gap: spacing.lg,
+  },
   /* Terminal chrome sits on the dark terminal surface, so it keeps local
      colours rather than the light shared Button - but it now obeys the
      same target floor and state rules. */
@@ -747,7 +848,11 @@ const styles = StyleSheet.create({
   },
   toolActive: { backgroundColor: colors.accentSoft },
   toolDisabled: { opacity: 0.45 },
-  toolText: { ...typography.label, color: colors.accent, maxWidth: PROSE_MEASURE},
+  toolText: {
+    ...typography.label,
+    color: colors.accent,
+    maxWidth: PROSE_MEASURE,
+  },
   terminal: { height: 360, padding: spacing.md },
   terminalText: {
     ...typography.mono,
@@ -846,9 +951,13 @@ const styles = StyleSheet.create({
   statusText: {
     ...typography.body,
     color: colors.accentStrong,
-    textAlign: 'left', maxWidth: PROSE_MEASURE},
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   hardware: {
     ...typography.caption,
     color: colors.warning,
-    textAlign: 'center', maxWidth: PROSE_MEASURE},
+    textAlign: 'center',
+    maxWidth: PROSE_MEASURE,
+  },
 });

@@ -219,7 +219,7 @@ describe('PART Y: the toggle represents REAL persistent session state', () => {
   it('announces its state to a screen reader, not just its name', () => {
     const r = render(new Operator(snapshotFor({phase: 'ACTIVE'})));
     const label = r.label('motor-session-toggle');
-    expect(label).toContain("motoren sessie");
+    expect(label).toContain("Motortestsessie");
     expect(label).toContain("Gereed");
   });
 

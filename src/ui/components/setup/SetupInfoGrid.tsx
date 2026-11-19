@@ -13,9 +13,7 @@
  * Betaflight's Setup tab groups the same class of information into three
  * dense columns and gets all of it into one screenful. This grid follows
  * that HIERARCHY - Status / GPS / Build, three columns on a desktop,
- * stacking on a phone - in this application's own visual language. No
- * Betaflight CSS, no imitation of its look; the same facts in the same
- * logical grouping, close enough to read together.
+ * stacking on a phone - in this application's own visual language. Layout and models are adapted from Betaflight; see THIRD_PARTY_NOTICES.md.
  *
  * A row is a label and a value on one line, 22px tall. There is no
  * shadow, no elevation, no per-value card and no per-column heading
@@ -698,29 +696,12 @@ function Column({
 }
 
 const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: spacing.sm,
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
-  column: {
-    flexGrow: 1,
-    flexBasis: '100%',
-    minWidth: 0,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
-    borderRadius: radii.sm,
-    backgroundColor: colors.surface,
-  },
-  /* flexBasis is deliberately a hair under the true fraction: the gap
-     between columns is real width, and an exact 33.333% basis wraps the
-     third column onto its own line. */
-  columnThird: {flexBasis: '31%'},
-  columnHalf: {flexBasis: '47%'},
+  grid:{flexDirection:'row',flexWrap:'wrap',gap:spacing.md,marginTop:spacing.md},
+  column:{flexGrow:0,flexBasis:'100%',minWidth:0,padding:spacing.md,borderWidth:1,borderColor:colors.borderSoft,borderRadius:radii.md,backgroundColor:colors.surface},
+  /* Content-sized instrument cards wrap naturally instead of stretching
+     a few values across the whole monitor. */
+  columnThird:{flexBasis:320},
+  columnHalf:{flexBasis:320},
   columnTitle: {
     ...typography.label,
     color: colors.accentStrong,
@@ -732,24 +713,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     maxWidth: PROSE_MEASURE,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-    minHeight: 22,
-  },
-  rowLabel: {
-    ...typography.helper,
-    color: colors.textSecondary,
-    flexShrink: 0,
-  },
-  rowValue: {
-    ...typography.caption,
-    color: colors.textPrimary,
-    fontWeight: '600',
-    flexShrink: 1,
-  },
+  row:{flexDirection:'row',alignItems:'baseline',justifyContent:'space-between',gap:12,minHeight:28},
+  rowLabel:{...typography.caption,color:colors.textSecondary,flexShrink:1},
+  rowValue:{...typography.label,color:colors.textPrimary,fontWeight:'600',flexShrink:1,fontVariant:['tabular-nums']},
   rowValueAbsent: {
     color: colors.textSecondary,
     fontWeight: '500',

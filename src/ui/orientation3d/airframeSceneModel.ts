@@ -48,8 +48,8 @@ import {
   authoredAirframeLayout,
   type AirframeLayout,
 } from '../../core/state/motorAirframeLayout';
-import type {ObservedAirframe} from '../../core/state/observedAirframeTruth';
-import type {DroneSceneAirframe} from './droneSceneGeometry';
+import type { ObservedAirframe } from '../../core/state/observedAirframeTruth';
+import type { DroneSceneAirframe } from './droneSceneGeometry';
 
 /**
  * The scene model for an authored layout.
@@ -59,11 +59,13 @@ import type {DroneSceneAirframe} from './droneSceneGeometry';
  * "adjust" a position it would mean the scene had an opinion about
  * airframes, which is exactly what §10 forbids.
  */
-export function sceneAirframeFromLayout(layout: AirframeLayout): DroneSceneAirframe {
+export function sceneAirframeFromLayout(
+  layout: AirframeLayout,
+): DroneSceneAirframe {
   return Object.freeze({
     rotors: Object.freeze(
       layout.placements.map(placement =>
-        Object.freeze({x: placement.x, y: placement.y, deck: placement.deck}),
+        Object.freeze({ x: placement.x, y: placement.y, deck: placement.deck }),
       ),
     ),
     silhouette: layout.silhouette,
@@ -86,10 +88,15 @@ export function sceneAirframeFor(
      outputs 1..N. The gate then checks that the mixer's authored layout
      describes exactly that set, so a count that contradicts the mixer
      yields no aircraft - see case 3 in this file's header. */
-    const motorNumbers = Array.from(
-    {length: observed.motorCount},
+  const motorNumbers = Array.from(
+    { length: observed.motorCount },
     (_unused, index) => index + 1,
   );
   const layout = authoredAirframeLayout(observed.mixerModeRaw, motorNumbers);
-  return layout === undefined ? undefined : sceneAirframeFromLayout(layout);
+  return layout === undefined
+    ? undefined
+    : Object.freeze({
+        ...sceneAirframeFromLayout(layout),
+        mixerModeRaw: observed.mixerModeRaw,
+      });
 }

@@ -4,9 +4,8 @@ export function useMspOwnershipState(): 'ACTIVE' {
   return 'ACTIVE';
 }
 
-export function useMspIdentificationState(): {status: 'IDLE'} {
-  return {status: 'IDLE'};
-}
+const IDENTITY = {status:'SUCCEEDED',identity:{firmware:{identifier:'BTFL',knownFamily:'BETAFLIGHT'},apiVersion:{mspProtocolVersion:0,apiVersionMajor:1,apiVersionMinor:47},board:{}}} as const;
+export function useMspIdentificationState(){return IDENTITY;}
 
 export function useMspRecoveryState(): 'READY' {
   return 'READY';

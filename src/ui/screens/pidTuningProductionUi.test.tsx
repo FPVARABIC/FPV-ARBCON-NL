@@ -139,7 +139,7 @@ describe('the PID page against a board, through the shipped controller', () => {
   it('writes an edited gain and claims verified only after the board answers', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-pid');
     typeInto(renderer, 'pid-roll-p', '52');
     await save(renderer);
 
@@ -156,7 +156,7 @@ describe('the PID page against a board, through the shipped controller', () => {
     // prop that a future layout change could drop.
     const h = harness({pidProfiles: [{simplifiedPids: simplifiedPidsOn()}, {}, {}, {}]});
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-pid');
     expect(editable(renderer, 'pid-roll-p')).toBe(false);
     act(() => renderer.unmount());
 

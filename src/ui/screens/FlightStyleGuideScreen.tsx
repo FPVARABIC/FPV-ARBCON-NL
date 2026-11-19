@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * THE DIRECTORY OF FLIGHT STYLES - five cards, and nothing else.
  *
@@ -20,19 +24,12 @@
  * entry on the home screen.
  */
 import React from 'react';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Pressable, StyleSheet, Text, useWindowDimensions } from 'react-native';
 
-import type {RootStackParamList} from '../../navigation/types';
-import {Icon} from '../icons';
-import {readInteraction} from '../components/controls/interaction';
+import type { RootStackParamList } from '../../navigation/types';
+import { Icon } from '../icons';
+import { readInteraction } from '../components/controls/interaction';
 import {
   FLIGHT_STYLES,
   FLIGHT_STYLE_HERO_FIT,
@@ -40,8 +37,18 @@ import {
   GuideHeader,
   StyleCover,
 } from '../flight-guides';
-import type {GuideCorner} from '../flight-guides';
-import {PROSE_MEASURE, colors, contentEnvelope, isDesktopTier, noticeSurface, radii, resolveLayoutTier, spacing, typography} from '../theme';
+import type { GuideCorner } from '../flight-guides';
+import {
+  PROSE_MEASURE,
+  colors,
+  contentEnvelope,
+  isDesktopTier,
+  noticeSurface,
+  radii,
+  resolveLayoutTier,
+  spacing,
+  typography,
+} from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FlightStyleGuide'>;
 
@@ -83,9 +90,14 @@ function StyleCard({
       testID={`guide-card-${corner.id}`}
       onPress={onPress}
       style={state => {
-        const {pressed, hovered} = readInteraction(state);
-        return [styles.card, hovered && styles.cardHovered, pressed && styles.cardPressed];
-      }}>
+        const { pressed, hovered } = readInteraction(state);
+        return [
+          styles.card,
+          hovered && styles.cardHovered,
+          pressed && styles.cardPressed,
+        ];
+      }}
+    >
       <StyleCover
         source={FLIGHT_STYLE_HERO_IMAGES[corner.id]}
         fit={FLIGHT_STYLE_HERO_FIT[corner.id]}
@@ -93,19 +105,21 @@ function StyleCard({
         titleEn={corner.titleEn}
         testID={`guide-cover-${corner.id}`}
       />
-      <View style={styles.cardBody}>
+      <WorkbenchBlock style={styles.cardBody} section="cardBody">
         <Text style={styles.cardEn}>{corner.titleEn}</Text>
         <Text style={styles.cardTitle}>{corner.titleAr}</Text>
         <Text style={styles.cardDescription}>{corner.descriptionAr}</Text>
 
-        <View style={styles.metaRow}>
-          <View style={styles.chip}>
+        <WorkbenchBlock style={styles.metaRow} section="metaRow">
+          <WorkbenchBlock style={styles.chip} section="chip">
             <Text style={styles.chipText}>{corner.difficultyAr}</Text>
-          </View>
-          <View style={styles.chip}>
-            <Text style={styles.chipText}>{corner.steps.length} {"Stapjes."}</Text>
-          </View>
-        </View>
+          </WorkbenchBlock>
+          <WorkbenchBlock style={styles.chip} section="chip">
+            <Text style={styles.chipText}>
+              {corner.steps.length} {'Stapjes.'}
+            </Text>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
 
         {/* NO LINE CAP. This carried numberOfLines={2} until run
             34723764981 measured, at font scale 2.0 on a 320x640 display,
@@ -123,11 +137,11 @@ function StyleCard({
             is the intended trade. */}
         <Text style={styles.aircraft}>{corner.aircraft.join(' · ')}</Text>
 
-        <View style={styles.cta}>
-          <Text style={styles.ctaText}>{"Maak de hoek open."}</Text>
+        <WorkbenchBlock style={styles.cta} section="cta">
+          <Text style={styles.ctaText}>{'Maak de hoek open.'}</Text>
           <Icon name="chevron-forward" size={20} color={colors.accentStrong} />
-        </View>
-      </View>
+        </WorkbenchBlock>
+      </WorkbenchBlock>
     </Pressable>
   );
 }
@@ -135,19 +149,23 @@ function StyleCard({
 export default function FlightStyleGuideScreen({
   navigation,
 }: Props): React.JSX.Element {
-  const {width, fontScale} = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const tier = resolveLayoutTier(width, fontScale);
   const desktop = isDesktopTier(tier);
   const columns = columnsFor(width);
 
   return (
-    <View style={styles.root} testID="flight-style-guide-screen">
+    <WorkbenchBlock
+      style={styles.root}
+      testID="flight-style-guide-screen"
+      section="root"
+    >
       <GuideHeader
-        eyebrow={"Vluchtvoorbereiding"}
-        title={"Vliegstijlgidsen"}
+        eyebrow={'Vluchtvoorbereiding'}
+        title={'Vliegstijlgidsen'}
         onBack={() => navigation.goBack()}
       />
-      <ScrollView
+      <WorkbenchScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.content,
@@ -160,36 +178,50 @@ export default function FlightStyleGuideScreen({
               GUIDE_MAX_WIDTH,
             ),
           },
-        ]}>
-
-        <View style={styles.grid} testID="guide-card-group">
+        ]}
+        workspace="FlightStyleGuide"
+      >
+        <WorkbenchBlock
+          style={styles.grid}
+          testID="guide-card-group"
+          section="grid"
+        >
           {FLIGHT_STYLES.map(corner => (
-            <View
+            <WorkbenchBlock
               key={corner.id}
-              style={[styles.cell, {width: `${100 / columns}%`}]}>
+              style={[styles.cell, { width: `${100 / columns}%` }]}
+              section="cell"
+            >
               <StyleCard
                 corner={corner}
                 onPress={() =>
-                  navigation.navigate('FlightStyleCorner', {styleId: corner.id})
+                  navigation.navigate('FlightStyleCorner', {
+                    styleId: corner.id,
+                  })
                 }
               />
-            </View>
+            </WorkbenchBlock>
           ))}
-        </View>
+        </WorkbenchBlock>
 
-        <View style={styles.verification}>
-          <Text style={styles.verificationTitle}>{"Wat betekenen de nummers van deze handleiding?"}</Text>
+        <WorkbenchBlock style={styles.verification} section="verification">
+          <Text style={styles.verificationTitle}>
+            {'Wat betekenen de nummers van deze handleiding?'}
+          </Text>
           <Text style={styles.verificationText}>
-            {"Elk nummer is afkomstig van officiële firmware-bronnen en staat naast de bron. De mogelijkheid van de applicatie op zijn knoppen is getest. Het is geen beproefde waarde. Een reis, niet altijd bevestigd. Het zijn allemaal beginpunten."}</Text>
-        </View>
-      </ScrollView>
-    </View>
+            {
+              'Elk nummer is afkomstig van officiële firmware-bronnen en staat naast de bron. De mogelijkheid van de applicatie op zijn knoppen is getest. Het is geen beproefde waarde. Een reis, niet altijd bevestigd. Het zijn allemaal beginpunten.'
+            }
+          </Text>
+        </WorkbenchBlock>
+      </WorkbenchScrollView>
+    </WorkbenchBlock>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
-  scroll: {flex: 1},
+  root: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
   content: {
     width: '100%',
     alignSelf: 'center',
@@ -201,7 +233,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   /* A real grid: the CELL owns the width (one, two or three per row) and
      the card fills it. Gutters come from cell padding rather than `gap`,
      because a percentage width and a gap cannot both be satisfied - that
@@ -212,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     marginHorizontal: -HALF_GUTTER,
   },
-  cell: {padding: HALF_GUTTER},
+  cell: { padding: HALF_GUTTER },
   card: {
     /* Fills its cell and stretches to the tallest card in the row, so a
        row reads as one shelf rather than a ragged edge. */
@@ -223,47 +257,70 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  cardHovered: {borderColor: colors.accentStrong},
-  cardPressed: {opacity: 0.85},
-  cardBody: {padding: spacing.lg, gap: 6},
+  cardHovered: { borderColor: colors.accentStrong },
+  cardPressed: { opacity: 0.85 },
+  cardBody: { padding: spacing.lg, gap: 6 },
   cardEn: {
     ...typography.eyebrow,
     color: colors.accentStrong,
     writingDirection: 'ltr',
     textAlign: 'right',
   },
-  cardTitle: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
+  cardTitle: {
+    ...typography.title,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   cardDescription: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  metaRow: {flexDirection: 'row', gap: spacing.sm, paddingTop: spacing.sm},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  metaRow: { flexDirection: 'row', gap: spacing.sm, paddingTop: spacing.sm },
   chip: {
     borderRadius: radii.pill,
     backgroundColor: colors.accentSoft,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  chipText: {...typography.caption, color: colors.accentStrong, fontWeight: '600'},
+  chipText: {
+    ...typography.caption,
+    color: colors.accentStrong,
+    fontWeight: '600',
+  },
   aircraft: {
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
     writingDirection: 'ltr',
-    paddingTop: 2, maxWidth: PROSE_MEASURE},
+    paddingTop: 2,
+    maxWidth: PROSE_MEASURE,
+  },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingTop: spacing.sm,
   },
-  ctaText: {...typography.label, color: colors.accentStrong},
-  verification: {...noticeSurface, backgroundColor: colors.infoSoft, borderColor: colors.info, gap: 4},
-  verificationTitle: {...typography.label, color: colors.textPrimary, textAlign: 'left'},
+  ctaText: { ...typography.label, color: colors.accentStrong },
+  verification: {
+    ...noticeSurface,
+    backgroundColor: colors.infoSoft,
+    borderColor: colors.info,
+    gap: 4,
+  },
+  verificationTitle: {
+    ...typography.label,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
   verificationText: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
 });

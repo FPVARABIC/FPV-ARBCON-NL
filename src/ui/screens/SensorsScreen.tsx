@@ -1,3 +1,8 @@
+import SensorOrientation from '../components/setup/SensorOrientation';
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * THE «المستشعرات» SCREEN.
  *
@@ -39,11 +44,17 @@
  * across by the controller rather than authored here.
  */
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {LayoutChangeEvent} from 'react-native';
-import {ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
-import Svg, {Line, Polyline} from 'react-native-svg';
-import {useTranslation} from 'react-i18next';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type { LayoutChangeEvent } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import Svg, { Line, Polyline } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
 import type {
   MspAltitude,
@@ -86,7 +97,7 @@ import type {
   SensorContradiction,
   SensorTruth,
 } from '../../core/state/sensorTruthSemantics';
-import type {SensorHardwareValue} from '../../core';
+import type { SensorHardwareValue } from '../../core';
 import {
   acquireSensorsTelemetry,
   SENSOR_ALTITUDE_POLL_ID,
@@ -103,11 +114,25 @@ import {
   type SensorsSnapshot,
   type SetupUiSessionKey,
 } from '../../platforms/react-native/protocol';
-import {Button, NoticeBox, SelectField, type SelectOption} from '../components/controls';
-import {StickyActionBar} from '../components/editing';
-import {Icon} from '../icons';
-import {colors, radii, spacing, typography, useContentEnvelope} from '../theme';
-import {sensorsPendingSave, useSensorsPendingSave} from '../session/sensorsPendingSave';
+import {
+  Button,
+  NoticeBox,
+  SelectField,
+  type SelectOption,
+} from '../components/controls';
+import { StickyActionBar } from '../components/editing';
+import { Icon } from '../icons';
+import {
+  colors,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
+import {
+  sensorsPendingSave,
+  useSensorsPendingSave,
+} from '../session/sensorsPendingSave';
 
 /* ================================================================== *
  * PORT
@@ -121,27 +146,51 @@ export interface SensorsControllerPort {
     key: SetupUiSessionKey,
     observed: SensorsSnapshot,
     draft: SensorsHardwareDraft,
-    onProgress?: (stage: 'SENDING' | 'VERIFYING_APPLY' | 'PERSISTING' | 'VERIFYING_PERSISTED') => void,
-  ): Promise<Awaited<ReturnType<typeof sensorsConfigurationController.saveHardwareSelection>>>;
+    onProgress?: (
+      stage:
+        | 'SENDING'
+        | 'VERIFYING_APPLY'
+        | 'PERSISTING'
+        | 'VERIFYING_PERSISTED',
+    ) => void,
+  ): Promise<
+    Awaited<
+      ReturnType<typeof sensorsConfigurationController.saveHardwareSelection>
+    >
+  >;
   verifyHardwarePersistence(
     key: SetupUiSessionKey,
     pending: SensorsPendingHardware,
-  ): Promise<Awaited<ReturnType<typeof sensorsConfigurationController.verifyHardwarePersistence>>>;
+  ): Promise<
+    Awaited<
+      ReturnType<
+        typeof sensorsConfigurationController.verifyHardwarePersistence
+      >
+    >
+  >;
   saveMagAlignment(
     key: SetupUiSessionKey,
     observed: SensorsSnapshot,
     draft: SensorsMagAlignmentDraft,
-  ): Promise<Awaited<ReturnType<typeof sensorsConfigurationController.saveMagAlignment>>>;
+  ): Promise<
+    Awaited<ReturnType<typeof sensorsConfigurationController.saveMagAlignment>>
+  >;
   saveAccTrim(
     key: SetupUiSessionKey,
     observed: SensorsSnapshot,
-    draft: {readonly pitch: number; readonly roll: number},
-  ): Promise<Awaited<ReturnType<typeof sensorsConfigurationController.saveAccTrim>>>;
+    draft: { readonly pitch: number; readonly roll: number },
+  ): Promise<
+    Awaited<ReturnType<typeof sensorsConfigurationController.saveAccTrim>>
+  >;
   saveCompassDeclination(
     key: SetupUiSessionKey,
     observed: SensorsSnapshot,
-    draft: {readonly magDeclinationDecidegrees: number},
-  ): Promise<Awaited<ReturnType<typeof sensorsConfigurationController.saveCompassDeclination>>>;
+    draft: { readonly magDeclinationDecidegrees: number },
+  ): Promise<
+    Awaited<
+      ReturnType<typeof sensorsConfigurationController.saveCompassDeclination>
+    >
+  >;
   calibrateAccelerometer(
     key: SetupUiSessionKey,
     onProgress?: (progress: SensorsCalibrationProgress) => void,
@@ -180,7 +229,12 @@ const TRACE_PAD_Y = 4;
 export function sharedTraceBound(samples: readonly Sample[]): number {
   let bound = 1;
   for (const sample of samples) {
-    bound = Math.max(bound, Math.abs(sample.x), Math.abs(sample.y), Math.abs(sample.z));
+    bound = Math.max(
+      bound,
+      Math.abs(sample.x),
+      Math.abs(sample.y),
+      Math.abs(sample.z),
+    );
   }
   return bound;
 }
@@ -256,7 +310,9 @@ const AXIS_COLORS: Record<keyof Sample, string> = {
 };
 
 function valueOf<T>(value: TelemetryValue<T>): T | undefined {
-  return value.status === 'FRESH' || value.status === 'STALE' ? value.value : undefined;
+  return value.status === 'FRESH' || value.status === 'STALE'
+    ? value.value
+    : undefined;
 }
 
 /* ================================================================== *
@@ -275,10 +331,16 @@ function Fact({
   testID?: string;
 }): React.JSX.Element {
   return (
-    <View style={styles.fact} accessible accessibilityLabel={`${label}: ${value}`} testID={testID}>
+    <WorkbenchBlock
+      style={styles.fact}
+      accessible
+      accessibilityLabel={`${label}: ${value}`}
+      testID={testID}
+      section="fact"
+    >
       <Text style={styles.factLabel}>{label}</Text>
       <Text style={styles.factValue}>{value}</Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -295,16 +357,16 @@ function StateMark({
     tone === 'present'
       ? 'circle-check'
       : tone === 'attention'
-        ? 'triangle-alert'
-        : tone === 'absent'
-          ? 'circle-x'
-          : 'circle-question-mark';
+      ? 'triangle-alert'
+      : tone === 'absent'
+      ? 'circle-x'
+      : 'circle-question-mark';
   const colour =
     tone === 'present'
       ? colors.success
       : tone === 'attention'
-        ? colors.warning
-        : colors.textMuted;
+      ? colors.warning
+      : colors.textMuted;
   return <Icon name={icon} size={16} color={colour} testID={testID} />;
 }
 
@@ -313,10 +375,16 @@ function StateMark({
  * ================================================================== */
 
 type Busy =
-  | {readonly kind: 'IDLE'}
-  | {readonly kind: 'LOADING'}
-  | {readonly kind: 'HARDWARE_SAVE'; readonly stage: SensorHardwareSaveStageId}
-  | {readonly kind: 'FIELD_SAVE'; readonly field: 'TRIM' | 'DECLINATION' | 'ALIGNMENT'}
+  | { readonly kind: 'IDLE' }
+  | { readonly kind: 'LOADING' }
+  | {
+      readonly kind: 'HARDWARE_SAVE';
+      readonly stage: SensorHardwareSaveStageId;
+    }
+  | {
+      readonly kind: 'FIELD_SAVE';
+      readonly field: 'TRIM' | 'DECLINATION' | 'ALIGNMENT';
+    }
   | {
       readonly kind: 'CALIBRATING';
       readonly target: SensorCalibrationTargetId;
@@ -336,25 +404,39 @@ export default function SensorsScreen({
   controller = sensorsConfigurationController,
   now = Date.now,
 }: Props): React.JSX.Element {
-  const {t} = useTranslation();
-  const {maxWidth, tier} = useContentEnvelope(true);
+  const { t } = useTranslation();
+  const { maxWidth, tier } = useContentEnvelope(true);
   const wide = tier !== 'compact';
   const sessionId = sessionKey?.sessionId ?? '';
 
-  const [snapshot, setSnapshot] = useState<SensorsSnapshot | undefined>(undefined);
-  const [busy, setBusy] = useState<Busy>({kind: 'IDLE'});
-  const [saveOutcome, setSaveOutcome] = useState<SensorSaveOutcomeId | undefined>(undefined);
+  const [snapshot, setSnapshot] = useState<SensorsSnapshot | undefined>(
+    undefined,
+  );
+  const [busy, setBusy] = useState<Busy>({ kind: 'IDLE' });
+  const [saveOutcome, setSaveOutcome] = useState<
+    SensorSaveOutcomeId | undefined
+  >(undefined);
   const [runtimeMismatch, setRuntimeMismatch] = useState(false);
-  const [calibration, setCalibration] = useState<CalibrationResult | undefined>(undefined);
+  const [calibration, setCalibration] = useState<CalibrationResult | undefined>(
+    undefined,
+  );
   const [elapsedMs, setElapsedMs] = useState(0);
   const [advanced, setAdvanced] = useState(false);
 
   const [hardwareDraft, setHardwareDraft] = useState<SensorsHardwareDraft>({});
-  const [trimDraft, setTrimDraft] = useState<{pitch: number; roll: number} | undefined>(undefined);
-  const [declinationText, setDeclinationText] = useState<string | undefined>(undefined);
-  const [alignmentDraft, setAlignmentDraft] = useState<SensorsMagAlignmentDraft | undefined>(undefined);
+  const [trimDraft, setTrimDraft] = useState<
+    { pitch: number; roll: number } | undefined
+  >(undefined);
+  const [declinationText, setDeclinationText] = useState<string | undefined>(
+    undefined,
+  );
+  const [alignmentDraft, setAlignmentDraft] = useState<
+    SensorsMagAlignmentDraft | undefined
+  >(undefined);
 
-  const observation = useRef<SensorsCalibrationObservation | undefined>(undefined);
+  const observation = useRef<SensorsCalibrationObservation | undefined>(
+    undefined,
+  );
   const pending = useSensorsPendingSave();
 
   /* ---------------------------------------------------------------- *
@@ -397,21 +479,21 @@ export default function SensorsScreen({
    */
   const reload = useCallback(async () => {
     if (sessionKey === undefined) return;
-    setBusy({kind: 'LOADING'});
+    setBusy({ kind: 'LOADING' });
     try {
       applyLoaded(await controller.load(sessionKey));
     } catch {
       // Nothing is applied: a load that threw produced no snapshot to
       // trust, and the previous one stays on screen unchanged.
     } finally {
-      setBusy({kind: 'IDLE'});
+      setBusy({ kind: 'IDLE' });
     }
   }, [applyLoaded, controller, sessionKey]);
 
   useEffect(() => {
     if (!active || sessionKey === undefined || awaitingVerification) return;
     let cancelled = false;
-    setBusy({kind: 'LOADING'});
+    setBusy({ kind: 'LOADING' });
     controller
       .load(sessionKey)
       .then(outcome => {
@@ -420,7 +502,7 @@ export default function SensorsScreen({
       })
       .catch(() => undefined)
       .finally(() => {
-        if (!cancelled) setBusy({kind: 'IDLE'});
+        if (!cancelled) setBusy({ kind: 'IDLE' });
       });
     return () => {
       cancelled = true;
@@ -428,9 +510,15 @@ export default function SensorsScreen({
   }, [active, applyLoaded, awaitingVerification, controller, sessionKey]);
 
   useEffect(() => {
-    if (!active || sessionKey === undefined || !awaitingVerification || pending === null) return;
+    if (
+      !active ||
+      sessionKey === undefined ||
+      !awaitingVerification ||
+      pending === null
+    )
+      return;
     let cancelled = false;
-    setBusy({kind: 'HARDWARE_SAVE', stage: 'VERIFYING_AFTER_REBOOT'});
+    setBusy({ kind: 'HARDWARE_SAVE', stage: 'VERIFYING_AFTER_REBOOT' });
     controller
       .verifyHardwarePersistence(sessionKey, pending)
       .then(outcome => {
@@ -458,7 +546,7 @@ export default function SensorsScreen({
            refused. One that outlived its answer would make the next
            session verify a save that had already been reported. */
         sensorsPendingSave.clear();
-        if (!cancelled) setBusy({kind: 'IDLE'});
+        if (!cancelled) setBusy({ kind: 'IDLE' });
       });
     return () => {
       cancelled = true;
@@ -469,24 +557,33 @@ export default function SensorsScreen({
    * LIVE TELEMETRY - the existing polls, no new scheduler
    * ---------------------------------------------------------------- */
 
-  const imuState = useTelemetryValue<MspRawImu>(sessionId, SENSOR_IMU_POLL_ID, active);
-  const altitudeState = useTelemetryValue<MspAltitude>(sessionId, SENSOR_ALTITUDE_POLL_ID, active);
+  const imuState = useTelemetryValue<MspRawImu>(
+    sessionId,
+    SENSOR_IMU_POLL_ID,
+    active,
+  );
+  const altitudeState = useTelemetryValue<MspAltitude>(
+    sessionId,
+    SENSOR_ALTITUDE_POLL_ID,
+    active,
+  );
   const imu = valueOf(imuState);
   const altitude = valueOf(altitudeState);
   const [history, setHistory] = useState<
     Readonly<Record<'GYRO' | 'ACC' | 'MAG', readonly Sample[]>>
-  >({GYRO: [], ACC: [], MAG: []});
+  >({ GYRO: [], ACC: [], MAG: [] });
 
   useEffect(() => {
-    if (active && sessionKey !== undefined) return acquireSensorsTelemetry(sessionKey);
+    if (active && sessionKey !== undefined)
+      return acquireSensorsTelemetry(sessionKey);
   }, [active, sessionKey]);
 
   useEffect(() => {
     if (imu === undefined) return;
-    const push = (list: readonly Sample[], sample: SensorVector3): readonly Sample[] => [
-      ...list.slice(-(TRACE_CAPACITY - 1)),
-      sample,
-    ];
+    const push = (
+      list: readonly Sample[],
+      sample: SensorVector3,
+    ): readonly Sample[] => [...list.slice(-(TRACE_CAPACITY - 1)), sample];
     setHistory(current => ({
       GYRO: push(current.GYRO, imu.gyroscopeDps),
       ACC: push(current.ACC, imu.accelerometer),
@@ -504,7 +601,7 @@ export default function SensorsScreen({
      the old session has to go the same way, or the plot is a picture of
      two aircraft with a step in the middle that belongs to neither. */
   useEffect(() => {
-    setHistory({GYRO: [], ACC: [], MAG: []});
+    setHistory({ GYRO: [], ACC: [], MAG: [] });
   }, [active, sessionId]);
 
   /* ---------------------------------------------------------------- *
@@ -517,7 +614,10 @@ export default function SensorsScreen({
       return;
     }
     setElapsedMs(now() - busy.startedAt);
-    const handle = setInterval(() => setElapsedMs(now() - busy.startedAt), 1000);
+    const handle = setInterval(
+      () => setElapsedMs(now() - busy.startedAt),
+      1000,
+    );
     return () => clearInterval(handle);
   }, [busy, now]);
 
@@ -534,7 +634,9 @@ export default function SensorsScreen({
 
   const truthRows = useMemo(() => {
     if (snapshot === undefined) return [];
-    return SENSOR_DISPLAY_ORDER.map(family => snapshot.truth[family]).filter(sensorRowVisible);
+    return SENSOR_DISPLAY_ORDER.map(family => snapshot.truth[family]).filter(
+      sensorRowVisible,
+    );
   }, [snapshot]);
 
   const contradictions = useMemo(
@@ -543,12 +645,18 @@ export default function SensorsScreen({
   );
 
   const editableFamilies = useMemo(
-    () => (snapshot === undefined ? [] : editableHardwareFamilies(snapshot.configured.contract)),
+    () =>
+      snapshot === undefined
+        ? []
+        : editableHardwareFamilies(snapshot.configured.contract),
     [snapshot],
   );
 
   const operationBusy = busy.kind !== 'IDLE';
-  const say = useCallback((p: SensorPhrase): string => t(p.key, p.params ?? {}), [t]);
+  const say = useCallback(
+    (p: SensorPhrase): string => t(p.key, p.params ?? {}),
+    [t],
+  );
 
   const hardwareDirty = useMemo(() => {
     if (snapshot === undefined) return false;
@@ -557,14 +665,22 @@ export default function SensorsScreen({
       ACC: current.acc.raw,
       BARO: current.baro.raw,
       MAG: current.mag.raw,
-      RANGEFINDER: typeof current.rangefinder === 'string' ? undefined : current.rangefinder.raw,
-      OPTICALFLOW: typeof current.opticalflow === 'string' ? undefined : current.opticalflow.raw,
+      RANGEFINDER:
+        typeof current.rangefinder === 'string'
+          ? undefined
+          : current.rangefinder.raw,
+      OPTICALFLOW:
+        typeof current.opticalflow === 'string'
+          ? undefined
+          : current.opticalflow.raw,
     };
-    return (Object.keys(hardwareDraft) as (keyof SensorsHardwareDraft)[]).some(key => {
-      const next = hardwareDraft[key];
-      const held = raws[String(key).toUpperCase()];
-      return next !== undefined && next !== held;
-    });
+    return (Object.keys(hardwareDraft) as (keyof SensorsHardwareDraft)[]).some(
+      key => {
+        const next = hardwareDraft[key];
+        const held = raws[String(key).toUpperCase()];
+        return next !== undefined && next !== held;
+      },
+    );
   }, [hardwareDraft, snapshot]);
 
   /* ---------------------------------------------------------------- *
@@ -581,21 +697,39 @@ export default function SensorsScreen({
          avoid. Clearing here is what makes the card's outcome always
          belong to the run that produced it. */
       setCalibration(undefined);
-      setBusy({kind: 'CALIBRATING', target, progress: 'REQUESTED', startedAt: now()});
+      setBusy({
+        kind: 'CALIBRATING',
+        target,
+        progress: 'REQUESTED',
+        startedAt: now(),
+      });
       const started = now();
       const handle =
         target === 'ACCELEROMETER'
           ? controller.calibrateAccelerometer(sessionKey, progress =>
-              setBusy({kind: 'CALIBRATING', target, progress, startedAt: started}),
+              setBusy({
+                kind: 'CALIBRATING',
+                target,
+                progress,
+                startedAt: started,
+              }),
             )
           : controller.calibrateMagnetometer(sessionKey, progress =>
-              setBusy({kind: 'CALIBRATING', target, progress, startedAt: started}),
+              setBusy({
+                kind: 'CALIBRATING',
+                target,
+                progress,
+                startedAt: started,
+              }),
             );
       observation.current = handle;
       void handle.result.then((outcome: SensorsCalibrationOutcome) => {
         observation.current = undefined;
-        setBusy({kind: 'IDLE'});
-        setCalibration({target, outcome: outcome.kind as SensorCalibrationOutcomeId});
+        setBusy({ kind: 'IDLE' });
+        setCalibration({
+          target,
+          outcome: outcome.kind as SensorCalibrationOutcomeId,
+        });
         // Presence, the ACC blocker and the detected values can all have
         // moved; re-read rather than leaving a stale board on screen.
         void reload();
@@ -608,8 +742,10 @@ export default function SensorsScreen({
     if (sessionKey === undefined || snapshot === undefined) return;
     setSaveOutcome(undefined);
     setRuntimeMismatch(false);
-    setBusy({kind: 'HARDWARE_SAVE', stage: 'READING'});
-    let result: Awaited<ReturnType<SensorsControllerPort['saveHardwareSelection']>>;
+    setBusy({ kind: 'HARDWARE_SAVE', stage: 'READING' });
+    let result: Awaited<
+      ReturnType<SensorsControllerPort['saveHardwareSelection']>
+    >;
     try {
       result = await controller.saveHardwareSelection(
         sessionKey,
@@ -620,13 +756,13 @@ export default function SensorsScreen({
             stage === 'SENDING'
               ? 'SENDING'
               : stage === 'VERIFYING_APPLY'
-                ? 'VERIFYING_APPLY'
-                : 'PERSISTING';
-          setBusy({kind: 'HARDWARE_SAVE', stage: mapped});
+              ? 'VERIFYING_APPLY'
+              : 'PERSISTING';
+          setBusy({ kind: 'HARDWARE_SAVE', stage: mapped });
         },
       );
     } catch {
-      setBusy({kind: 'IDLE'});
+      setBusy({ kind: 'IDLE' });
       setSaveOutcome('FAILED');
       return;
     }
@@ -635,60 +771,90 @@ export default function SensorsScreen({
       // to outlive it.
       sensorsPendingSave.set(result.pending);
       setSaveOutcome('AWAITING_REBOOT_VERIFICATION');
-      setBusy({kind: 'HARDWARE_SAVE', stage: 'VERIFYING_AFTER_REBOOT'});
+      setBusy({ kind: 'HARDWARE_SAVE', stage: 'VERIFYING_AFTER_REBOOT' });
       return;
     }
-    setBusy({kind: 'IDLE'});
+    setBusy({ kind: 'IDLE' });
     setSaveOutcome(result.kind as SensorSaveOutcomeId);
     if (result.kind === 'NO_CHANGES') setHardwareDraft({});
   }, [controller, hardwareDraft, sessionKey, snapshot]);
 
   const saveTrim = useCallback(async () => {
-    if (sessionKey === undefined || snapshot === undefined || trimDraft === undefined) return;
+    if (
+      sessionKey === undefined ||
+      snapshot === undefined ||
+      trimDraft === undefined
+    )
+      return;
     setSaveOutcome(undefined);
-    setBusy({kind: 'FIELD_SAVE', field: 'TRIM'});
+    setBusy({ kind: 'FIELD_SAVE', field: 'TRIM' });
     try {
-      const result = await controller.saveAccTrim(sessionKey, snapshot, trimDraft);
+      const result = await controller.saveAccTrim(
+        sessionKey,
+        snapshot,
+        trimDraft,
+      );
       setSaveOutcome(result.kind as SensorSaveOutcomeId);
-      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES') void reload();
+      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES')
+        void reload();
     } catch {
       setSaveOutcome('FAILED');
     } finally {
-      setBusy({kind: 'IDLE'});
+      setBusy({ kind: 'IDLE' });
     }
   }, [controller, reload, sessionKey, snapshot, trimDraft]);
 
   const saveDeclination = useCallback(async () => {
-    if (sessionKey === undefined || snapshot === undefined || declinationText === undefined) return;
+    if (
+      sessionKey === undefined ||
+      snapshot === undefined ||
+      declinationText === undefined
+    )
+      return;
     const decidegrees = parseDeclinationDegrees(declinationText);
     if (decidegrees === undefined) return;
     setSaveOutcome(undefined);
-    setBusy({kind: 'FIELD_SAVE', field: 'DECLINATION'});
+    setBusy({ kind: 'FIELD_SAVE', field: 'DECLINATION' });
     try {
-      const result = await controller.saveCompassDeclination(sessionKey, snapshot, {
-        magDeclinationDecidegrees: decidegrees,
-      });
+      const result = await controller.saveCompassDeclination(
+        sessionKey,
+        snapshot,
+        {
+          magDeclinationDecidegrees: decidegrees,
+        },
+      );
       setSaveOutcome(result.kind as SensorSaveOutcomeId);
-      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES') void reload();
+      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES')
+        void reload();
     } catch {
       setSaveOutcome('FAILED');
     } finally {
-      setBusy({kind: 'IDLE'});
+      setBusy({ kind: 'IDLE' });
     }
   }, [controller, declinationText, reload, sessionKey, snapshot]);
 
   const saveAlignment = useCallback(async () => {
-    if (sessionKey === undefined || snapshot === undefined || alignmentDraft === undefined) return;
+    if (
+      sessionKey === undefined ||
+      snapshot === undefined ||
+      alignmentDraft === undefined
+    )
+      return;
     setSaveOutcome(undefined);
-    setBusy({kind: 'FIELD_SAVE', field: 'ALIGNMENT'});
+    setBusy({ kind: 'FIELD_SAVE', field: 'ALIGNMENT' });
     try {
-      const result = await controller.saveMagAlignment(sessionKey, snapshot, alignmentDraft);
+      const result = await controller.saveMagAlignment(
+        sessionKey,
+        snapshot,
+        alignmentDraft,
+      );
       setSaveOutcome(result.kind as SensorSaveOutcomeId);
-      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES') void reload();
+      if (result.kind === 'SUCCEEDED' || result.kind === 'NO_CHANGES')
+        void reload();
     } catch {
       setSaveOutcome('FAILED');
     } finally {
-      setBusy({kind: 'IDLE'});
+      setBusy({ kind: 'IDLE' });
     }
   }, [alignmentDraft, controller, reload, sessionKey, snapshot]);
 
@@ -696,69 +862,120 @@ export default function SensorsScreen({
    * RENDER
    * ---------------------------------------------------------------- */
 
-  const loading = snapshot === undefined && (busy.kind === 'LOADING' || busy.kind === 'HARDWARE_SAVE');
+  const loading =
+    snapshot === undefined &&
+    (busy.kind === 'LOADING' || busy.kind === 'HARDWARE_SAVE');
 
   return (
-    <View style={styles.root} testID="sensors-screen">
-      <ScrollView contentContainerStyle={[styles.content, {maxWidth}]}>
-        <View style={styles.hero}>
+    <WorkbenchBlock style={styles.root} testID="sensors-screen" section="root">
+      <WorkbenchScrollView
+        contentContainerStyle={[styles.content, { maxWidth }]}
+        workspace="Sensors"
+      >
+        <WorkbenchBlock style={styles.hero} section="hero" heading>
           <Text style={styles.title} accessibilityRole="header">
             {t('sensorsScreen.title')}
           </Text>
-
-        </View>
+        </WorkbenchBlock>
 
         {loading ? (
-          <View style={styles.loading} testID="sensors-loading">
+          <WorkbenchBlock
+            style={styles.loading}
+            testID="sensors-loading"
+            section="loading"
+          >
             <Text style={styles.loadingText}>{t('sensorsScreen.loading')}</Text>
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 1. STATUS - the first thing on the page, deliberately. */}
         {snapshot !== undefined ? (
-          <View style={styles.section} testID="sensors-status">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-status"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.sectionStatus')}
             </Text>
-            <View style={[styles.rows, wide && styles.rowsWide]}>
+            <WorkbenchBlock
+              style={[styles.rows, wide && styles.rowsWide]}
+              section="rows"
+            >
               {truthRows.map(row => (
                 <SensorRow key={row.family} truth={row} say={say} t={t} />
               ))}
-            </View>
-          </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        ) : null}
+
+        {sessionKey !== undefined && snapshot !== undefined ? (
+          <WorkbenchBlock
+            section="sensorOrientation"
+            testID="sensors-orientation"
+          >
+            <SensorOrientation sessionKey={sessionKey} active={active} />
+          </WorkbenchBlock>
         ) : null}
 
         {/* 2. DISAGREEMENTS - compact, never a red hero. */}
         {contradictions.length > 0 ? (
-          <View style={styles.section} testID="sensors-contradictions">
-            <NoticeBox variant="warning" title={t('sensorsScreen.contradictionsTitle')}>
-              <View style={styles.contradictionList}>
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-contradictions"
+            section="section"
+            panel
+          >
+            <NoticeBox
+              variant="warning"
+              title={t('sensorsScreen.contradictionsTitle')}
+            >
+              <WorkbenchBlock
+                style={styles.contradictionList}
+                section="contradictionList"
+              >
                 {contradictions.map(row =>
                   row.contradictions.map((kind: SensorContradiction) => (
-                    <View key={`${row.family}-${kind}`} style={styles.contradictionItem}>
+                    <WorkbenchBlock
+                      key={`${row.family}-${kind}`}
+                      style={styles.contradictionItem}
+                      section="contradictionItem"
+                    >
                       <Text
                         style={styles.contradictionText}
-                        testID={`sensors-contradiction-${row.family}-${kind}`}>
-                        {`${t(sensorFamilyLabelKey(row.family))} — ${say(describeContradiction(kind))}`}
+                        testID={`sensors-contradiction-${row.family}-${kind}`}
+                      >
+                        {`${t(sensorFamilyLabelKey(row.family))} — ${say(
+                          describeContradiction(kind),
+                        )}`}
                       </Text>
                       {kind === 'CONFIGURED_DEVICE_DIFFERS_FROM_DETECTED'
                         ? renderMismatchPair(row, say, t)
                         : null}
-                    </View>
+                    </WorkbenchBlock>
                   )),
                 )}
-              </View>
+              </WorkbenchBlock>
             </NoticeBox>
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 3. CALIBRATION */}
         {snapshot !== undefined ? (
-          <View style={styles.section} testID="sensors-calibration">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-calibration"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.sectionCalibration')}
             </Text>
-            <View style={[styles.rows, wide && styles.rowsWide]}>
+            <WorkbenchBlock
+              style={[styles.rows, wide && styles.rowsWide]}
+              section="rows"
+            >
               <CalibrationCard
                 target="ACCELEROMETER"
                 truth={snapshot.truth.ACC}
@@ -783,13 +1000,18 @@ export default function SensorsScreen({
                 say={say}
                 t={t}
               />
-            </View>
-          </View>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 4. LIVE READINGS */}
         {snapshot !== undefined ? (
-          <View style={styles.section} testID="sensors-live">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-live"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.sectionLive')}
             </Text>
@@ -798,9 +1020,14 @@ export default function SensorsScreen({
                 {t('sensorsScreen.liveStale')}
               </Text>
             ) : null}
-            <View style={[styles.rows, wide && styles.rowsWide]}>
+            <WorkbenchBlock
+              style={[styles.rows, wide && styles.rowsWide]}
+              section="rows"
+            >
               {(['GYRO', 'ACC', 'MAG'] as const)
-                .filter(family => snapshot.truth[family].present.kind === 'PRESENT')
+                .filter(
+                  family => snapshot.truth[family].present.kind === 'PRESENT',
+                )
                 .map(family => (
                   <TraceCard
                     key={family}
@@ -811,22 +1038,33 @@ export default function SensorsScreen({
                     t={t}
                   />
                 ))}
-            </View>
-            {altitude !== undefined && snapshot.truth.BARO.present.kind === 'PRESENT' ? (
-              <View style={styles.card} testID="sensors-altitude">
+            </WorkbenchBlock>
+            {altitude !== undefined &&
+            snapshot.truth.BARO.present.kind === 'PRESENT' ? (
+              <WorkbenchBlock
+                style={styles.card}
+                testID="sensors-altitude"
+                section="card"
+                panel
+              >
                 <Fact
                   label={t('sensorsScreen.family.BARO')}
                   value={`${(altitude.altitudeCm / 100).toFixed(2)} m`}
                   testID="sensors-altitude-value"
                 />
-              </View>
+              </WorkbenchBlock>
             ) : null}
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 5. HARDWARE SELECTORS - only what the board's own frame carries. */}
         {snapshot !== undefined && editableFamilies.length > 0 ? (
-          <View style={styles.section} testID="sensors-hardware">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-hardware"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.sectionHardware')}
             </Text>
@@ -835,9 +1073,13 @@ export default function SensorsScreen({
               const currentRaw = currentHardwareRaw(snapshot, family);
               if (currentRaw === undefined) return null;
               const draftRaw = hardwareDraft[draftKeyFor(family)] ?? currentRaw;
-              const options: SelectOption[] = hardwareOptions(family, currentRaw).map(
-                option => ({key: String(option.raw), label: say(option.label)}),
-              );
+              const options: SelectOption[] = hardwareOptions(
+                family,
+                currentRaw,
+              ).map(option => ({
+                key: String(option.raw),
+                label: say(option.label),
+              }));
               return (
                 <SelectField
                   key={family}
@@ -855,44 +1097,64 @@ export default function SensorsScreen({
                 />
               );
             })}
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 6. TRIM AND DECLINATION */}
         {snapshot !== undefined && snapshot.accTrim.kind === 'READ' ? (
-          <View style={styles.section} testID="sensors-trim">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-trim"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.trimTitle')}
             </Text>
             <Text style={styles.hint}>
-              {t('sensorsScreen.trimRange', {min: -ACC_TRIM_LIMIT, max: ACC_TRIM_LIMIT})}
+              {t('sensorsScreen.trimRange', {
+                min: -ACC_TRIM_LIMIT,
+                max: ACC_TRIM_LIMIT,
+              })}
             </Text>
-            <View style={styles.inlineFields}>
+            <WorkbenchBlock style={styles.inlineFields} section="inlineFields">
               <NumberField
                 label={t('sensorsScreen.trimPitch')}
-                value={accTrimText(trimDraft?.pitch ?? snapshot.accTrim.value.pitch)}
+                value={accTrimText(
+                  trimDraft?.pitch ?? snapshot.accTrim.value.pitch,
+                )}
                 disabled={operationBusy}
                 testID="sensors-trim-pitch"
                 onChange={text =>
                   setTrimDraft(current => ({
                     pitch: Number(text) || 0,
-                    roll: current?.roll ?? (snapshot.accTrim.kind === 'READ' ? snapshot.accTrim.value.roll : 0),
+                    roll:
+                      current?.roll ??
+                      (snapshot.accTrim.kind === 'READ'
+                        ? snapshot.accTrim.value.roll
+                        : 0),
                   }))
                 }
               />
               <NumberField
                 label={t('sensorsScreen.trimRoll')}
-                value={accTrimText(trimDraft?.roll ?? snapshot.accTrim.value.roll)}
+                value={accTrimText(
+                  trimDraft?.roll ?? snapshot.accTrim.value.roll,
+                )}
                 disabled={operationBusy}
                 testID="sensors-trim-roll"
                 onChange={text =>
                   setTrimDraft(current => ({
-                    pitch: current?.pitch ?? (snapshot.accTrim.kind === 'READ' ? snapshot.accTrim.value.pitch : 0),
+                    pitch:
+                      current?.pitch ??
+                      (snapshot.accTrim.kind === 'READ'
+                        ? snapshot.accTrim.value.pitch
+                        : 0),
                     roll: Number(text) || 0,
                   }))
                 }
               />
-            </View>
+            </WorkbenchBlock>
             <Button
               label={t('sensorsScreen.trimSave')}
               onPress={() => void saveTrim()}
@@ -900,26 +1162,36 @@ export default function SensorsScreen({
               disabled={operationBusy || trimDraft === undefined}
               testID="sensors-trim-save"
             />
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {snapshot !== undefined && snapshot.compass.kind === 'READ' ? (
-          <View style={styles.section} testID="sensors-declination">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-declination"
+            section="section"
+            panel
+          >
             <Text style={styles.sectionTitle} accessibilityRole="header">
               {t('sensorsScreen.declinationTitle')}
             </Text>
-            <Text style={styles.hint}>{t('sensorsScreen.declinationRange')}</Text>
+            <Text style={styles.hint}>
+              {t('sensorsScreen.declinationRange')}
+            </Text>
             <NumberField
               label={t('sensorsScreen.declinationLabel')}
               value={
                 declinationText ??
-                declinationDegreesText(snapshot.compass.value.magDeclinationDecidegrees)
+                declinationDegreesText(
+                  snapshot.compass.value.magDeclinationDecidegrees,
+                )
               }
               disabled={operationBusy}
               testID="sensors-declination-input"
               onChange={setDeclinationText}
             />
-            {declinationText !== undefined && parseDeclinationDegrees(declinationText) === undefined ? (
+            {declinationText !== undefined &&
+            parseDeclinationDegrees(declinationText) === undefined ? (
               <Text style={styles.error} testID="sensors-declination-invalid">
                 {t('sensorsScreen.declinationInvalid')}
               </Text>
@@ -935,7 +1207,7 @@ export default function SensorsScreen({
               }
               testID="sensors-declination-save"
             />
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {/* 7. MAG ALIGNMENT - the magnetometer's fields only. */}
@@ -951,8 +1223,15 @@ export default function SensorsScreen({
         ) : null}
 
         {/* Board alignment lives in Setup. Pointed at, never duplicated. */}
-        <View style={styles.section} testID="sensors-board-alignment-pointer">
-          <Text style={styles.hint}>{t('sensorsScreen.boardAlignmentPointer')}</Text>
+        <WorkbenchBlock
+          style={styles.section}
+          testID="sensors-board-alignment-pointer"
+          section="section"
+          panel
+        >
+          <Text style={styles.hint}>
+            {t('sensorsScreen.boardAlignmentPointer')}
+          </Text>
           <Button
             label={t('sensorsScreen.boardAlignmentOpen')}
             onPress={onOpenSetup}
@@ -960,74 +1239,106 @@ export default function SensorsScreen({
             icon="compass"
             testID="sensors-open-setup"
           />
-        </View>
+        </WorkbenchBlock>
 
         {/* NOTHING ON THIS SCREEN IS HARDWARE EVIDENCE. Every reading
             here is what the board REPORTED over MSP; whether the sensors
             themselves are right is decided by moving the aircraft and
             watching, and only there. The unconditional notice the other
             eight screens carry says so in the same words. */}
-        <View style={styles.section} testID="sensors-hardware-verification">
+        <WorkbenchBlock
+          style={styles.section}
+          testID="sensors-hardware-verification"
+          section="section"
+          panel
+        >
           <Text style={styles.sectionTitle} accessibilityRole="header">
             {t('hardwareVerification.behaviourTitle')}
           </Text>
-          <Text style={styles.hint}>{t('sensorsScreen.hardwareVerificationBody')}</Text>
-        </View>
+          <Text style={styles.hint}>
+            {t('sensorsScreen.hardwareVerificationBody')}
+          </Text>
+        </WorkbenchBlock>
 
         {/* 8. TECHNICAL DETAILS, collapsed. */}
         {snapshot !== undefined ? (
-          <View style={styles.section} testID="sensors-advanced">
+          <WorkbenchBlock
+            style={styles.section}
+            testID="sensors-advanced"
+            section="section"
+            panel
+          >
             <Button
-              label={t(advanced ? 'sensorsScreen.advancedHide' : 'sensorsScreen.advancedShow')}
+              label={t(
+                advanced
+                  ? 'sensorsScreen.advancedHide'
+                  : 'sensorsScreen.advancedShow',
+              )}
               onPress={() => setAdvanced(value => !value)}
               variant="ghost"
               testID="sensors-advanced-toggle"
             />
             {advanced ? (
-              <View style={styles.card} testID="sensors-advanced-body">
+              <WorkbenchBlock
+                style={styles.card}
+                testID="sensors-advanced-body"
+                section="card"
+                panel
+              >
                 {truthRows.map(row => (
                   <Fact
                     key={row.family}
                     label={t(sensorFamilyLabelKey(row.family))}
                     value={`${t('sensorsScreen.labelConfigured')}: ${say(
                       describeConfigured(row),
-                    )} · ${t('sensorsScreen.labelDetected')}: ${say(describeDetected(row))}`}
+                    )} · ${t('sensorsScreen.labelDetected')}: ${say(
+                      describeDetected(row),
+                    )}`}
                     testID={`sensors-advanced-${row.family}`}
                   />
                 ))}
-                {snapshot.gyros.kind === 'READ' && snapshot.gyros.value.kind === 'REPORTED' ? (
+                {snapshot.gyros.kind === 'READ' &&
+                snapshot.gyros.value.kind === 'REPORTED' ? (
                   <View testID="sensors-gyro-slots">
-                    {snapshot.gyros.value.gyros.map((gyro: SensorHardwareValue, index: number) => (
-                      <Fact
-                        key={`gyro-${index}`}
-                        label={t('sensorsScreen.gyroSlot', {index: index + 1})}
-                        value={say({
-                          key:
-                            gyro.kind === 'UNKNOWN'
-                              ? 'sensorsScreen.hardware.unknown'
-                              : gyro.kind === 'NONE'
+                    {snapshot.gyros.value.gyros.map(
+                      (gyro: SensorHardwareValue, index: number) => (
+                        <Fact
+                          key={`gyro-${index}`}
+                          label={t('sensorsScreen.gyroSlot', {
+                            index: index + 1,
+                          })}
+                          value={say({
+                            key:
+                              gyro.kind === 'UNKNOWN'
+                                ? 'sensorsScreen.hardware.unknown'
+                                : gyro.kind === 'NONE'
                                 ? 'sensorsScreen.hardware.none'
                                 : 'sensorsScreen.hardware.part',
-                          params:
-                            gyro.kind === 'UNKNOWN'
-                              ? {raw: gyro.raw}
-                              : {name: gyro.modelled.replace(/^GYRO_/, '')},
-                        })}
-                        testID={`sensors-gyro-slot-${index}`}
-                      />
-                    ))}
+                            params:
+                              gyro.kind === 'UNKNOWN'
+                                ? { raw: gyro.raw }
+                                : { name: gyro.modelled.replace(/^GYRO_/, '') },
+                          })}
+                          testID={`sensors-gyro-slot-${index}`}
+                        />
+                      ),
+                    )}
                   </View>
                 ) : null}
-              </View>
+              </WorkbenchBlock>
             ) : null}
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
-        <View style={styles.bottom} />
-      </ScrollView>
+        <WorkbenchBlock style={styles.bottom} section="bottom" />
+      </WorkbenchScrollView>
 
       <StickyActionBar
-        visible={hardwareDirty || busy.kind === 'HARDWARE_SAVE' || saveOutcome !== undefined}
+        visible={
+          hardwareDirty ||
+          busy.kind === 'HARDWARE_SAVE' ||
+          saveOutcome !== undefined
+        }
         summary={t('sensorsScreen.sectionHardware')}
         saveLabel={t('sensorsScreen.hardwareSave')}
         discardLabel={t('sensorsScreen.hardwareDiscard')}
@@ -1039,7 +1350,9 @@ export default function SensorsScreen({
         }}
         busy={busy.kind === 'HARDWARE_SAVE'}
         busyLabel={
-          busy.kind === 'HARDWARE_SAVE' ? say(describeHardwareSaveStage(busy.stage)) : undefined
+          busy.kind === 'HARDWARE_SAVE'
+            ? say(describeHardwareSaveStage(busy.stage))
+            : undefined
         }
         disabledReason={
           hardwareDirty ? undefined : t('sensorsScreen.save.outcome.NO_CHANGES')
@@ -1048,15 +1361,19 @@ export default function SensorsScreen({
           saveOutcome === undefined
             ? undefined
             : runtimeMismatch && saveOutcome === 'SUCCEEDED'
-              ? `${say(describeSaveOutcome(saveOutcome))} — ${t('sensorsScreen.save.runtimeMismatch')}`
-              : say(describeSaveOutcome(saveOutcome))
+            ? `${say(describeSaveOutcome(saveOutcome))} — ${t(
+                'sensorsScreen.save.runtimeMismatch',
+              )}`
+            : say(describeSaveOutcome(saveOutcome))
         }
         statusTone={
-          saveOutcome === 'SUCCEEDED' || saveOutcome === 'NO_CHANGES' ? 'normal' : 'warning'
+          saveOutcome === 'SUCCEEDED' || saveOutcome === 'NO_CHANGES'
+            ? 'normal'
+            : 'warning'
         }
         testID="sensors-save-bar"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1074,7 +1391,10 @@ function renderMismatchPair(
   const pair = describeMismatchPair(truth);
   if (pair === undefined) return null;
   return (
-    <Text style={styles.contradictionDetail} testID={`sensors-mismatch-${truth.family}`}>
+    <Text
+      style={styles.contradictionDetail}
+      testID={`sensors-mismatch-${truth.family}`}
+    >
       {`${t('sensorsScreen.labelStored')}: ${say(pair.stored)} · ${t(
         'sensorsScreen.labelFound',
       )}: ${say(pair.found)}`}
@@ -1095,17 +1415,27 @@ function SensorRow({
     truth.contradictions.length > 0
       ? 'attention'
       : truth.present.kind === 'PRESENT'
-        ? 'present'
-        : truth.present.kind === 'ABSENT'
-          ? 'absent'
-          : 'unknown';
+      ? 'present'
+      : truth.present.kind === 'ABSENT'
+      ? 'absent'
+      : 'unknown';
   return (
-    <View style={styles.card} testID={`sensors-row-${truth.family}`}>
-      <View style={styles.rowHead}>
+    <WorkbenchBlock
+      style={styles.card}
+      testID={`sensors-row-${truth.family}`}
+      section="card"
+      panel
+    >
+      <WorkbenchBlock style={styles.rowHead} section="rowHead">
         <StateMark tone={tone} testID={`sensors-row-${truth.family}-mark`} />
-        <Text style={styles.rowTitle}>{t(sensorFamilyLabelKey(truth.family))}</Text>
-      </View>
-      <Text style={styles.rowHeadline} testID={`sensors-row-${truth.family}-headline`}>
+        <Text style={styles.rowTitle}>
+          {t(sensorFamilyLabelKey(truth.family))}
+        </Text>
+      </WorkbenchBlock>
+      <Text
+        style={styles.rowHeadline}
+        testID={`sensors-row-${truth.family}-headline`}
+      >
         {say(describeHeadline(truth))}
       </Text>
       <Fact
@@ -1123,7 +1453,7 @@ function SensorRow({
         value={say(describePresent(truth))}
         testID={`sensors-row-${truth.family}-present`}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1160,9 +1490,18 @@ function CalibrationCard({
   const id = target === 'ACCELEROMETER' ? 'acc' : 'mag';
   const outcome = result?.target === target ? result.outcome : undefined;
   return (
-    <View style={styles.card} testID={`sensors-calibrate-${id}`}>
+    <WorkbenchBlock
+      style={styles.card}
+      testID={`sensors-calibrate-${id}`}
+      section="card"
+      panel
+    >
       <Text style={styles.rowTitle}>
-        {t(target === 'ACCELEROMETER' ? 'sensorsScreen.calibration.accTitle' : 'sensorsScreen.calibration.magTitle')}
+        {t(
+          target === 'ACCELEROMETER'
+            ? 'sensorsScreen.calibration.accTitle'
+            : 'sensorsScreen.calibration.magTitle',
+        )}
       </Text>
       <Text style={styles.hint}>
         {t(
@@ -1172,24 +1511,35 @@ function CalibrationCard({
         )}
       </Text>
       {running ? (
-        <View style={styles.runningRow}>
-          <Text style={styles.runningText} testID={`sensors-calibrate-${id}-stage`}>
+        <WorkbenchBlock style={styles.runningRow} section="runningRow">
+          <Text
+            style={styles.runningText}
+            testID={`sensors-calibrate-${id}-stage`}
+          >
             {say(describeCalibrationStage(state.progress))}
           </Text>
-          <Text style={styles.elapsed} testID={`sensors-calibrate-${id}-elapsed`}>
-            {t('sensorsScreen.calibration.elapsed', {seconds: elapsedSecondsText(elapsedMs)})}
+          <Text
+            style={styles.elapsed}
+            testID={`sensors-calibrate-${id}-elapsed`}
+          >
+            {t('sensorsScreen.calibration.elapsed', {
+              seconds: elapsedSecondsText(elapsedMs),
+            })}
           </Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
       {outcome !== undefined ? (
         <View testID={`sensors-calibrate-${id}-outcome`}>
           <Text
             style={[
               styles.outcome,
-              calibrationOutcomeSeverity(outcome) === 'SUCCESS' && styles.outcomeGood,
-              calibrationOutcomeSeverity(outcome) === 'ATTENTION' && styles.outcomeWarn,
+              calibrationOutcomeSeverity(outcome) === 'SUCCESS' &&
+                styles.outcomeGood,
+              calibrationOutcomeSeverity(outcome) === 'ATTENTION' &&
+                styles.outcomeWarn,
             ]}
-            accessibilityRole="alert">
+            accessibilityRole="alert"
+          >
             {say(describeCalibrationOutcome(target, outcome))}
           </Text>
           {outcome === 'NO_MOVEMENT_DETECTED' ? (
@@ -1224,7 +1574,7 @@ function CalibrationCard({
           testID={`sensors-calibrate-${id}-start`}
         />
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1257,18 +1607,29 @@ export function TraceCard({
     setPlotWidth(event.nativeEvent.layout.width);
   }, []);
   return (
-    <View style={styles.card} testID={`sensors-trace-${family}`}>
-      <View style={styles.rowHead}>
+    <WorkbenchBlock
+      style={styles.card}
+      testID={`sensors-trace-${family}`}
+      section="card"
+      panel
+    >
+      <WorkbenchBlock style={styles.rowHead} section="rowHead">
         <Text style={styles.rowTitle}>{title}</Text>
         <Text style={styles.unit} testID={`sensors-trace-${family}-unit`}>
           {unit}
         </Text>
-      </View>
-      <View
+      </WorkbenchBlock>
+      <WorkbenchBlock
         style={styles.tracePlot}
         onLayout={measurePlot}
-        testID={`sensors-trace-${family}-plot`}>
-        <Svg width="100%" height={TRACE_HEIGHT} testID={`sensors-trace-${family}-svg`}>
+        testID={`sensors-trace-${family}-plot`}
+        section="tracePlot"
+      >
+        <Svg
+          width="100%"
+          height={TRACE_HEIGHT}
+          testID={`sensors-trace-${family}-svg`}
+        >
           <Line
             x1="0"
             y1={TRACE_HEIGHT / 2}
@@ -1287,11 +1648,11 @@ export function TraceCard({
             />
           ))}
         </Svg>
-      </View>
+      </WorkbenchBlock>
       <Text style={styles.scaleNote} testID={`sensors-trace-${family}-scale`}>
-        {t('sensorsScreen.liveScale', {bound, unit})}
+        {t('sensorsScreen.liveScale', { bound, unit })}
       </Text>
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1319,11 +1680,16 @@ function AlignmentSection({
   if (!ALIGNMENT_PRESETS.includes(presetRaw)) {
     options.push({
       key: String(presetRaw),
-      label: t('sensorsScreen.alignmentOption.UNKNOWN', {raw: presetRaw}),
+      label: t('sensorsScreen.alignmentOption.UNKNOWN', { raw: presetRaw }),
     });
   }
   return (
-    <View style={styles.section} testID="sensors-alignment">
+    <WorkbenchBlock
+      style={styles.section}
+      testID="sensors-alignment"
+      section="section"
+      panel
+    >
       <Text style={styles.sectionTitle} accessibilityRole="header">
         {t('sensorsScreen.alignmentTitle')}
       </Text>
@@ -1331,7 +1697,7 @@ function AlignmentSection({
         label={t('sensorsScreen.alignmentPreset')}
         selectedKey={String(presetRaw)}
         options={options}
-        onSelect={next => onChange({...draft, magAlignmentRaw: Number(next)})}
+        onSelect={next => onChange({ ...draft, magAlignmentRaw: Number(next) })}
         disabled={disabled}
         testID="sensors-alignment-preset"
       />
@@ -1343,7 +1709,7 @@ function AlignmentSection({
         disabled={disabled || draft === undefined}
         testID="sensors-alignment-save"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1361,7 +1727,7 @@ function NumberField({
   testID: string;
 }): React.JSX.Element {
   return (
-    <View style={styles.field}>
+    <WorkbenchBlock style={styles.field} section="field">
       <Text style={styles.fieldLabel} nativeID={`${testID}-label`}>
         {label}
       </Text>
@@ -1375,7 +1741,7 @@ function NumberField({
         accessibilityLabelledBy={`${testID}-label`}
         testID={testID}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1396,7 +1762,9 @@ const ALIGNMENT_NAMES: Readonly<Record<number, string>> = Object.freeze({
   9: 'ALIGN_CUSTOM',
 });
 
-const ALIGNMENT_PRESETS: readonly number[] = Object.freeze([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+const ALIGNMENT_PRESETS: readonly number[] = Object.freeze([
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+]);
 
 /** The draft key for a hardware family. The families are upper-case
  *  because they are firmware enum names; the draft fields are lower-case
@@ -1418,9 +1786,13 @@ function currentHardwareRaw(
     case 'MAG':
       return config.mag.raw;
     case 'RANGEFINDER':
-      return typeof config.rangefinder === 'string' ? undefined : config.rangefinder.raw;
+      return typeof config.rangefinder === 'string'
+        ? undefined
+        : config.rangefinder.raw;
     case 'OPTICALFLOW':
-      return typeof config.opticalflow === 'string' ? undefined : config.opticalflow.raw;
+      return typeof config.opticalflow === 'string'
+        ? undefined
+        : config.opticalflow.raw;
     default:
       return undefined;
   }
@@ -1431,23 +1803,45 @@ function currentHardwareRaw(
  * ================================================================== */
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
-  content: {width: '100%', alignSelf: 'center', padding: spacing.lg, gap: spacing.lg},
-  hero: {gap: 4, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft},
-  title: {...typography.title, color: colors.textPrimary, textAlign: 'left'},
-  subtitle: {...typography.body, color: colors.textSecondary, textAlign: 'left'},
+  root: { flex: 1, backgroundColor: colors.background },
+  content: {
+    width: '100%',
+    alignSelf: 'center',
+    padding: spacing.lg,
+    gap: spacing.lg,
+  },
+  hero: {
+    gap: 4,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
+  title: { ...typography.title, color: colors.textPrimary, textAlign: 'left' },
+  subtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
   loading: {
     padding: spacing.md,
     borderRadius: radii.md,
     backgroundColor: colors.surface,
   },
-  loadingText: {...typography.body, color: colors.textSecondary, textAlign: 'left'},
-  section: {gap: spacing.sm},
-  sectionTitle: {...typography.sectionTitle, color: colors.textPrimary, textAlign: 'left'},
-  hint: {...typography.caption, color: colors.textMuted, textAlign: 'left'},
-  error: {...typography.caption, color: colors.warning, textAlign: 'left'},
-  rows: {gap: spacing.sm},
-  rowsWide: {flexDirection: 'row', flexWrap: 'wrap'},
+  loadingText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
+  section: { gap: spacing.sm },
+  sectionTitle: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  hint: { ...typography.caption, color: colors.textMuted, textAlign: 'left' },
+  error: { ...typography.caption, color: colors.warning, textAlign: 'left' },
+  rows: { gap: spacing.sm },
+  rowsWide: { flexDirection: 'row', flexWrap: 'wrap' },
   card: {
     flexGrow: 1,
     flexBasis: 260,
@@ -1459,37 +1853,82 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     gap: 6,
   },
-  rowHead: {flexDirection: 'row', alignItems: 'center', gap: spacing.xs},
-  rowTitle: {...typography.bodyStrong, color: colors.textPrimary, textAlign: 'left', flexShrink: 1},
-  rowHeadline: {...typography.caption, color: colors.textSecondary, textAlign: 'left'},
-  fact: {flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm},
-  factLabel: {...typography.caption, color: colors.textMuted, textAlign: 'left'},
+  rowHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  rowTitle: {
+    ...typography.bodyStrong,
+    color: colors.textPrimary,
+    textAlign: 'left',
+    flexShrink: 1,
+  },
+  rowHeadline: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
+  fact: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  factLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'left',
+  },
   factValue: {
     ...typography.caption,
     color: colors.textPrimary,
     textAlign: 'left',
     flexShrink: 1,
   },
-  unit: {...typography.caption, color: colors.textMuted},
+  unit: { ...typography.caption, color: colors.textMuted },
   /* The box the sample axis is measured against: full card width, the
      plot's own height, and no horizontal padding of its own so the
      measured width IS the drawable width. */
-  tracePlot: {alignSelf: 'stretch', height: TRACE_HEIGHT},
-  scaleNote: {...typography.caption, color: colors.textMuted, textAlign: 'left'},
-  stale: {...typography.caption, color: colors.warning, textAlign: 'left'},
-  contradictionList: {gap: spacing.xs},
-  contradictionItem: {gap: 2},
-  contradictionText: {...typography.caption, color: colors.textPrimary, textAlign: 'left'},
-  contradictionDetail: {...typography.caption, color: colors.textSecondary, textAlign: 'left'},
-  runningRow: {flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm},
-  runningText: {...typography.caption, color: colors.textPrimary, textAlign: 'left'},
-  elapsed: {...typography.caption, color: colors.textMuted},
-  outcome: {...typography.caption, color: colors.textPrimary, textAlign: 'left'},
-  outcomeGood: {color: colors.success},
-  outcomeWarn: {color: colors.warning},
-  inlineFields: {flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap'},
-  field: {flexGrow: 1, flexBasis: 140, minWidth: 0, gap: 4},
-  fieldLabel: {...typography.caption, color: colors.textMuted, textAlign: 'left'},
+  tracePlot: { alignSelf: 'stretch', height: TRACE_HEIGHT },
+  scaleNote: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'left',
+  },
+  stale: { ...typography.caption, color: colors.warning, textAlign: 'left' },
+  contradictionList: { gap: spacing.xs },
+  contradictionItem: { gap: 2 },
+  contradictionText: {
+    ...typography.caption,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  contradictionDetail: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
+  runningRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  runningText: {
+    ...typography.caption,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  elapsed: { ...typography.caption, color: colors.textMuted },
+  outcome: {
+    ...typography.caption,
+    color: colors.textPrimary,
+    textAlign: 'left',
+  },
+  outcomeGood: { color: colors.success },
+  outcomeWarn: { color: colors.warning },
+  inlineFields: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
+  field: { flexGrow: 1, flexBasis: 140, minWidth: 0, gap: 4 },
+  fieldLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'left',
+  },
   input: {
     minHeight: 44,
     paddingHorizontal: spacing.sm,
@@ -1501,5 +1940,5 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     ...typography.body,
   },
-  bottom: {height: spacing.xl},
+  bottom: { height: spacing.xl },
 });

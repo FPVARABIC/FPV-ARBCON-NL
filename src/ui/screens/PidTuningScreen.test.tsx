@@ -278,7 +278,8 @@ describe('PidTuningScreen · simplified tuning is the main workspace', () => {
     expect(screenText(renderer)).toContain('6');
     // With no usable generator the direct controls ARE the workspace, so
     // they must not be folded away behind a disclosure.
-    expect(renderer.root.findAllByProps({testID: 'pid-advanced-body'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'pid-view-pid'}).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({testID: 'pid-roll-p'}).length).toBeGreaterThan(0);
     act(() => renderer.unmount());
   });
 
@@ -298,7 +299,7 @@ describe('PidTuningScreen · simplified tuning is the main workspace', () => {
 
   it('disables the direct fields the generator owns, and says why', async () => {
     const renderer = await render(fullPort());
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-pid');
     // RPY generates all three axes, so every P is the generator's and a
     // manual edit would be undone by the next save.
     expect(editable(renderer, 'pid-roll-p')).toBe(false);
@@ -309,7 +310,7 @@ describe('PidTuningScreen · simplified tuning is the main workspace', () => {
 
   it('leaves the direct fields alone when the generator is off', async () => {
     const renderer = await render(fullPort({loadSimplified: jest.fn(async () => ({kind: 'LOADED' as const, simplified: simplified({modeRaw: 0})}))}));
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-pid');
     expect(editable(renderer, 'pid-roll-p')).toBe(true);
     act(() => renderer.unmount());
   });
@@ -520,18 +521,18 @@ describe('PidTuningScreen · the save chain', () => {
   });
 });
 
-describe('PidTuningScreen · the advanced disclosure', () => {
+describe('PidTuningScreen · separate tuning workspaces', () => {
   it('folds the expert controls away when the simplified workspace works', async () => {
     const renderer = await render(fullPort());
-    expect(renderer.root.findAllByProps({testID: 'pid-advanced-body'})).toHaveLength(0);
-    expect(renderer.root.findAllByProps({testID: 'pid-roll-p'})).toHaveLength(0);
+    expect(renderer.root.findAllByProps({testID:'pid-view-expert'}).some(n=>JSON.stringify(n.props.style).includes('none'))).toBe(true);
+    expect(renderer.root.findAllByProps({testID:'pid-tab-pid'}).some(n=>n.props.accessibilityState?.selected===true)).toBe(true);
     act(() => renderer.unmount());
   });
 
   it('still holds every control it held before, once opened', async () => {
     // Nothing was deleted when the page was reorganised.
     const renderer = await render(fullPort());
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-pid');
     for (const testID of [
       'pid-axis-roll', 'pid-roll-p', 'pid-yaw-f', 'pid-feel', 'pid-ff-jitter',
       'pid-throttle-rates', 'pid-throttle-mid', 'pid-dynamic-idle', 'pid-idle-min-rpm',

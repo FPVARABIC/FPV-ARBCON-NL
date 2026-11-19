@@ -170,7 +170,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it('1. API 1.47 shows the head as real controls and no tail at all', async () => {
     const h = harness(47);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     expect(exists(renderer, 'pid-rpm-filter-harmonics')).toBe(true);
     expect(exists(renderer, 'pid-rpm-filter-minHz')).toBe(true);
     for (const id of TAIL_IDS) expect(exists(renderer, id)).toBe(false);
@@ -180,7 +180,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it('2. API 1.47 says the extra settings need a newer protocol, and shows no zeros', async () => {
     const h = harness(47);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     expect(exists(renderer, 'pid-rpm-filter-tail-absent')).toBe(true);
     expect(screenText(renderer)).toContain("Bijkomende instellingen voor de RPM-candidaten zijn beschikbaar via MSP in de nieuwste versies.");
     act(() => renderer.unmount());
@@ -189,7 +189,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it('3. API 1.47 reads the head from the BOARD, not from a default', async () => {
     const h = harness(47);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     // The board's PG defaults: harmonics 3, min_hz 100.
     expect(fieldValue(renderer, 'pid-rpm-filter-harmonics-value')).toBe('3');
     expect(fieldValue(renderer, 'pid-rpm-filter-minHz-value')).toBe('100');
@@ -199,7 +199,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it.each([48, 49])('4. API 1.%s exposes all seven fields with the board\'s values', async apiMinor => {
     const h = harness(apiMinor);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     for (const id of TAIL_IDS) expect(exists(renderer, id)).toBe(true);
     expect(exists(renderer, 'pid-rpm-filter-tail-absent')).toBe(false);
     // `pg/rpm_filter.c` defaults: fade 50, q 500, weights 100/100/100.
@@ -215,7 +215,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it.each([48, 49])('5. API 1.%s writes an edited tail to the board and verifies it', async apiMinor => {
     const h = harness(apiMinor);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '1400');
     typeInto(renderer, 'pid-rpm-filter-fadeRangeHz-value', '250');
     typeInto(renderer, 'pid-rpm-filter-weight2-value', '60');
@@ -232,7 +232,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
     const h = harness(apiMinor);
     const before = boardRpm(h.board);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '900');
     await save(renderer);
     expect(boardRpm(h.board)).toMatchObject({
@@ -245,7 +245,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
   it('7. API 1.47 sends a 49-byte payload and never writes bytes 49-55', async () => {
     const h = harness(47);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-minHz-value', '80');
     await save(renderer);
     const sent = lastPayload(h.board, MSP_SET_FILTER_CONFIG);
@@ -258,7 +258,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
     const h = harness(apiMinor);
     const fresh = h.board.composedFilterConfig();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-harmonics-value', '2');
     await save(renderer);
     const sent = lastPayload(h.board, MSP_SET_FILTER_CONFIG);
@@ -277,7 +277,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
        tune helps nobody - and the decoders preserve bytes they do not know. */
     const h = harness(50);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     for (const id of TAIL_IDS) expect(exists(renderer, id)).toBe(true);
     expect(fieldValue(renderer, 'pid-rpm-filter-q-value')).toBe('500');
     act(() => renderer.unmount());
@@ -290,7 +290,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
        inherits that rather than sneaking around it. */
     const h = harness(50);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '1400');
     await save(renderer);
     expect(h.board.commandCount(MSP_SET_FILTER_CONFIG)).toBe(0);
@@ -306,7 +306,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
        in, and the board therefore never sees one. */
     const h = harness(49);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '9000');
     expect(fieldValue(renderer, 'pid-rpm-filter-q-value')).toBe('3000');
     typeInto(renderer, 'pid-rpm-filter-q-value', '10');
@@ -333,7 +333,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
     ).rejects.toThrow(/RPM filter value out of range/);
 
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '3001');
     await save(renderer);
     const sent = lastPayload(h.board, MSP_SET_FILTER_CONFIG);
@@ -349,7 +349,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
        switch must neither change these values nor make them look dirty. */
     const h = harness(49);
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-filters');
     typeInto(renderer, 'pid-rpm-filter-q-value', '1400');
     await save(renderer);
     const afterSave = boardRpm(h.board);
@@ -367,7 +367,7 @@ describe('P-E2 §16: the RPM filter card across the version matrix', () => {
     for (const apiMinor of [47, 48, 49, 50]) {
       const h = harness(apiMinor);
       const renderer = await render(h.port);
-      press(renderer, 'pid-advanced-toggle');
+      press(renderer, 'pid-tab-filters');
       expect(exists(renderer, 'pid-save-bar-save')).toBe(false);
       expect(h.board.commandCount(MSP_SET_FILTER_CONFIG)).toBe(0);
       expect(h.board.commandCount(MSP_EEPROM_WRITE)).toBe(0);

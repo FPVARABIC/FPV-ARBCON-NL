@@ -1,3 +1,4 @@
+import { WorkbenchBlock } from '../components/workbench/Workbench';
 /**
  * ESC SPIN DIRECTION - A WRITE-ONLY SETTING, PRESENTED AS ONE.
  *
@@ -24,13 +25,13 @@
  * motor turns that way, or that anything was verified physically.
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import type { DshotEscDirection } from '../../core';
 import type { MotorTestEscDirectionOutcome } from '../../core/state/motorTestController';
 import type { MotorTestOperatorPort } from '../../platforms/react-native/protocol';
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../theme';
+import { PROSE_MEASURE, colors, radii, spacing, typography } from '../theme';
 
 export interface EscDirectionPanelProps {
   readonly selectedMotor: number;
@@ -185,7 +186,11 @@ export function EscDirectionPanel({
   ]);
 
   return (
-    <View style={styles.root} testID="esc-direction-panel">
+    <WorkbenchBlock
+      style={styles.root}
+      testID="esc-direction-panel"
+      section="root"
+    >
       {/* THE CURRENT DIRECTION IS NOT AVAILABLE, and this says so before
           anything is offered. Unconditional: there is no firmware state
           that could ever fill it in. The heading is the CLAIM and stays
@@ -197,7 +202,11 @@ export function EscDirectionPanel({
         {t('escDirection.motor')}: {`M${selectedMotor}`}
       </Text>
 
-      <View style={styles.unknownBlock} testID="esc-direction-current-unknown">
+      <WorkbenchBlock
+        style={styles.unknownBlock}
+        testID="esc-direction-current-unknown"
+        section="unknownBlock"
+      >
         <Text style={styles.sectionTitle}>
           {t('escDirection.currentUnknownTitle')}
         </Text>
@@ -206,7 +215,7 @@ export function EscDirectionPanel({
             it, so it does not go behind a tap. Only the protocol-scope
             paragraph does. */}
         <Text style={styles.caption}>{t('escDirection.currentUnknown')}</Text>
-      </View>
+      </WorkbenchBlock>
 
       {/* SAFETY, NOT EXPLANATION: Normal/Reverse is an ESC setting and not
           a measure of clockwise or anticlockwise, and the physical result
@@ -226,14 +235,18 @@ export function EscDirectionPanel({
         </Text>
       </Pressable>
       {detailsOpen ? (
-        <View style={styles.notesBlock} testID="esc-direction-details">
+        <WorkbenchBlock
+          style={styles.notesBlock}
+          testID="esc-direction-details"
+          section="notesBlock"
+        >
           <Text style={styles.caption}>{t('escDirection.title')}</Text>
           <Text style={styles.caption}>{t('escDirection.subtitle')}</Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
 
       <Text style={styles.sectionTitle}>{t('escDirection.target')}</Text>
-      <View style={styles.optionRow}>
+      <WorkbenchBlock style={styles.optionRow} section="optionRow">
         {(['NORMAL', 'REVERSED'] as const).map(value => (
           <Pressable
             key={value}
@@ -261,7 +274,7 @@ export function EscDirectionPanel({
             </Text>
           </Pressable>
         ))}
-      </View>
+      </WorkbenchBlock>
 
       {direction === undefined ? (
         <Text style={styles.caption} testID="esc-direction-no-target">
@@ -270,7 +283,11 @@ export function EscDirectionPanel({
       ) : null}
 
       {reviewing && direction !== undefined ? (
-        <View style={styles.confirmation} testID="esc-direction-confirmation">
+        <WorkbenchBlock
+          style={styles.confirmation}
+          testID="esc-direction-confirmation"
+          section="confirmation"
+        >
           <Text style={styles.sectionTitle}>
             {t('escDirection.confirmTitle', {
               motor: selectedMotor,
@@ -292,7 +309,7 @@ export function EscDirectionPanel({
               {busy ? t('escDirection.sending') : t('escDirection.confirm')}
             </Text>
           </Pressable>
-        </View>
+        </WorkbenchBlock>
       ) : (
         <Pressable
           onPress={() => setReviewing(true)}
@@ -344,7 +361,7 @@ export function EscDirectionPanel({
           {result.text}
         </Text>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -360,25 +377,32 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   caption: {
     ...typography.caption,
     color: colors.textSecondary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   warning: {
     ...typography.body,
     color: colors.warning,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   sectionTitle: {
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   option: {
     minWidth: 56,
@@ -411,7 +435,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   confirmation: {
     gap: spacing.sm,
     padding: spacing.md,
@@ -434,7 +460,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.accentStrong,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   primaryButton: {
     minHeight: 48,
     alignSelf: 'flex-start',
@@ -448,7 +476,8 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.background,
     fontWeight: '700',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   dangerButton: {
     minHeight: 48,
     alignSelf: 'flex-start',
@@ -462,15 +491,21 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.background,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   resultDanger: {
     ...typography.body,
     color: colors.error,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   resultGood: {
     ...typography.body,
     color: colors.success,
     fontWeight: '700',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
 });

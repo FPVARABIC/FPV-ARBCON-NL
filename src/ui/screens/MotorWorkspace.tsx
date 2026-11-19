@@ -1,3 +1,4 @@
+import { MotorSlider } from '../components/motors/MotorSlider';
 /**
  * P3 - THE PROFESSIONAL MOTOR WORKSPACE.
  *
@@ -25,14 +26,8 @@
  * motor is turning or has stopped. Physical behaviour remains REQUIRES
  * HARDWARE TEST.
  */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  LayoutChangeEvent,
-  PanResponder,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import type { MotorTestControllerSnapshot } from '../../core/state/motorTestController';
@@ -44,7 +39,7 @@ import {
 } from '../../core/state/motorSessionPresentation';
 import { ToggleSwitch } from '../components/controls/ToggleSwitch';
 import { Button } from '../components/controls/Button';
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../theme';
+import { PROSE_MEASURE, colors, radii, spacing, typography } from '../theme';
 
 /* ------------------------------------------------------------------ *
  * The narrow port this workspace may call
@@ -173,19 +168,6 @@ function sessionToneStyle(state: MotorSessionState) {
  * Slider
  * ------------------------------------------------------------------ */
 
-interface MotorSliderProps {
-  readonly label: string;
-  readonly accessibilityLabel: string;
-  readonly min: number;
-  readonly max: number;
-  readonly stopValue: number;
-  readonly neutral?: number;
-  readonly value: number;
-  readonly disabled: boolean;
-  readonly onChange: (value: number) => void;
-  readonly testID: string;
-}
-
 /**
  * A PanResponder track slider - no external dependency, works on native
  * and react-native-web. The DESIRED value updates immediately with the
@@ -197,139 +179,6 @@ interface MotorSliderProps {
  * and mirroring them per-locale would make عكسي/أمامي swap sides between
  * builds. Labels around it stay RTL.
  */
-function MotorSlider({
-  label,
-  accessibilityLabel,
-  min,
-  max,
-  stopValue,
-  neutral,
-  value,
-  disabled,
-  onChange,
-  testID,
-}: MotorSliderProps): React.JSX.Element {
-  const [trackWidth, setTrackWidth] = useState(0);
-  const trackWidthRef = useRef(0);
-  const trackStartX = useRef(0);
-  const span = Math.max(1, max - min);
-  const fraction = (Math.min(Math.max(value, min), max) - min) / span;
-
-  const valueFromX = useCallback(
-    (pageX: number): number => {
-      const width = trackWidthRef.current;
-      if (width <= 0) {
-        return value;
-      }
-      const raw = (pageX - trackStartX.current) / width;
-      const clamped = Math.min(Math.max(raw, 0), 1);
-      return Math.round(min + clamped * span);
-    },
-    [min, span, value],
-  );
-
-  const responder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => !disabled,
-        onMoveShouldSetPanResponder: () => !disabled,
-        onPanResponderGrant: event => {
-          onChange(valueFromX(event.nativeEvent.pageX));
-        },
-        onPanResponderMove: event => {
-          onChange(valueFromX(event.nativeEvent.pageX));
-        },
-      }),
-    [disabled, onChange, valueFromX],
-  );
-
-  const onTrackLayout = useCallback((event: LayoutChangeEvent) => {
-    trackWidthRef.current = event.nativeEvent.layout.width;
-    setTrackWidth(event.nativeEvent.layout.width);
-  }, []);
-
-  const neutralFraction =
-    neutral !== undefined ? (neutral - min) / span : undefined;
-
-  return (
-    <View style={sliderStyles.row} testID={testID}>
-      <View style={sliderStyles.headerRow}>
-        <Text style={sliderStyles.label}>{label}</Text>
-        <Text style={sliderStyles.value} testID={`${testID}-value`}>
-          {String(value)}
-        </Text>
-      </View>
-      <View
-        style={[sliderStyles.trackTouch, disabled && sliderStyles.trackDisabled]}
-        onLayout={onTrackLayout}
-        // Measured in page coordinates once per gesture start would race
-        // scrolling; pageX relative to a ref captured on layout is stable
-        // enough for a test bench control.
-        ref={node => {
-          (node as unknown as {
-            measure?: (
-              callback: (
-                x: number, y: number, w: number, h: number, pageX?: number,
-              ) => void,
-            ) => void;
-          } | null)?.measure?.((_x, _y, _w, _h, pageX) => {
-            trackStartX.current = pageX ?? 0;
-          });
-        }}
-        accessibilityRole="adjustable"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityValue={{ min, max, now: value }}
-        accessibilityState={{ disabled }}
-        {...responder.panHandlers}
-      >
-        <View style={sliderStyles.trackLine} />
-        {neutralFraction !== undefined && trackWidth > 0 ? (
-          <View
-            style={[
-              sliderStyles.neutralTick,
-              { left: Math.max(0, neutralFraction * trackWidth - 1) },
-            ]}
-          />
-        ) : null}
-        {trackWidth > 0 ? (
-          <View
-            style={[
-              sliderStyles.thumb,
-              { left: Math.max(0, fraction * trackWidth - THUMB_SIZE / 2) },
-              disabled && sliderStyles.thumbDisabled,
-            ]}
-          />
-        ) : null}
-      </View>
-      {neutral !== undefined ? (
-        <View style={sliderStyles.threeDLegend} {...({dir: 'ltr'} as object)}>
-          {/* LTR axis: reverse left of neutral, forward right of it.
-              THE ORDER OF THESE THREE IS PHYSICAL, NOT EDITORIAL. The
-              thumb is placed with absolute `left` from
-              (value - min) / span, and the gesture maps a larger pageX to
-              a larger value, so the LEFT end of the track commands
-              REVERSE and the RIGHT end commands FORWARD - measured
-              identical under both document directions.
-
-              The row must therefore not reverse with the text. It used to
-              say so with `direction: 'ltr'` in the stylesheet, which
-              react-native-web drops, so under RTL this legend printed
-              أمامي at the left end - naming FORWARD on the end that
-              commands REVERSE. Measured at 390/768/1366: order was
-              [أمامي, محايد, عكسي] under RTL against [عكسي, محايد, أمامي]
-              under LTR, while the thumb offsets were identical in both.
-              `dir` is a forwarded DOM prop and is ignored off the web. */}
-          <Text style={sliderStyles.legendText}>{"Ondersteboven"}</Text>
-          <Text style={sliderStyles.legendText}>
-            {"Neutraal / stop "}
-            {String(stopValue)}
-          </Text>
-          <Text style={sliderStyles.legendText}>{"Voor"}</Text>
-        </View>
-      ) : null}
-    </View>
-  );
-}
 
 /* ------------------------------------------------------------------ *
  * Workspace
@@ -355,9 +204,13 @@ export function MotorWorkspace({
    */
   const sessionOn = sessionState === 'ON';
   const commandable =
-    sessionOn && phase === 'READY' && port !== undefined && domain !== undefined;
+    sessionOn &&
+    phase === 'READY' &&
+    port !== undefined &&
+    domain !== undefined;
 
-  const motorCount = domain?.motorCount ?? snapshot?.motorScope?.motorCount ?? 0;
+  const motorCount =
+    domain?.motorCount ?? snapshot?.motorScope?.motorCount ?? 0;
   const min = domain?.commandDomainMin ?? 1000;
   const max = domain?.commandDomainMax ?? 2000;
   const stopValue = domain?.stopValue ?? min;
@@ -413,14 +266,17 @@ export function MotorWorkspace({
    * while the session is commandable, and removed the moment it is not. */
   useEffect(() => {
     // The RN typings have no DOM globals; the runtime check is the guard.
-    const host = (globalThis as {
-      addEventListener?: (t: string, l: (e: {key?: string}) => void) => void;
-      removeEventListener?: (t: string, l: (e: {key?: string}) => void) => void;
-    });
+    const host = globalThis as {
+      addEventListener?: (t: string, l: (e: { key?: string }) => void) => void;
+      removeEventListener?: (
+        t: string,
+        l: (e: { key?: string }) => void,
+      ) => void;
+    };
     if (!commandable || typeof host.addEventListener !== 'function') {
       return undefined;
     }
-    const onKeyDown = (event: {key?: string}) => {
+    const onKeyDown = (event: { key?: string }) => {
       if (event.key === 'Escape') {
         handleStop();
       }
@@ -485,7 +341,9 @@ export function MotorWorkspace({
         value={motorSessionSwitchValue(sessionState)}
         onValueChange={onSessionChange}
         disabled={sessionBusy}
-        accessibilityLabel={`${t('motorsScreen.sessionToggleTitle')} — ${sessionLabel}`}
+        accessibilityLabel={`${t(
+          'motorsScreen.sessionToggleTitle',
+        )} — ${sessionLabel}`}
         testID="motor-session-toggle"
       />
     </View>
@@ -499,7 +357,10 @@ export function MotorWorkspace({
           {t('motorsScreen.controlToggleTitle')}
         </Text>
         <Text style={styles.unsupportedText}>
-          {"Een motortest is niet beschikbaar voor deze analoge 3D-configuratie: de vereiste uitgangsgrenzen kunnen niet uit deze firmwareversie worden gelezen."}</Text>
+          {
+            'Een motortest is niet beschikbaar voor deze analoge 3D-configuratie: de vereiste uitgangsgrenzen kunnen niet uit deze firmwareversie worden gelezen.'
+          }
+        </Text>
       </View>
     );
   }
@@ -528,7 +389,7 @@ export function MotorWorkspace({
       ) : null}
 
       {/* MOTOR CONTROL - a different authority, in its own row. */}
-      <View style={[styles.enableRow, styles.controlRow]}>
+      <View style={[styles.enableRow, styles.controlRow]} testID="motor-control-row">
         <View style={styles.enableTextBlock}>
           <Text style={styles.sectionTitle}>
             {t('motorsScreen.controlToggleTitle')}
@@ -591,58 +452,59 @@ export function MotorWorkspace({
           warning - repeating it here would be the ritual P3 removes. */}
       {phase === 'RECOVERY_REQUIRED' ? (
         <Text style={styles.recoveryText} testID="motor-workspace-recovery">
-          {"motoren is niet geactiveerd. Verbind het vliegtuig weer en probeer het nog eens."}</Text>
+          {
+            'motoren is niet geactiveerd. Verbind het vliegtuig weer en probeer het nog eens.'
+          }
+        </Text>
       ) : null}
 
       {/* Motor sliders - rendered from the REAL motor count, labelled with
           the SAME M-number the diagram prints and pulseMotor receives. */}
-      <View style={[styles.slidersBlock, sliderGrid && styles.slidersGrid]}>
+      <View
+        style={[styles.slidersBlock, sliderGrid && styles.slidersGrid]}
+        testID="motor-slider-grid"
+      >
         {Array.from({ length: motorCount }, (_, index) => (
-          <View
-            key={index}
-            style={sliderGrid ? styles.sliderCell : undefined}
-          >
+          <View key={index} style={sliderGrid ? styles.sliderCell : undefined}>
+            <MotorSlider
+              label={t('motorsScreen.motorNumber', { number: index + 1 })}
+              accessibilityLabel={t('motorsScreen.motorAccessibleName', {
+                number: index + 1,
+              })}
+              min={min}
+              max={max}
+              stopValue={stopValue}
+              neutral={neutral}
+              value={desiredFor(index)}
+              disabled={!commandable}
+              onChange={value => applyMotor(index, value)}
+              testID={`motor-slider-${index + 1}`}
+            />
+          </View>
+        ))}
+        {motorCount === 0 ? <Text style={styles.phaseText}>Geen motoruitgangen beschikbaar</Text> : null}
+        <View style={[styles.masterRow, compact && styles.masterRowCompact]}>
           <MotorSlider
-            label={t('motorsScreen.motorNumber', { number: index + 1 })}
-            accessibilityLabel={t('motorsScreen.motorAccessibleName', {
-              number: index + 1,
-            })}
+            label={t('motorsScreen.masterLabel')}
+            accessibilityLabel={t('motorsScreen.masterAccessibleName')}
             min={min}
             max={max}
             stopValue={stopValue}
             neutral={neutral}
-            value={desiredFor(index)}
+            value={masterValue}
             disabled={!commandable}
-            onChange={value => applyMotor(index, value)}
-            testID={`motor-slider-${index + 1}`}
+            onChange={applyMaster}
+            testID="motor-slider-master"
           />
-          </View>
-        ))}
-        {motorCount === 0 ? (
-          <Text style={styles.phaseText}>—</Text>
-        ) : null}
+        </View>
       </View>
 
       {/* Master */}
-      <View style={[styles.masterRow, compact && styles.masterRowCompact]}>
-        <MotorSlider
-          label={t('motorsScreen.masterLabel')}
-          accessibilityLabel={t('motorsScreen.masterAccessibleName')}
-          min={min}
-          max={max}
-          stopValue={stopValue}
-          neutral={neutral}
-          value={masterValue}
-          disabled={!commandable}
-          onChange={applyMaster}
-          testID="motor-slider-master"
-        />
-      </View>
 
       {/* STOP - the strongest control on the page. */}
       <View style={styles.stopBlock}>
         <Button
-          label={"Stop motoren."}
+          label={'Stop motoren.'}
           onPress={handleStop}
           variant="danger"
           size="lg"
@@ -651,73 +513,13 @@ export function MotorWorkspace({
              that and read as a banner rather than a control. `lg` keeps
              it the largest button on the page. */
           disabled={port === undefined}
-          accessibilityLabel={"Stop motoren."}
+          accessibilityLabel={'Stop motoren.'}
           testID="motor-workspace-stop"
         />
       </View>
     </View>
   );
 }
-
-const THUMB_SIZE = 28;
-
-const sliderStyles = StyleSheet.create({
-  row: { gap: spacing.xs, paddingVertical: spacing.xs },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
-  label: {
-    ...typography.label,
-    color: colors.textPrimary,
-    fontSize: 15,
-  },
-  value: {
-    ...typography.mono,
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontVariant: ['tabular-nums'],
-  },
-  trackTouch: {
-    height: 44,
-    justifyContent: 'center',
-    // The technical axis stays LTR in RTL builds - see MotorSlider docs.
-    direction: 'ltr',
-  },
-  trackDisabled: { opacity: 0.45 },
-  trackLine: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.borderStrong,
-  },
-  neutralTick: {
-    position: 'absolute',
-    width: 2,
-    height: 18,
-    borderRadius: 1,
-    backgroundColor: colors.textSecondary,
-  },
-  thumb: {
-    position: 'absolute',
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: THUMB_SIZE / 2,
-    backgroundColor: colors.accent,
-    borderWidth: 2,
-    borderColor: colors.surface,
-  },
-  thumbDisabled: { backgroundColor: colors.borderStrong },
-  threeDLegend: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  legendText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontSize: 11,
-  },
-});
 
 const styles = StyleSheet.create({
   card: {
@@ -768,13 +570,21 @@ const styles = StyleSheet.create({
     ...typography.caption,
     fontWeight: '700',
     color: colors.textPrimary,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   stateChipOn: {
     borderColor: colors.accentStrong,
     backgroundColor: colors.accentSoft,
   },
-  stateChipOff: { borderColor: colors.border, backgroundColor: colors.surfaceRaised },
-  stateChipBusy: { borderColor: colors.info, backgroundColor: colors.surfaceRaised },
+  stateChipOff: {
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
+  },
+  stateChipBusy: {
+    borderColor: colors.info,
+    backgroundColor: colors.surfaceRaised,
+  },
   stateChipUncertain: {
     borderColor: colors.error,
     borderWidth: 2,
@@ -782,10 +592,14 @@ const styles = StyleSheet.create({
   },
   safetyLine: {
     ...typography.caption,
-    color: colors.warning, maxWidth: PROSE_MEASURE},
+    color: colors.warning,
+    maxWidth: PROSE_MEASURE,
+  },
   recoveryText: {
     ...typography.body,
-    color: colors.error, maxWidth: PROSE_MEASURE},
+    color: colors.error,
+    maxWidth: PROSE_MEASURE,
+  },
   slidersBlock: { gap: spacing.xs },
   slidersGrid: {
     flexDirection: 'row',
@@ -796,6 +610,7 @@ const styles = StyleSheet.create({
      them and a third can never squeeze onto the same line. */
   sliderCell: { flexGrow: 1, flexBasis: '47%', minWidth: 240 },
   masterRow: {
+    width: '100%',
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: spacing.xs,
@@ -805,5 +620,7 @@ const styles = StyleSheet.create({
   unsupportedText: {
     ...typography.body,
     color: colors.textSecondary,
-    lineHeight: 22, maxWidth: PROSE_MEASURE},
+    lineHeight: 22,
+    maxWidth: PROSE_MEASURE,
+  },
 });

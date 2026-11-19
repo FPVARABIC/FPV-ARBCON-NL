@@ -2101,7 +2101,7 @@ describe('SetupScreen - Pass 7.6c complete Region 3 card grid through the REAL p
     });
   }
 
-  it('renders the whole aircraft state in two dense surfaces: the status area above the model and the Status/GPS/Build grid below it', async () => {
+  it('renders the whole aircraft state in two dense surfaces: the model followed by Status/GPS/Build and the complete status strip', async () => {
     const sessionId = 'pass76c-grid-1';
     const { renderer } = await renderWithLiveAux(sessionId);
 
@@ -2130,12 +2130,10 @@ describe('SetupScreen - Pass 7.6c complete Region 3 card grid through the REAL p
     expect(findAnyByTestID(renderer, 'setup-info-status-cpu')).not.toBeNull();
 
     /* Tree order = accessibility (reading) order, and this is the whole
-       point of the round: the battery and the sensors are read BEFORE
-       the model, not two screens after it. */
+       new layout: the model leads, followed immediately by the dense
+       information grid and the battery/sensor strip. */
     const text = allText(renderer);
     const positions = [
-      text.indexOf(i18n.t('setupStatusBar.battery')),
-      text.indexOf(i18n.t('setupStatusBar.sensors')),
       text.indexOf(i18n.t('orientationHero.title')),
       text.indexOf(i18n.t('setupInfo.status.title')),
       /* The GPS COLUMN, matched by a row label rather than by its "GPS"
@@ -2143,6 +2141,8 @@ describe('SetupScreen - Pass 7.6c complete Region 3 card grid through the REAL p
          GPS too, so the heading is not a unique marker. */
       text.indexOf(i18n.t('setupInfo.gps.fix')),
       text.indexOf(i18n.t('setupInfo.build.title')),
+      text.indexOf(i18n.t('setupStatusBar.battery')),
+      text.indexOf(i18n.t('setupStatusBar.sensors')),
     ];
     for (const position of positions) {
       expect(position).toBeGreaterThanOrEqual(0);
@@ -2896,10 +2896,10 @@ describe('SetupScreen - P2 dashboard hierarchy', () => {
     const { renderer } = await renderConnectedScreen(sessionId);
 
     expect(renderedSectionOrder(renderer)).toEqual([
-      'setup-status-bar',
       'orientation-hero',
       'orientation-calibration-card',
       'setup-info-grid',
+      'setup-status-bar',
       'board-alignment-card',
       'orientation-stability-panel',
       'diagnostics-section',

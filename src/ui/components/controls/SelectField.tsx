@@ -25,37 +25,20 @@ import {
   View,
 } from 'react-native';
 
-import {Icon} from '../../icons';
-import {PROSE_MEASURE, colors, radii, spacing, typography} from '../../theme';
-import {IconButton} from './IconButton';
-import {MIN_TOUCH_TARGET, readInteraction} from './interaction';
+import { Icon } from '../../icons';
+import { PROSE_MEASURE, colors, radii, spacing, typography } from '../../theme';
+import { IconButton } from './IconButton';
+import { MIN_TOUCH_TARGET, readInteraction } from './interaction';
 
-export interface SelectOption<K extends string = string> {
-  key: K;
-  label: string;
-  /** Secondary line under the label — e.g. a technical identifier. */
-  description?: string;
-  disabled?: boolean;
-}
-
-export interface SelectFieldProps<K extends string = string> {
-  label: string;
-  options: ReadonlyArray<SelectOption<K>>;
-  selectedKey: K | null;
-  onSelect: (key: K) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  /** Optional helper line under the field. */
-  helper?: string;
-  testID?: string;
-}
+export type { SelectOption, SelectFieldProps } from './selectFieldTypes';
+import type { SelectFieldProps } from './selectFieldTypes';
 
 export function SelectField<K extends string = string>({
   label,
   options,
   selectedKey,
   onSelect,
-  placeholder = "Kiezen…",
+  placeholder = 'Kiezen…',
   disabled = false,
   helper,
   testID,
@@ -71,18 +54,19 @@ export function SelectField<K extends string = string>({
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityValue={{text: selected ? selected.label : placeholder}}
-        accessibilityState={{disabled, expanded: open}}
+        accessibilityValue={{ text: selected ? selected.label : placeholder }}
+        accessibilityState={{ disabled, expanded: open }}
         testID={testID}
         style={state => {
-          const {pressed, hovered} = readInteraction(state);
+          const { pressed, hovered } = readInteraction(state);
           return [
             styles.trigger,
             hovered && !disabled && styles.triggerHovered,
             pressed && !disabled && styles.triggerPressed,
             disabled && styles.triggerDisabled,
           ];
-        }}>
+        }}
+      >
         <Text
           style={[
             typography.bodyStrong,
@@ -90,7 +74,8 @@ export function SelectField<K extends string = string>({
             !selected && styles.placeholderText,
             disabled && styles.disabledText,
           ]}
-          numberOfLines={1}>
+          numberOfLines={1}
+        >
           {selected ? selected.label : placeholder}
         </Text>
         <Icon
@@ -105,27 +90,32 @@ export function SelectField<K extends string = string>({
         visible={open}
         transparent
         animationType="fade"
-        onRequestClose={() => setOpen(false)}>
+        onRequestClose={() => setOpen(false)}
+      >
         <View style={styles.backdropLayer}>
           <Pressable
             style={styles.backdrop}
-            accessibilityLabel={"Lijst sluiten"}
+            accessibilityLabel={'Lijst sluiten'}
             onPress={() => setOpen(false)}
           />
-          <View style={styles.sheet} testID={testID ? `${testID}-sheet` : undefined}>
+          <View
+            style={styles.sheet}
+            testID={testID ? `${testID}-sheet` : undefined}
+          >
             <View style={styles.sheetHeader}>
               <Text style={[typography.sectionTitle, styles.sheetTitle]}>
                 {label}
               </Text>
               <IconButton
                 icon="x"
-                accessibilityLabel={"Sluiten"}
+                accessibilityLabel={'Sluiten'}
                 onPress={() => setOpen(false)}
               />
             </View>
             <ScrollView
               style={styles.optionScroll}
-              contentContainerStyle={styles.optionList}>
+              contentContainerStyle={styles.optionList}
+            >
               {options.map(option => {
                 const isSelected = option.key === selectedKey;
                 const optionDisabled = option.disabled === true;
@@ -151,14 +141,15 @@ export function SelectField<K extends string = string>({
                       testID ? `${testID}-option-${option.key}` : undefined
                     }
                     style={state => {
-                      const {pressed, hovered} = readInteraction(state);
+                      const { pressed, hovered } = readInteraction(state);
                       return [
                         styles.option,
                         isSelected && styles.optionSelected,
                         hovered && !optionDisabled && styles.optionHovered,
                         pressed && !optionDisabled && styles.optionPressed,
                       ];
-                    }}>
+                    }}
+                  >
                     <View style={styles.optionTextColumn}>
                       <Text
                         style={[
@@ -166,17 +157,24 @@ export function SelectField<K extends string = string>({
                           styles.optionLabel,
                           isSelected && styles.optionLabelSelected,
                           optionDisabled && styles.disabledText,
-                        ]}>
+                        ]}
+                      >
                         {option.label}
                       </Text>
                       {option.description ? (
-                        <Text style={[typography.caption, styles.optionDescription]}>
+                        <Text
+                          style={[typography.caption, styles.optionDescription]}
+                        >
                           {option.description}
                         </Text>
                       ) : null}
                     </View>
                     {isSelected ? (
-                      <Icon name="check" size={20} color={colors.accentStrong} />
+                      <Icon
+                        name="check"
+                        size={20}
+                        color={colors.accentStrong}
+                      />
                     ) : null}
                   </Pressable>
                 );
@@ -210,8 +208,8 @@ const styles = StyleSheet.create({
     borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
   },
-  triggerHovered: {backgroundColor: colors.surfaceHover},
-  triggerPressed: {backgroundColor: colors.surfacePressed},
+  triggerHovered: { backgroundColor: colors.surfaceHover },
+  triggerPressed: { backgroundColor: colors.surfacePressed },
   triggerDisabled: {
     backgroundColor: colors.surfaceAlt,
     borderColor: colors.borderSoft,
@@ -225,11 +223,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '400',
   },
-  disabledText: {color: colors.textMuted},
+  disabledText: { color: colors.textMuted },
   helper: {
     ...typography.helper,
     color: colors.textMuted,
-    textAlign: 'left', maxWidth: PROSE_MEASURE},
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   backdropLayer: {
     flex: 1,
     alignItems: 'center',
@@ -286,9 +286,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radii.sm,
   },
-  optionSelected: {backgroundColor: colors.accentSoft},
-  optionHovered: {backgroundColor: colors.surfaceHover},
-  optionPressed: {backgroundColor: colors.surfacePressed},
+  optionSelected: { backgroundColor: colors.accentSoft },
+  optionHovered: { backgroundColor: colors.surfaceHover },
+  optionPressed: { backgroundColor: colors.surfacePressed },
   optionTextColumn: {
     flex: 1,
     gap: 1,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     textAlign: 'left',
   },
-  optionLabelSelected: {color: colors.accentStrong},
+  optionLabelSelected: { color: colors.accentStrong },
   optionDescription: {
     color: colors.textMuted,
     textAlign: 'left',

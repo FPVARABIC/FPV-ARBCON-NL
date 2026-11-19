@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * Arabic-first Ports configuration surface.
  *
@@ -6,6 +10,7 @@
  * PortsConfigurationController, which owns session identity, telemetry
  * exclusion, disarmed proof, writes, EEPROM, readback and reboot handling.
  */
+import { CompactChoice } from '../components/controls/CompactChoice';
 import React, {
   useCallback,
   useEffect,
@@ -16,7 +21,6 @@ import React, {
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -54,12 +58,19 @@ import {
   type SetupUiSessionKey,
   useMspOwnershipState,
 } from '../../platforms/react-native/protocol';
-import {isOwnedByDifferentConfigurationSession} from '../../core/state/configurationSessionOwnership';
-import {PROSE_MEASURE, colors, noticeSurface, radii, spacing, typography, useContentEnvelope} from '../theme';
+import { isOwnedByDifferentConfigurationSession } from '../../core/state/configurationSessionOwnership';
+import {
+  PROSE_MEASURE,
+  colors,
+  noticeSurface,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
 import { StickyActionBar } from '../components/editing';
 import {
   Button,
-  ChoiceChips,
   MIN_TOUCH_TARGET,
   NoticeBox,
   ToggleSwitch,
@@ -194,7 +205,10 @@ function RoleSwitch({
   readonly onChange: (value: boolean) => void;
 }) {
   return (
-    <View style={[styles.switchRow, disabled && styles.disabled]}>
+    <WorkbenchBlock
+      style={[styles.switchRow, disabled && styles.disabled]}
+      section="switchRow"
+    >
       <Text style={styles.controlLabel}>{label}</Text>
       <ToggleSwitch
         value={value}
@@ -203,7 +217,7 @@ function RoleSwitch({
         accessibilityLabel={label}
         testID={testID}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -230,13 +244,14 @@ function ChoiceGroup({
 }) {
   const { t } = useTranslation();
   return (
-    <View style={styles.controlGroup}>
+    <WorkbenchBlock style={styles.controlGroup} section="controlGroup">
       <Text style={styles.groupLabel}>{title}</Text>
       {/* The shared chip group: one selection look, one set of a11y
           semantics. NONE is a synthetic key mapped back to `undefined`
           at the boundary so the screen's own contract is unchanged. */}
-      <ChoiceChips
+      <CompactChoice
         accessibilityLabel={title}
+        testID={`ports-${portIdentifier}-${categoryKey}-select`}
         selectedKey={selected ?? NONE_ROLE_KEY}
         onSelect={key =>
           onSelect(key === NONE_ROLE_KEY ? undefined : (key as SerialRoleKey))
@@ -259,7 +274,11 @@ function ChoiceGroup({
             );
             const assigned =
               onBoard !== undefined && hasSerialRole(onBoard, role.key);
-            const available = serialRoleIsAvailable(snapshot, role.key, assigned);
+            const available = serialRoleIsAvailable(
+              snapshot,
+              role.key,
+              assigned,
+            );
             const unverified =
               !available && serialRoleCompilationUnverified(snapshot, role.key);
             return {
@@ -278,7 +297,7 @@ function ChoiceGroup({
           }),
         ]}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -297,11 +316,11 @@ function BaudSelector({
 }) {
   const { t } = useTranslation();
   return (
-    <View style={styles.baudSection}>
+    <WorkbenchBlock style={styles.baudSection} section="baudSection">
       <Text style={styles.baudLabel}>
         {t(`portsConfiguration.baud.${field}`)}
       </Text>
-      <ChoiceChips
+      <CompactChoice
         accessibilityLabel={t(`portsConfiguration.baud.${field}`)}
         selectedKey={String(port[field])}
         onSelect={key => onChange(Number(key))}
@@ -312,7 +331,7 @@ function BaudSelector({
           testID: `ports-${port.identifier}-${field}-${index}`,
         }))}
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -335,7 +354,7 @@ function PortCard({
   readonly onBaud: (field: SerialBaudField, value: number) => void;
 }) {
   const { t } = useTranslation();
-  const {width, fontScale} = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const columns = width / fontScale >= 1100;
   const [expanded, setExpanded] = useState(false);
   const roles = enabledSerialRoles(port);
@@ -364,53 +383,105 @@ function PortCard({
   }, [peripheral, port, sensor, t, telemetry]);
 
   return (
-    <View style={styles.portCard} testID={`ports-card-${port.identifier}`}>
-      <Pressable
-        onPress={() => setExpanded(value => !value)}
-        accessibilityLabel={`${serialPortDisplayName(port.identifier)}: ${
-          expanded
-            ? t('portsConfiguration.collapsePort')
-            : t('portsConfiguration.editPort')
-        }`}
-        accessibilityRole="button"
-        accessibilityState={{ expanded }}
-        style={state => {
-          const { pressed, hovered } = readInteraction(state);
-          return [
-            styles.portHeader,
-            (hovered || pressed) && styles.portHeaderActive,
-          ];
-        }}
-        testID={`ports-card-toggle-${port.identifier}`}
-      >
-        <View>
-          <Text style={styles.portName}>
-            {serialPortDisplayName(port.identifier)}
-          </Text>
-          <Text style={styles.portIdentifier}>
-            {t('portsConfiguration.portIdentifier', { id: port.identifier })}
-          </Text>
-        </View>
-        <View style={styles.portHeaderStatus}>
-          <View style={styles.roleCountBadge}>
-            <Text style={styles.roleCountText}>
-              {t('portsConfiguration.activeRoleCount', { count: roles.length })}
+    <WorkbenchBlock
+      style={styles.portCard}
+      testID={`ports-card-${port.identifier}`}
+      section="portCard"
+    >
+      {columns ? (
+        <WorkbenchBlock section="portHeader" style={styles.portHeader}>
+          <View>
+            <Text style={styles.portName}>
+              {serialPortDisplayName(port.identifier)}
+            </Text>
+            <Text style={styles.portIdentifier}>
+              {t('portsConfiguration.portIdentifier', { id: port.identifier })}
             </Text>
           </View>
-          <View style={styles.expandRow}>
-            <Icon
-              name={expanded ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={colors.accentStrong}
-            />
-            <Text style={styles.expandText}>
-              {expanded
-                ? t('portsConfiguration.collapsePort')
-                : t('portsConfiguration.editPort')}
+          <WorkbenchBlock
+            style={styles.portHeaderStatus}
+            section="portHeaderStatus"
+          >
+            <WorkbenchBlock
+              style={styles.roleCountBadge}
+              section="roleCountBadge"
+            >
+              <Text style={styles.roleCountText}>
+                {t('portsConfiguration.activeRoleCount', {
+                  count: roles.length,
+                })}
+              </Text>
+            </WorkbenchBlock>
+            <WorkbenchBlock style={styles.expandRow} section="expandRow">
+              <Icon
+                name={expanded ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={colors.accentStrong}
+              />
+              <Text style={styles.expandText}>
+                {expanded
+                  ? t('portsConfiguration.collapsePort')
+                  : t('portsConfiguration.editPort')}
+              </Text>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </WorkbenchBlock>
+      ) : (
+        <Pressable
+          onPress={() => setExpanded(value => !value)}
+          accessibilityLabel={`${serialPortDisplayName(port.identifier)}: ${
+            expanded
+              ? t('portsConfiguration.collapsePort')
+              : t('portsConfiguration.editPort')
+          }`}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          style={state => {
+            const { pressed, hovered } = readInteraction(state);
+            return [
+              styles.portHeader,
+              (hovered || pressed) && styles.portHeaderActive,
+            ];
+          }}
+          testID={`ports-card-toggle-${port.identifier}`}
+        >
+          <View>
+            <Text style={styles.portName}>
+              {serialPortDisplayName(port.identifier)}
+            </Text>
+            <Text style={styles.portIdentifier}>
+              {t('portsConfiguration.portIdentifier', { id: port.identifier })}
             </Text>
           </View>
-        </View>
-      </Pressable>
+          <WorkbenchBlock
+            style={styles.portHeaderStatus}
+            section="portHeaderStatus"
+          >
+            <WorkbenchBlock
+              style={styles.roleCountBadge}
+              section="roleCountBadge"
+            >
+              <Text style={styles.roleCountText}>
+                {t('portsConfiguration.activeRoleCount', {
+                  count: roles.length,
+                })}
+              </Text>
+            </WorkbenchBlock>
+            <WorkbenchBlock style={styles.expandRow} section="expandRow">
+              <Icon
+                name={expanded ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={colors.accentStrong}
+              />
+              <Text style={styles.expandText}>
+                {expanded
+                  ? t('portsConfiguration.collapsePort')
+                  : t('portsConfiguration.editPort')}
+              </Text>
+            </WorkbenchBlock>
+          </WorkbenchBlock>
+        </Pressable>
+      )}
       {roles.length > 0 ? (
         <Text style={styles.roleSummary}>
           {roles.map(role => t(roleLabelKey(role))).join(' · ')}
@@ -425,18 +496,24 @@ function PortCard({
         </Text>
       ) : null}
       {unknownMask !== 0 ? (
-        <View style={styles.preservedNotice}>
+        <WorkbenchBlock
+          style={styles.preservedNotice}
+          section="preservedNotice"
+        >
           <Text style={styles.preservedText}>
             {t('portsConfiguration.unknownFunctionsPreserved')}
           </Text>
           <Text style={[styles.preservedMask, styles.ltr]}>
             0x{unknownMask.toString(16).toUpperCase()}
           </Text>
-        </View>
+        </WorkbenchBlock>
       ) : null}
-      {expanded ? (
+      {columns || expanded ? (
         <>
-          <View style={styles.primaryControls}>
+          <WorkbenchBlock
+            style={styles.primaryControls}
+            section="primaryControls"
+          >
             <RoleSwitch
               label={t('portsConfiguration.msp')}
               value={hasSerialRole(port, 'MSP')}
@@ -451,7 +528,7 @@ function PortCard({
               testID={`ports-${port.identifier}-rx`}
               onChange={value => onToggle('RX_SERIAL', value)}
             />
-          </View>
+          </WorkbenchBlock>
           {hasSerialRole(port, 'MSP') ? (
             <BaudSelector
               field="mspBaudIndex"
@@ -462,69 +539,79 @@ function PortCard({
             />
           ) : null}
 
-          <View style={[styles.roleColumns, columns && styles.roleColumnsWide]}><View style={styles.roleColumn}><ChoiceGroup
-            categoryKey="telemetry"
-            title={t('portsConfiguration.telemetry')}
-            roles={TELEMETRY_ROLES}
-            selected={telemetry}
-            snapshot={snapshot}
-            disabled={disabled}
-            portIdentifier={port.identifier}
-            isRoleDisabled={role => isUsb && !MSP_SHAREABLE.has(role)}
-            onSelect={role => onSelectCategory('TELEMETRY', role)}
-          />
-          {telemetry !== undefined ? (
-            <BaudSelector
-              field="telemetryBaudIndex"
-              port={port}
-              apiMinor={snapshot.apiVersionMinor}
-              disabled={disabled}
-              onChange={value => onBaud('telemetryBaudIndex', value)}
-            />
-          ) : null}
-          </View><View style={styles.roleColumn}><ChoiceGroup
-            categoryKey="sensors"
-            title={t('portsConfiguration.sensors')}
-            roles={SENSOR_ROLES}
-            selected={sensor}
-            snapshot={snapshot}
-            disabled={disabled || isUsb}
-            portIdentifier={port.identifier}
-            onSelect={role => onSelectCategory('SENSOR', role)}
-          />
-          {sensor === 'GPS' ? (
-            <BaudSelector
-              field="gpsBaudIndex"
-              port={port}
-              apiMinor={snapshot.apiVersionMinor}
-              disabled={disabled}
-              onChange={value => onBaud('gpsBaudIndex', value)}
-            />
-          ) : null}
-          </View><View style={styles.roleColumn}><ChoiceGroup
-            categoryKey="peripherals"
-            title={t('portsConfiguration.peripherals')}
-            roles={PERIPHERAL_ROLES}
-            selected={peripheral}
-            snapshot={snapshot}
-            disabled={disabled}
-            portIdentifier={port.identifier}
-            isRoleDisabled={role => isUsb && !MSP_SHAREABLE.has(role)}
-            onSelect={role => onSelectCategory('PERIPHERAL', role)}
-          />
-          {peripheral === 'BLACKBOX' ? (
-            <BaudSelector
-              field="blackboxBaudIndex"
-              port={port}
-              apiMinor={snapshot.apiVersionMinor}
-              disabled={disabled}
-              onChange={value => onBaud('blackboxBaudIndex', value)}
-            />
-          ) : null}
-          </View></View>
+          <WorkbenchBlock
+            style={[styles.roleColumns, columns && styles.roleColumnsWide]}
+            section="roleColumns"
+          >
+            <WorkbenchBlock style={styles.roleColumn} section="roleColumn">
+              <ChoiceGroup
+                categoryKey="telemetry"
+                title={t('portsConfiguration.telemetry')}
+                roles={TELEMETRY_ROLES}
+                selected={telemetry}
+                snapshot={snapshot}
+                disabled={disabled}
+                portIdentifier={port.identifier}
+                isRoleDisabled={role => isUsb && !MSP_SHAREABLE.has(role)}
+                onSelect={role => onSelectCategory('TELEMETRY', role)}
+              />
+              {telemetry !== undefined ? (
+                <BaudSelector
+                  field="telemetryBaudIndex"
+                  port={port}
+                  apiMinor={snapshot.apiVersionMinor}
+                  disabled={disabled}
+                  onChange={value => onBaud('telemetryBaudIndex', value)}
+                />
+              ) : null}
+            </WorkbenchBlock>
+            <WorkbenchBlock style={styles.roleColumn} section="roleColumn">
+              <ChoiceGroup
+                categoryKey="sensors"
+                title={t('portsConfiguration.sensors')}
+                roles={SENSOR_ROLES}
+                selected={sensor}
+                snapshot={snapshot}
+                disabled={disabled || isUsb}
+                portIdentifier={port.identifier}
+                onSelect={role => onSelectCategory('SENSOR', role)}
+              />
+              {sensor === 'GPS' ? (
+                <BaudSelector
+                  field="gpsBaudIndex"
+                  port={port}
+                  apiMinor={snapshot.apiVersionMinor}
+                  disabled={disabled}
+                  onChange={value => onBaud('gpsBaudIndex', value)}
+                />
+              ) : null}
+            </WorkbenchBlock>
+            <WorkbenchBlock style={styles.roleColumn} section="roleColumn">
+              <ChoiceGroup
+                categoryKey="peripherals"
+                title={t('portsConfiguration.peripherals')}
+                roles={PERIPHERAL_ROLES}
+                selected={peripheral}
+                snapshot={snapshot}
+                disabled={disabled}
+                portIdentifier={port.identifier}
+                isRoleDisabled={role => isUsb && !MSP_SHAREABLE.has(role)}
+                onSelect={role => onSelectCategory('PERIPHERAL', role)}
+              />
+              {peripheral === 'BLACKBOX' ? (
+                <BaudSelector
+                  field="blackboxBaudIndex"
+                  port={port}
+                  apiMinor={snapshot.apiVersionMinor}
+                  disabled={disabled}
+                  onChange={value => onBaud('blackboxBaudIndex', value)}
+                />
+              ) : null}
+            </WorkbenchBlock>
+          </WorkbenchBlock>
         </>
       ) : null}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -724,7 +811,15 @@ export default function PortsScreen({
         ? 'ERROR'
         : 'READY',
     );
-  }, [saveBlockedBySession, controller, dirty, draft, issues.length, original, sessionKey]);
+  }, [
+    saveBlockedBySession,
+    controller,
+    dirty,
+    draft,
+    issues.length,
+    original,
+    sessionKey,
+  ]);
 
   const reloadNow = useCallback(() => {
     setSaveOutcome(undefined);
@@ -776,7 +871,7 @@ export default function PortsScreen({
       lines.push(
         roles.length === 0
           ? `${name}: ${t('portsConfiguration.none')}`
-          : `${name}: ${roles.map(role => t(roleLabelKey(role))).join(", ")}`,
+          : `${name}: ${roles.map(role => t(roleLabelKey(role))).join(', ')}`,
       );
     }
     return lines;
@@ -792,16 +887,16 @@ export default function PortsScreen({
       : undefined;
 
   return (
-    <View style={styles.root} testID="ports-screen">
-      <ScrollView
+    <WorkbenchBlock style={styles.root} testID="ports-screen" section="root">
+      <WorkbenchScrollView
         contentContainerStyle={[styles.content, { maxWidth: contentMaxWidth }]}
         keyboardShouldPersistTaps="handled"
+        workspace="Ports"
       >
-        <View style={styles.hero}>
+        <WorkbenchBlock style={styles.hero} section="hero" heading>
           <Text style={styles.eyebrow}>{t('portsConfiguration.eyebrow')}</Text>
           <Text style={styles.title}>{t('portsConfiguration.title')}</Text>
-
-        </View>
+        </WorkbenchBlock>
 
         <NoticeBox
           variant="warning"
@@ -821,7 +916,7 @@ export default function PortsScreen({
           </Text>
         ) : null}
         {loadMessage !== undefined ? (
-          <View style={styles.errorCard}>
+          <WorkbenchBlock style={styles.errorCard} section="errorCard">
             <Text style={styles.errorText}>{loadMessage}</Text>
             <Button
               label={t('portsConfiguration.reload')}
@@ -830,12 +925,16 @@ export default function PortsScreen({
               icon="refresh-cw"
               testID="ports-retry-load"
             />
-          </View>
+          </WorkbenchBlock>
         ) : null}
 
         {snapshot !== undefined ? (
           <>
-            <View style={styles.summaryCard}>
+            <WorkbenchBlock
+              style={styles.summaryCard}
+              section="summaryCard"
+              panel
+            >
               <View>
                 <Text style={styles.summaryTitle}>
                   {t('portsConfiguration.detectedPorts')}
@@ -862,13 +961,17 @@ export default function PortsScreen({
                     : t('portsConfiguration.synced')}
                 </Text>
               </View>
-            </View>
+            </WorkbenchBlock>
 
-            <View
+            <WorkbenchBlock
               style={styles.gpsIntegrationCard}
               testID="ports-gps-integration"
+              section="gpsIntegrationCard"
             >
-              <View style={styles.gpsIntegrationCopy}>
+              <WorkbenchBlock
+                style={styles.gpsIntegrationCopy}
+                section="gpsIntegrationCopy"
+              >
                 <Text style={styles.summaryTitle}>
                   {t('portsConfiguration.gpsIntegrationTitle')}
                 </Text>
@@ -882,10 +985,10 @@ export default function PortsScreen({
                               SERIAL_BAUD_RATES[port.gpsBaudIndex] ?? '?'
                             }`,
                         )
-                        .join(", ")
+                        .join(', ')
                     : t('portsConfiguration.gpsNotAssigned')}
                 </Text>
-              </View>
+              </WorkbenchBlock>
               {onOpenGps !== undefined ? (
                 <Button
                   label={t('portsConfiguration.openGps')}
@@ -895,7 +998,7 @@ export default function PortsScreen({
                   testID="ports-open-gps"
                 />
               ) : null}
-            </View>
+            </WorkbenchBlock>
 
             {/* Two DIFFERENT things, and the wording must not merge
                 them: the board said its table is empty, versus the board
@@ -919,9 +1022,10 @@ export default function PortsScreen({
                 card so an operator can tell "your configuration is
                 invalid" from "we could not check this". */}
             {uncertainties.length > 0 ? (
-              <View
+              <WorkbenchBlock
                 style={styles.validationCard}
                 testID="ports-evidence-uncertainties"
+                section="validationCard"
               >
                 <Text style={styles.validationTitle}>
                   {t('portsConfiguration.uncertaintyTitle')}
@@ -946,13 +1050,14 @@ export default function PortsScreen({
                     })}
                   </Text>
                 ))}
-              </View>
+              </WorkbenchBlock>
             ) : null}
 
             {issues.length > 0 ? (
-              <View
+              <WorkbenchBlock
                 style={styles.validationCard}
                 testID="ports-validation-errors"
+                section="validationCard"
               >
                 <Text style={styles.validationTitle}>
                   {t('portsConfiguration.validationTitle')}
@@ -977,7 +1082,7 @@ export default function PortsScreen({
                     })}
                   </Text>
                 ))}
-              </View>
+              </WorkbenchBlock>
             ) : null}
 
             {draft.map(port => (
@@ -999,12 +1104,13 @@ export default function PortsScreen({
             ))}
 
             {saveOutcome !== undefined ? (
-              <View
+              <WorkbenchBlock
                 style={[
                   styles.outcomeCard,
                   isDangerOutcome(saveOutcome) && styles.outcomeDanger,
                 ]}
                 testID="ports-save-outcome"
+                section="outcomeCard"
               >
                 <Text
                   style={[
@@ -1014,10 +1120,10 @@ export default function PortsScreen({
                 >
                   {t(outcomeKey(saveOutcome))}
                 </Text>
-              </View>
+              </WorkbenchBlock>
             ) : null}
 
-            <View style={styles.actions}>
+            <WorkbenchBlock style={styles.actions} section="actions">
               <Button
                 label={t('portsConfiguration.reset')}
                 onPress={() => {
@@ -1057,10 +1163,10 @@ export default function PortsScreen({
                 style={styles.saveGrow}
                 testID="ports-save"
               />
-            </View>
+            </WorkbenchBlock>
           </>
         ) : null}
-      </ScrollView>
+      </WorkbenchScrollView>
       {/* OUTSIDE the ScrollView on purpose: the in-scroll actions above
           sit below six UART cards, which is why the operator reported
           that no save action appeared at all. This bar is on screen
@@ -1084,8 +1190,8 @@ export default function PortsScreen({
           saveBlockedBySession
             ? t(blockReasonKey('SESSION_CHANGED'))
             : issues.length > 0
-              ? t('portsConfiguration.validationTitle')
-              : undefined
+            ? t('portsConfiguration.validationTitle')
+            : undefined
         }
         statusMessage={
           saveOutcome === undefined ? undefined : t(outcomeKey(saveOutcome))
@@ -1099,7 +1205,7 @@ export default function PortsScreen({
         busyLabel={t('portsConfiguration.saving')}
         testID="ports-sticky-actions"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1114,22 +1220,32 @@ const styles = StyleSheet.create({
     // fallback so the envelope logic is the only authority.
     alignSelf: 'center',
   },
-  hero: { alignItems: 'flex-start', gap: spacing.xs, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
+  hero: {
+    alignItems: 'flex-start',
+    gap: spacing.xs,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSoft,
+  },
   eyebrow: {
     ...typography.eyebrow,
     color: colors.accentStrong,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   title: {
     ...typography.display,
     color: colors.textPrimary,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   stateText: {
     ...typography.body,
     color: colors.textSecondary,
@@ -1137,14 +1253,19 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     writingDirection: 'ltr',
   },
-  errorCard: {...noticeSurface, backgroundColor: colors.errorSoft,
+  errorCard: {
+    ...noticeSurface,
+    backgroundColor: colors.errorSoft,
     borderColor: colors.error,
-    gap: spacing.md},
+    gap: spacing.md,
+  },
   errorText: {
     ...typography.body,
     color: colors.error,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   summaryCard: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1160,16 +1281,20 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   summaryValue: {
     ...typography.title,
     color: colors.textPrimary,
-    textAlign: 'left'},
+    textAlign: 'left',
+  },
   summaryStatus: {
     ...typography.sectionTitle,
     color: colors.success,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   summaryDirty: { color: colors.warning },
   gpsIntegrationCard: {
     flexDirection: 'row',
@@ -1188,23 +1313,31 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginTop: spacing.xs,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  validationCard: {...noticeSurface, backgroundColor: colors.warningSoft,
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  validationCard: {
+    ...noticeSurface,
+    backgroundColor: colors.warningSoft,
     borderColor: colors.warning,
-    gap: spacing.xs},
+    gap: spacing.xs,
+  },
   validationTitle: {
     ...typography.sectionTitle,
     color: colors.warning,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   validationText: {
     ...typography.caption,
     color: colors.textPrimary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
-  roleColumns: {gap: spacing.lg},
-  roleColumnsWide: {flexDirection: 'row', alignItems: 'flex-start'},
-  roleColumn: {flex: 1, minWidth: 0, gap: spacing.md},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
+  roleColumns: { gap: spacing.lg },
+  roleColumnsWide: { flexDirection: 'row', alignItems: 'flex-start' },
+  roleColumn: { flex: 1, minWidth: 0, gap: spacing.md },
   portCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -1231,7 +1364,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   roleCountBadge: {
     backgroundColor: colors.accentSoft,
     borderRadius: radii.pill,
@@ -1241,7 +1376,9 @@ const styles = StyleSheet.create({
   roleCountText: {
     ...typography.caption,
     color: colors.accentStrong,
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   expandRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1250,16 +1387,21 @@ const styles = StyleSheet.create({
   expandText: {
     ...typography.label,
     color: colors.accentStrong,
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   roleSummary: {
     ...typography.caption,
     color: colors.textSecondary,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   baudSummary: {
     ...typography.caption,
     color: colors.accentStrong,
-    textAlign: 'left', maxWidth: PROSE_MEASURE},
+    textAlign: 'left',
+    maxWidth: PROSE_MEASURE,
+  },
   preservedNotice: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1274,7 +1416,9 @@ const styles = StyleSheet.create({
     color: colors.warning,
     textAlign: 'left',
     writingDirection: 'ltr',
-    flex: 1, maxWidth: PROSE_MEASURE},
+    flex: 1,
+    maxWidth: PROSE_MEASURE,
+  },
   preservedMask: { ...typography.mono, color: colors.warning },
   primaryControls: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   switchRow: {
@@ -1293,19 +1437,22 @@ const styles = StyleSheet.create({
     ...typography.sectionTitle,
     color: colors.textPrimary,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   controlGroup: { gap: spacing.sm },
   groupLabel: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   baudSection: { gap: spacing.xs, paddingTop: spacing.xs },
   baudLabel: {
     ...typography.caption,
     color: colors.textMuted,
     textAlign: 'left',
-    writingDirection: 'ltr'},
+    writingDirection: 'ltr',
+  },
   ltr: { writingDirection: 'ltr' },
   disabled: { opacity: 0.42 },
   outcomeCard: {
@@ -1315,12 +1462,17 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.md,
   },
-  outcomeDanger: { backgroundColor: colors.errorSoft, borderColor: colors.error },
+  outcomeDanger: {
+    backgroundColor: colors.errorSoft,
+    borderColor: colors.error,
+  },
   outcomeText: {
     ...typography.body,
     color: colors.success,
     textAlign: 'left',
-    writingDirection: 'ltr', maxWidth: PROSE_MEASURE},
+    writingDirection: 'ltr',
+    maxWidth: PROSE_MEASURE,
+  },
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',

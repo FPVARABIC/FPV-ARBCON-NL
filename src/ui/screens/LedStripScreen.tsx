@@ -1,3 +1,7 @@
+import {
+  WorkbenchScrollView,
+  WorkbenchBlock,
+} from '../components/workbench/Workbench';
 /**
  * شريط LED - THE ARABIC LED STRIP EDITOR.
  *
@@ -22,9 +26,9 @@
  * timer against the board.
  */
 
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
-import {useTranslation} from 'react-i18next';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import {
   ledStripConfigurationController,
@@ -143,13 +147,31 @@ import {
   LED_COORDINATE_MAX,
   LED_COLOR_INDEX_MAX,
 } from '../../core/protocol/msp/decoding/ledStripWireContract';
-import type {LedSaveGroup} from '../../core/state/ledStripSaveModel';
-import {Button, IconButton, NoticeBox, SelectField, Stepper, ToggleSwitch} from '../components/controls';
-import {StickyActionBar} from '../components/editing';
-import {LedGridCanvas, ledCellKey} from '../led/LedGridCanvas';
-import {ledColorToCss, ledSwatchInk, type LedColorTriplet} from '../led/ledColorPresentation';
-import {isRtlLayout} from '../icons/layoutDirection';
-import {PROSE_MEASURE, colors, radii, spacing, typography, useContentEnvelope} from '../theme';
+import type { LedSaveGroup } from '../../core/state/ledStripSaveModel';
+import {
+  Button,
+  IconButton,
+  NoticeBox,
+  SelectField,
+  Stepper,
+  ToggleSwitch,
+} from '../components/controls';
+import { StickyActionBar } from '../components/editing';
+import { LedGridCanvas, ledCellKey } from '../led/LedGridCanvas';
+import {
+  ledColorToCss,
+  ledSwatchInk,
+  type LedColorTriplet,
+} from '../led/ledColorPresentation';
+import { isRtlLayout } from '../icons/layoutDirection';
+import {
+  PROSE_MEASURE,
+  colors,
+  radii,
+  spacing,
+  typography,
+  useContentEnvelope,
+} from '../theme';
 
 /* ================================================================== *
  * PORT
@@ -159,7 +181,10 @@ import {PROSE_MEASURE, colors, radii, spacing, typography, useContentEnvelope} f
  *  injects through. Nothing else about the screen is mockable. */
 export interface LedStripControllerPort {
   load(key: SetupUiSessionKey): Promise<LedStripLoadOutcome>;
-  save(key: SetupUiSessionKey, request: LedStripSaveRequest): Promise<LedStripSaveOutcome>;
+  save(
+    key: SetupUiSessionKey,
+    request: LedStripSaveRequest,
+  ): Promise<LedStripSaveOutcome>;
 }
 
 interface Props {
@@ -181,12 +206,13 @@ const LED_SECTIONS: readonly LedSectionKey[] = Object.freeze([
   'RUNTIME',
 ]);
 
-const LED_SECTION_TITLE_KEY: Readonly<Record<LedSectionKey, string>> = Object.freeze({
-  LAYOUT: 'sectionLayout',
-  PALETTE: 'sectionPalette',
-  MODE_COLORS: 'sectionModeColors',
-  RUNTIME: 'sectionRuntime',
-});
+const LED_SECTION_TITLE_KEY: Readonly<Record<LedSectionKey, string>> =
+  Object.freeze({
+    LAYOUT: 'sectionLayout',
+    PALETTE: 'sectionPalette',
+    MODE_COLORS: 'sectionModeColors',
+    RUNTIME: 'sectionRuntime',
+  });
 
 const NUMBER_MAX_SAFE_COORDINATE = LED_COORDINATE_MAX;
 
@@ -200,18 +226,30 @@ export default function LedStripScreen({
   onOpenSetup,
   controller = ledStripConfigurationController,
 }: Props): React.JSX.Element {
-  const {t} = useTranslation();
-  const {maxWidth, tier} = useContentEnvelope(true);
+  const { t } = useTranslation();
+  const { maxWidth, tier } = useContentEnvelope(true);
   const wide = tier !== 'compact';
 
-  const [snapshot, setSnapshot] = useState<LedStripSnapshot | undefined>(undefined);
+  const [snapshot, setSnapshot] = useState<LedStripSnapshot | undefined>(
+    undefined,
+  );
   const [draft, setDraft] = useState<LedStripDraft | undefined>(undefined);
   const [busy, setBusy] = useState<Busy>('IDLE');
-  const [blocked, setBlocked] = useState<LedBlockReasonId | undefined>(undefined);
-  const [contradiction, setContradiction] = useState<LedSaveGroup | undefined>(undefined);
-  const [saveOutcome, setSaveOutcome] = useState<LedSaveOutcomeId | undefined>(undefined);
-  const [saveRefusal, setSaveRefusal] = useState<LedPhrase | undefined>(undefined);
-  const [editRefusal, setEditRefusal] = useState<LedEditRefusal | undefined>(undefined);
+  const [blocked, setBlocked] = useState<LedBlockReasonId | undefined>(
+    undefined,
+  );
+  const [contradiction, setContradiction] = useState<LedSaveGroup | undefined>(
+    undefined,
+  );
+  const [saveOutcome, setSaveOutcome] = useState<LedSaveOutcomeId | undefined>(
+    undefined,
+  );
+  const [saveRefusal, setSaveRefusal] = useState<LedPhrase | undefined>(
+    undefined,
+  );
+  const [editRefusal, setEditRefusal] = useState<LedEditRefusal | undefined>(
+    undefined,
+  );
   const [paletteSlot, setPaletteSlot] = useState(0);
   const [modeIndex, setModeIndex] = useState<number>(LedModeIndex.ORIENTATION);
   /* §5: ONE page, four sections, one visible at a time. The save surface
@@ -316,9 +354,15 @@ export default function LedStripScreen({
     setEditRefusal(undefined);
   }, []);
 
-  const nodes = useMemo(() => (draft === undefined ? [] : ledDraftNodes(draft)), [draft]);
+  const nodes = useMemo(
+    () => (draft === undefined ? [] : ledDraftNodes(draft)),
+    [draft],
+  );
   const clusters = useMemo(
-    () => (draft === undefined ? new Map<string, readonly number[]>() : ledDraftCoordinateClusters(draft)),
+    () =>
+      draft === undefined
+        ? new Map<string, readonly number[]>()
+        : ledDraftCoordinateClusters(draft),
     [draft],
   );
   const palette = useMemo(
@@ -344,7 +388,10 @@ export default function LedStripScreen({
     snapshot !== undefined && ledSurfaceIsReadOnly(snapshot.writeAuthority);
 
   const editable =
-    blocked === undefined && draft !== undefined && busy === 'IDLE' && !readOnly;
+    blocked === undefined &&
+    draft !== undefined &&
+    busy === 'IDLE' &&
+    !readOnly;
 
   /**
    * A CELL PRESS SELECTS; IT NEVER CREATES.
@@ -356,9 +403,13 @@ export default function LedStripScreen({
   const onSelectCell = useCallback(
     (x: number, y: number) => {
       if (draft === undefined) return;
-      const here = ledDraftNodes(draft).filter(node => node.x === x && node.y === y);
+      const here = ledDraftNodes(draft).filter(
+        node => node.x === x && node.y === y,
+      );
       if (here.length === 0) return;
-      const current = here.findIndex(node => draft.selection.includes(node.index));
+      const current = here.findIndex(node =>
+        draft.selection.includes(node.index),
+      );
       const next = draft.multiSelect
         ? here[Math.max(current, 0)]
         : here[(current + 1) % here.length];
@@ -389,7 +440,12 @@ export default function LedStripScreen({
    * ---------------------------------------------------------------- */
 
   const save = useCallback(async () => {
-    if (draft === undefined || snapshot === undefined || sessionKey === undefined) return;
+    if (
+      draft === undefined ||
+      snapshot === undefined ||
+      sessionKey === undefined
+    )
+      return;
     if (blockers.length > 0) return;
     setBusy('SAVING');
     setSaveOutcome(undefined);
@@ -436,16 +492,20 @@ export default function LedStripScreen({
    * ---------------------------------------------------------------- */
 
   const capability =
-    snapshot === undefined ? undefined : ledCapabilityNotice(snapshot.capability);
+    snapshot === undefined
+      ? undefined
+      : ledCapabilityNotice(snapshot.capability);
   const advanced = snapshot?.capability === 'ADVANCED_STATUS_MODE';
 
   return (
-    <View style={styles.root}>
-      <ScrollView
+    <WorkbenchBlock style={styles.root} section="root">
+      <WorkbenchScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, {maxWidth}]}
-        testID="led-strip-scroll">
-        <View style={styles.header}>
+        contentContainerStyle={[styles.content, { maxWidth }]}
+        testID="led-strip-scroll"
+        workspace="LedStrip"
+      >
+        <WorkbenchBlock style={styles.header} section="header" heading>
           <Text style={styles.title} accessibilityRole="header">
             {t('ledStripScreen.title')}
           </Text>
@@ -459,7 +519,7 @@ export default function LedStripScreen({
             disabled={busy !== 'IDLE' || sessionKey === undefined}
             testID="led-reload"
           />
-        </View>
+        </WorkbenchBlock>
 
         {busy === 'LOADING' && (
           <Text style={styles.status} testID="led-loading">
@@ -469,7 +529,9 @@ export default function LedStripScreen({
 
         {blocked !== undefined && (
           <NoticeBox variant="warning" testID="led-blocked">
-            <Text style={styles.noticeText}>{say(ledBlockReasonMessage(blocked))}</Text>
+            <Text style={styles.noticeText}>
+              {say(ledBlockReasonMessage(blocked))}
+            </Text>
             {ledReadOnlyNotice(blocked) !== undefined && (
               <Text style={styles.noticeText} testID="led-blocked-read-only">
                 {say(ledReadOnlyNotice(blocked)!)}
@@ -520,39 +582,56 @@ export default function LedStripScreen({
             empty slot is invisible to the aircraft, so the entries are
             preserved and NAMED rather than compacted away - this app does
             not silently repair a state nobody chose. */}
-        {blockers.includes('OBSERVED_STRIP_HAS_GAP') && snapshot !== undefined && (
-          <NoticeBox
-            variant="danger"
-            title={t('ledStripScreen.gap.title')}
-            testID="led-observed-gap">
-            <Text style={styles.noticeText}>{t('ledStripScreen.gap.explain')}</Text>
-            <Text style={styles.noticeText} testID="led-gap-effective">
-              {t('ledStripScreen.gap.effectiveCount', {
-                count: snapshot.truth.effectiveCount,
-              })}
-            </Text>
-            <Text style={styles.noticeText} testID="led-gap-unreachable">
-              {t('ledStripScreen.gap.unreachable', {
-                indexes: snapshot.truth.unreachableEntries
-                  .map(entry => entry.index + 1)
-                  .join(", "),
-              })}
-            </Text>
-            <Text style={styles.caption}>{t('ledStripScreen.gap.noAutoFix')}</Text>
-          </NoticeBox>
-        )}
+        {blockers.includes('OBSERVED_STRIP_HAS_GAP') &&
+          snapshot !== undefined && (
+            <NoticeBox
+              variant="danger"
+              title={t('ledStripScreen.gap.title')}
+              testID="led-observed-gap"
+            >
+              <Text style={styles.noticeText}>
+                {t('ledStripScreen.gap.explain')}
+              </Text>
+              <Text style={styles.noticeText} testID="led-gap-effective">
+                {t('ledStripScreen.gap.effectiveCount', {
+                  count: snapshot.truth.effectiveCount,
+                })}
+              </Text>
+              <Text style={styles.noticeText} testID="led-gap-unreachable">
+                {t('ledStripScreen.gap.unreachable', {
+                  indexes: snapshot.truth.unreachableEntries
+                    .map(entry => entry.index + 1)
+                    .join(', '),
+                })}
+              </Text>
+              <Text style={styles.caption}>
+                {t('ledStripScreen.gap.noAutoFix')}
+              </Text>
+            </NoticeBox>
+          )}
 
         {editRefusal !== undefined && (
           <NoticeBox variant="warning" testID="led-edit-refusal">
-            <Text style={styles.noticeText}>{say(ledEditRefusalMessage(editRefusal))}</Text>
+            <Text style={styles.noticeText}>
+              {say(ledEditRefusalMessage(editRefusal))}
+            </Text>
           </NoticeBox>
         )}
 
         {saveOutcome !== undefined && (
           <NoticeBox
-            variant={ledSaveOutcomeSeverity(saveOutcome) === 'SUCCESS' ? 'success' : ledSaveOutcomeSeverity(saveOutcome) === 'INFORMATION' ? 'info' : 'warning'}
-            testID="led-save-outcome">
-            <Text style={styles.noticeText}>{say(ledSaveOutcomeMessage(saveOutcome))}</Text>
+            variant={
+              ledSaveOutcomeSeverity(saveOutcome) === 'SUCCESS'
+                ? 'success'
+                : ledSaveOutcomeSeverity(saveOutcome) === 'INFORMATION'
+                ? 'info'
+                : 'warning'
+            }
+            testID="led-save-outcome"
+          >
+            <Text style={styles.noticeText}>
+              {say(ledSaveOutcomeMessage(saveOutcome))}
+            </Text>
             {saveRefusal !== undefined && (
               <Text style={styles.noticeText} testID="led-save-refusal">
                 {say(saveRefusal)}
@@ -566,7 +645,12 @@ export default function LedStripScreen({
             {/* §5: ONE page. A compact segmented control chooses which of
                 the four sections is on screen; the save surface below is
                 outside this switch and never moves. */}
-            <View style={styles.chipRow} accessibilityRole="tablist" testID="led-section-nav">
+            <WorkbenchBlock
+              style={styles.chipRow}
+              accessibilityRole="tablist"
+              testID="led-section-nav"
+              section="chipRow"
+            >
               {LED_SECTIONS.map(key => (
                 <Chip
                   key={key}
@@ -577,139 +661,164 @@ export default function LedStripScreen({
                   testID={`led-section-tab-${key}`}
                 />
               ))}
-            </View>
+            </WorkbenchBlock>
 
             {/* ---------------- §1 التخطيط ---------------- */}
             {section === 'LAYOUT' && (
-            <Section title={t('ledStripScreen.sectionLayout')} testID="led-section-layout">
-              <Text style={styles.caption}>{say(ledGridCaption())}</Text>
-              <Text style={styles.caption} testID="led-count">
-                {t('ledStripScreen.countSummary', {
-                  count: draftEffectiveCount(draft),
-                  max: snapshot.maxLength,
-                })}
-              </Text>
+              <Section
+                title={t('ledStripScreen.sectionLayout')}
+                testID="led-section-layout"
+              >
+                <Text style={styles.caption}>{say(ledGridCaption())}</Text>
+                <Text style={styles.caption} testID="led-count">
+                  {t('ledStripScreen.countSummary', {
+                    count: draftEffectiveCount(draft),
+                    max: snapshot.maxLength,
+                  })}
+                </Text>
 
-              <View style={[styles.workspace, wide && workspaceRow()]}>
-                <View style={wide ? styles.gridPane : undefined}>
-                  <LedGridCanvas
-                    nodes={nodes}
-                    clusters={clusters}
-                    selection={draft.selection}
-                    palette={palette}
-                    onSelectCell={onSelectCell}
-                    onEmptyCell={onEmptyCell}
-                    frontLabel={t('ledStripScreen.grid.front')}
-                    rearLabel={t('ledStripScreen.grid.rear')}
-                    leftLabel={t('ledStripScreen.grid.left')}
-                    rightLabel={t('ledStripScreen.grid.right')}
-                    describeCell={(x, y, indexes) =>
-                      indexes.length === 0
-                        ? t('ledStripScreen.grid.emptyCellLabel', {x, y})
-                        : t('ledStripScreen.grid.cellLabel', {
-                            x,
-                            y,
-                            numbers: indexes.map(i => i + 1).join(", "),
-                          })
-                    }
-                    disabled={!editable}
-                  />
-                </View>
+                <WorkbenchBlock
+                  style={[styles.workspace, wide && workspaceRow()]}
+                  section="workspace"
+                >
+                  <WorkbenchBlock
+                    style={wide ? styles.gridPane : undefined}
+                    section="gridPane"
+                  >
+                    <LedGridCanvas
+                      nodes={nodes}
+                      clusters={clusters}
+                      selection={draft.selection}
+                      palette={palette}
+                      onSelectCell={onSelectCell}
+                      onEmptyCell={onEmptyCell}
+                      frontLabel={t('ledStripScreen.grid.front')}
+                      rearLabel={t('ledStripScreen.grid.rear')}
+                      leftLabel={t('ledStripScreen.grid.left')}
+                      rightLabel={t('ledStripScreen.grid.right')}
+                      describeCell={(x, y, indexes) =>
+                        indexes.length === 0
+                          ? t('ledStripScreen.grid.emptyCellLabel', { x, y })
+                          : t('ledStripScreen.grid.cellLabel', {
+                              x,
+                              y,
+                              numbers: indexes.map(i => i + 1).join(', '),
+                            })
+                      }
+                      disabled={!editable}
+                    />
+                  </WorkbenchBlock>
 
-                {/* The right column carries EVERY control that acts on the
+                  {/* The right column carries EVERY control that acts on the
                     selection - inspector, add/remove, wiring order - so a
                     desktop operator never leaves the grid in view to reach
                     one, and the column is not a mostly-empty card. */}
-                <View style={[styles.column, wide && styles.inspectorPane]}>
-                  <Inspector
-                    draft={draft}
-                    palette={palette}
-                    editable={editable}
-                    say={say}
-                    t={t}
-                    onEdit={applyEdit}
-                    onView={applyView}
-                  />
+                  <WorkbenchBlock
+                    style={[styles.column, wide && styles.inspectorPane]}
+                    section="column"
+                  >
+                    <Inspector
+                      draft={draft}
+                      palette={palette}
+                      editable={editable}
+                      say={say}
+                      t={t}
+                      onEdit={applyEdit}
+                      onView={applyView}
+                    />
 
-                  <StripActions
-                    draft={draft}
-                    editable={editable}
-                    t={t}
-                    onEdit={applyEdit}
-                    onView={applyView}
-                  />
+                    <StripActions
+                      draft={draft}
+                      editable={editable}
+                      t={t}
+                      onEdit={applyEdit}
+                      onView={applyView}
+                    />
 
-                  <WiringOrder
-                    draft={draft}
-                    nodes={nodes}
-                    clusters={clusters}
-                    editable={editable}
-                    t={t}
-                    onEdit={applyEdit}
-                    onView={applyView}
-                  />
-                </View>
-              </View>
-            </Section>
+                    <WiringOrder
+                      draft={draft}
+                      nodes={nodes}
+                      clusters={clusters}
+                      editable={editable}
+                      t={t}
+                      onEdit={applyEdit}
+                      onView={applyView}
+                    />
+                  </WorkbenchBlock>
+                </WorkbenchBlock>
+              </Section>
             )}
 
             {/* ---------------- §2 لوحة الألوان ---------------- */}
             {section === 'PALETTE' && (
-            <Section title={t('ledStripScreen.sectionPalette')} testID="led-section-palette">
-              {palette === undefined ? (
-                <Text style={styles.caption} testID="led-no-palette">
-                  {t('ledStripScreen.palette.unavailable')}
-                </Text>
-              ) : (
-                <PaletteEditor
-                  palette={palette}
-                  slot={paletteSlot}
-                  onSlot={setPaletteSlot}
-                  editable={editable && advanced}
-                  say={say}
-                  t={t}
-                  onChange={(index, color) => applyView(setLedPaletteSlot(draft, index, color))}
-                />
-              )}
-            </Section>
+              <Section
+                title={t('ledStripScreen.sectionPalette')}
+                testID="led-section-palette"
+              >
+                {palette === undefined ? (
+                  <Text style={styles.caption} testID="led-no-palette">
+                    {t('ledStripScreen.palette.unavailable')}
+                  </Text>
+                ) : (
+                  <PaletteEditor
+                    palette={palette}
+                    slot={paletteSlot}
+                    onSlot={setPaletteSlot}
+                    editable={editable && advanced}
+                    say={say}
+                    t={t}
+                    onChange={(index, color) =>
+                      applyView(setLedPaletteSlot(draft, index, color))
+                    }
+                  />
+                )}
+              </Section>
             )}
 
             {/* ---------------- §3 ألوان الحالات ---------------- */}
             {section === 'MODE_COLORS' && (
-            <Section title={t('ledStripScreen.sectionModeColors')} testID="led-section-modes">
-              {snapshot.modeColors === undefined ? (
-                <Text style={styles.caption} testID="led-no-mode-colors">
-                  {t('ledStripScreen.mode.unavailable')}
-                </Text>
-              ) : (
-                <ModeColors
-                  draft={draft}
-                  palette={palette}
-                  mode={modeIndex}
-                  onMode={setModeIndex}
-                  editable={editable && advanced}
-                  say={say}
-                  t={t}
-                  onChange={(mode, slot, value) =>
-                    applyView(setLedModeColor(draft, mode, slot, value))
-                  }
-                />
-              )}
-            </Section>
+              <Section
+                title={t('ledStripScreen.sectionModeColors')}
+                testID="led-section-modes"
+              >
+                {snapshot.modeColors === undefined ? (
+                  <Text style={styles.caption} testID="led-no-mode-colors">
+                    {t('ledStripScreen.mode.unavailable')}
+                  </Text>
+                ) : (
+                  <ModeColors
+                    draft={draft}
+                    palette={palette}
+                    mode={modeIndex}
+                    onMode={setModeIndex}
+                    editable={editable && advanced}
+                    say={say}
+                    t={t}
+                    onChange={(mode, slot, value) =>
+                      applyView(setLedModeColor(draft, mode, slot, value))
+                    }
+                  />
+                )}
+              </Section>
             )}
 
             {/* ---------------- §4 الإضاءة والتأثيرات ---------------- */}
             {section === 'RUNTIME' && (
-            <Section title={t('ledStripScreen.sectionRuntime')} testID="led-section-runtime">
-              <RuntimeValues
-                draft={draft}
-                editable={editable}
-                say={say}
-                t={t}
-                onChange={(field, value) => applyEdit(setLedRuntimeValue(draft, field, value))}
-              />
-              <LayerPriority say={say} t={t} />
-            </Section>
+              <Section
+                title={t('ledStripScreen.sectionRuntime')}
+                testID="led-section-runtime"
+              >
+                <RuntimeValues
+                  draft={draft}
+                  editable={editable}
+                  say={say}
+                  t={t}
+                  onChange={(field, value) =>
+                    applyEdit(setLedRuntimeValue(draft, field, value))
+                  }
+                />
+                <LayerPriority say={say} t={t} />
+              </Section>
             )}
 
             {/* §9/§27/§44/§62 - everything an operator does not read first,
@@ -724,24 +833,28 @@ export default function LedStripScreen({
             />
           </>
         )}
-      </ScrollView>
+      </WorkbenchScrollView>
 
       <StickyActionBar
         visible={dirtyGroups.length > 0 && !readOnly}
-        summary={t('ledStripScreen.save.summary', {count: dirtyGroups.length})}
+        summary={t('ledStripScreen.save.summary', {
+          count: dirtyGroups.length,
+        })}
         details={dirtyGroups.map(group => say(ledSaveGroupLabel(group)))}
         saveLabel={t('ledStripScreen.save.apply')}
         discardLabel={t('ledStripScreen.save.discard')}
         onSave={save}
         onDiscard={discard}
         disabledReason={
-          blockers.length === 0 ? undefined : say(ledSaveBlockerMessage(blockers[0]))
+          blockers.length === 0
+            ? undefined
+            : say(ledSaveBlockerMessage(blockers[0]))
         }
         busy={busy === 'SAVING'}
         busyLabel={t('ledStripScreen.save.inFlight')}
         testID="led-save-bar"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -755,8 +868,8 @@ export default function LedStripScreen({
  * same side of the screen whichever way the text runs.
  * ================================================================== */
 
-function workspaceRow(): {flexDirection: 'row' | 'row-reverse'} {
-  return {flexDirection: isRtlLayout() ? 'row-reverse' : 'row'};
+function workspaceRow(): { flexDirection: 'row' | 'row-reverse' } {
+  return { flexDirection: isRtlLayout() ? 'row-reverse' : 'row' };
 }
 
 /* ================================================================== *
@@ -772,7 +885,9 @@ interface EditorProps {
 }
 
 /** The subset that also needs the phrase resolver. */
-type LabelledEditorProps = EditorProps & {readonly say: (phrase: LedPhrase) => string};
+type LabelledEditorProps = EditorProps & {
+  readonly say: (phrase: LedPhrase) => string;
+};
 
 function Inspector({
   draft,
@@ -790,14 +905,22 @@ function Inspector({
 
   if (chosen.length === 0) {
     return (
-      <View style={styles.card} testID="led-inspector-empty">
-        <Text style={styles.caption}>{t('ledStripScreen.inspector.nothingSelected')}</Text>
-      </View>
+      <WorkbenchBlock
+        style={styles.card}
+        testID="led-inspector-empty"
+        section="card"
+        panel
+      >
+        <Text style={styles.caption}>
+          {t('ledStripScreen.inspector.nothingSelected')}
+        </Text>
+      </WorkbenchBlock>
     );
   }
 
-  const readNumber = (read: (node: (typeof chosen)[number]) => number): number | 'MIXED' | undefined =>
-    selectedFieldValue(draft, read);
+  const readNumber = (
+    read: (node: (typeof chosen)[number]) => number,
+  ): number | 'MIXED' | undefined => selectedFieldValue(draft, read);
 
   const x = readNumber(node => node.x);
   const y = readNumber(node => node.y);
@@ -808,19 +931,34 @@ function Inspector({
      button, so a shared cell is never a single merged thing. */
   const siblings =
     chosen.length === 1
-      ? (ledDraftCoordinateClusters(draft).get(ledCellKey(chosen[0].x, chosen[0].y)) ?? [])
+      ? ledDraftCoordinateClusters(draft).get(
+          ledCellKey(chosen[0].x, chosen[0].y),
+        ) ?? []
       : [];
 
   return (
-    <View style={styles.card} testID="led-inspector">
+    <WorkbenchBlock
+      style={styles.card}
+      testID="led-inspector"
+      section="card"
+      panel
+    >
       <Text style={styles.cardTitle}>
         {chosen.length === 1
-          ? t('ledStripScreen.inspector.oneSelected', {number: chosen[0].number})
-          : t('ledStripScreen.inspector.manySelected', {count: chosen.length})}
+          ? t('ledStripScreen.inspector.oneSelected', {
+              number: chosen[0].number,
+            })
+          : t('ledStripScreen.inspector.manySelected', {
+              count: chosen.length,
+            })}
       </Text>
 
       {siblings.length > 1 && (
-        <View style={styles.chipRow} testID="led-cluster-members">
+        <WorkbenchBlock
+          style={styles.chipRow}
+          testID="led-cluster-members"
+          section="chipRow"
+        >
           <Text style={styles.caption}>
             {say(ledClusterBadge(siblings.length))}
           </Text>
@@ -834,33 +972,33 @@ function Inspector({
               testID={`led-cluster-member-${index}`}
             />
           ))}
-        </View>
+        </WorkbenchBlock>
       )}
 
       {/* §64 - the keyboard/screen-reader equivalent of dragging on the
           grid. Every coordinate reachable by touch is reachable here. */}
-      <View style={styles.fieldRow}>
+      <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
         <Stepper
           value={x === 'MIXED' ? mixed : String(x ?? '')}
-          onDecrement={() => onEdit(setLedX(draft, clamp((numberOr(x, 0)) - 1)))}
-          onIncrement={() => onEdit(setLedX(draft, clamp((numberOr(x, 0)) + 1)))}
+          onDecrement={() => onEdit(setLedX(draft, clamp(numberOr(x, 0) - 1)))}
+          onIncrement={() => onEdit(setLedX(draft, clamp(numberOr(x, 0) + 1)))}
           disabled={!editable}
           accessibilityLabel={t('ledStripScreen.inspector.x')}
           testID="led-x"
         />
         <Text style={styles.fieldLabel}>{t('ledStripScreen.inspector.x')}</Text>
-      </View>
-      <View style={styles.fieldRow}>
+      </WorkbenchBlock>
+      <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
         <Stepper
           value={y === 'MIXED' ? mixed : String(y ?? '')}
-          onDecrement={() => onEdit(setLedY(draft, clamp((numberOr(y, 0)) - 1)))}
-          onIncrement={() => onEdit(setLedY(draft, clamp((numberOr(y, 0)) + 1)))}
+          onDecrement={() => onEdit(setLedY(draft, clamp(numberOr(y, 0) - 1)))}
+          onIncrement={() => onEdit(setLedY(draft, clamp(numberOr(y, 0) + 1)))}
           disabled={!editable}
           accessibilityLabel={t('ledStripScreen.inspector.y')}
           testID="led-y"
         />
         <Text style={styles.fieldLabel}>{t('ledStripScreen.inspector.y')}</Text>
-      </View>
+      </WorkbenchBlock>
 
       <SelectField
         label={t('ledStripScreen.inspector.function')}
@@ -869,15 +1007,17 @@ function Inspector({
           label: say(ledBaseFunctionLabel(value)),
         }))}
         selectedKey={
-          typeof fn === 'number' && fn < LED_BASE_FUNCTION_IDS.length ? String(fn) : null
+          typeof fn === 'number' && fn < LED_BASE_FUNCTION_IDS.length
+            ? String(fn)
+            : null
         }
         onSelect={key => onEdit(setLedBaseFunction(draft, Number(key)))}
         placeholder={
           fn === 'MIXED'
             ? mixed
             : typeof fn === 'number'
-              ? say(ledBaseFunctionLabel(fn))
-              : undefined
+            ? say(ledBaseFunctionLabel(fn))
+            : undefined
         }
         disabled={!editable}
         testID="led-function"
@@ -893,7 +1033,10 @@ function Inspector({
 
       {chosen.length === 1 &&
         (() => {
-          const note = ledEffectiveDirectionNote(chosen[0].baseFunction, chosen[0].directionMask);
+          const note = ledEffectiveDirectionNote(
+            chosen[0].baseFunction,
+            chosen[0].directionMask,
+          );
           return note === undefined ? null : (
             <Text style={styles.caption} testID="led-direction-note">
               {say(note)}
@@ -904,17 +1047,25 @@ function Inspector({
       {/* §34/§35 - one line each, and only when the LED actually carries
           an effect that depends on something outside itself. */}
       {chosen.length === 1 &&
-        ledDependencyNotes(chosen[0].baseFunction, chosen[0].overlayMask).map(note => (
-          <Text key={note.key} style={styles.caption} testID={`led-dep-${note.key}`}>
-            {say(note)}
-          </Text>
-        ))}
+        ledDependencyNotes(chosen[0].baseFunction, chosen[0].overlayMask).map(
+          note => (
+            <Text
+              key={note.key}
+              style={styles.caption}
+              testID={`led-dep-${note.key}`}
+            >
+              {say(note)}
+            </Text>
+          ),
+        )}
 
-      <Text style={styles.groupTitle}>{t('ledStripScreen.inspector.overlays')}</Text>
+      <Text style={styles.groupTitle}>
+        {t('ledStripScreen.inspector.overlays')}
+      </Text>
       {LED_TOGGLEABLE_OVERLAY_BITS.map(bit => {
         const state = selectedOverlayState(draft, bit);
         return (
-          <View key={bit} style={styles.fieldRow}>
+          <WorkbenchBlock key={bit} style={styles.fieldRow} section="fieldRow">
             <ToggleSwitch
               value={state === 'ON'}
               onValueChange={() => onEdit(toggleLedOverlay(draft, bit))}
@@ -928,24 +1079,28 @@ function Inspector({
                 {mixed}
               </Text>
             )}
-          </View>
+          </WorkbenchBlock>
         );
       })}
 
       {/* Bits 7..9 have no meaning this build knows. They are carried back
           untouched, and the operator is told so rather than left to
           discover it when a save silently erases them. */}
-      {chosen.some(node => ledReservedOverlayNotice(node.overlayMask) !== undefined) && (
+      {chosen.some(
+        node => ledReservedOverlayNotice(node.overlayMask) !== undefined,
+      ) && (
         <Text style={styles.caption} testID="led-reserved-overlays">
           {t('ledStripScreen.overlay.reservedPreserved')}
         </Text>
       )}
 
-      <Text style={styles.groupTitle}>{t('ledStripScreen.inspector.directions')}</Text>
+      <Text style={styles.groupTitle}>
+        {t('ledStripScreen.inspector.directions')}
+      </Text>
       {LED_DIRECTION_BITS.map(bit => {
         const state = selectedDirectionState(draft, bit);
         return (
-          <View key={bit} style={styles.fieldRow}>
+          <WorkbenchBlock key={bit} style={styles.fieldRow} section="fieldRow">
             <ToggleSwitch
               value={state === 'ON'}
               onValueChange={() => onEdit(toggleLedDirection(draft, bit))}
@@ -959,19 +1114,23 @@ function Inspector({
                 {mixed}
               </Text>
             )}
-          </View>
+          </WorkbenchBlock>
         );
       })}
 
-      <Text style={styles.groupTitle}>{t('ledStripScreen.inspector.color')}</Text>
+      <Text style={styles.groupTitle}>
+        {t('ledStripScreen.inspector.color')}
+      </Text>
       {/* §40. No palette on this build, so the INDEX is the only truth
           there is - it is named as an index and no swatch is invented. */}
       {palette === undefined && typeof color === 'number' && (
         <>
           <Text style={styles.fieldLabel} testID="led-color-index-only">
-            {t('ledStripScreen.palette.indexOnly', {number: color + 1})}
+            {t('ledStripScreen.palette.indexOnly', { number: color + 1 })}
           </Text>
-          <Text style={styles.caption}>{t('ledStripScreen.palette.indexOnlyHelp')}</Text>
+          <Text style={styles.caption}>
+            {t('ledStripScreen.palette.indexOnlyHelp')}
+          </Text>
         </>
       )}
       <ColorIndexPicker
@@ -983,24 +1142,40 @@ function Inspector({
         onSelect={index => onEdit(setLedColorIndex(draft, index))}
         testIDPrefix="led-color"
       />
-    </View>
+    </WorkbenchBlock>
   );
 }
 
-const numberOr = (value: number | 'MIXED' | undefined, fallback: number): number =>
-  typeof value === 'number' ? value : fallback;
+const numberOr = (
+  value: number | 'MIXED' | undefined,
+  fallback: number,
+): number => (typeof value === 'number' ? value : fallback);
 
 const clamp = (value: number): number =>
-  value < 0 ? 0 : value > NUMBER_MAX_SAFE_COORDINATE ? NUMBER_MAX_SAFE_COORDINATE : value;
+  value < 0
+    ? 0
+    : value > NUMBER_MAX_SAFE_COORDINATE
+    ? NUMBER_MAX_SAFE_COORDINATE
+    : value;
 
 /* ================================================================== *
  * ADD / DELETE / MULTI-SELECT
  * ================================================================== */
 
-function StripActions({draft, editable, t, onEdit, onView}: EditorProps): React.JSX.Element {
+function StripActions({
+  draft,
+  editable,
+  t,
+  onEdit,
+  onView,
+}: EditorProps): React.JSX.Element {
   const deletable = canDeleteSelectedLed(draft);
   return (
-    <View style={styles.actions} testID="led-strip-actions">
+    <WorkbenchBlock
+      style={styles.actions}
+      testID="led-strip-actions"
+      section="actions"
+    >
       <Button
         label={t('ledStripScreen.actions.append')}
         icon="plus"
@@ -1021,7 +1196,7 @@ function StripActions({draft, editable, t, onEdit, onView}: EditorProps): React.
         disabled={!editable || !deletable.allowed}
         testID="led-delete-last"
       />
-      <View style={styles.fieldRow}>
+      <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
         <ToggleSwitch
           value={draft.multiSelect}
           onValueChange={next => onView(setLedMultiSelect(draft, next))}
@@ -1029,8 +1204,10 @@ function StripActions({draft, editable, t, onEdit, onView}: EditorProps): React.
           accessibilityLabel={t('ledStripScreen.actions.multiSelect')}
           testID="led-multi-select"
         />
-        <Text style={styles.fieldLabel}>{t('ledStripScreen.actions.multiSelect')}</Text>
-      </View>
+        <Text style={styles.fieldLabel}>
+          {t('ledStripScreen.actions.multiSelect')}
+        </Text>
+      </WorkbenchBlock>
       {draft.multiSelect && (
         <Button
           label={t('ledStripScreen.actions.selectAll')}
@@ -1041,7 +1218,7 @@ function StripActions({draft, editable, t, onEdit, onView}: EditorProps): React.
           testID="led-select-all"
         />
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1069,7 +1246,12 @@ function WiringOrder({
   readonly clusters: ReadonlyMap<string, readonly number[]>;
 }): React.JSX.Element {
   return (
-    <View style={styles.card} testID="led-wiring-order">
+    <WorkbenchBlock
+      style={styles.card}
+      testID="led-wiring-order"
+      section="card"
+      panel
+    >
       <Text style={styles.cardTitle}>{t('ledStripScreen.order.title')}</Text>
       {/* The order IS the wire, and several effects render by walking it -
           the thrust ring, the rainbow, the sweep and both bars. Moving an
@@ -1084,13 +1266,21 @@ function WiringOrder({
         </Text>
       )}
       {nodes.map((node, position) => (
-        <View key={node.index} style={styles.orderRow} testID={`led-order-${node.index}`}>
+        <WorkbenchBlock
+          key={node.index}
+          style={styles.orderRow}
+          testID={`led-order-${node.index}`}
+          section="orderRow"
+        >
           <Text style={styles.orderNumber}>{node.number}</Text>
           <Text style={styles.orderCoords}>
-            {t('ledStripScreen.order.coords', {x: node.x, y: node.y})}
+            {t('ledStripScreen.order.coords', { x: node.x, y: node.y })}
           </Text>
           {(clusters.get(ledCellKey(node.x, node.y)) ?? []).length > 1 && (
-            <Text style={styles.caption} testID={`led-order-shared-${node.index}`}>
+            <Text
+              style={styles.caption}
+              testID={`led-order-shared-${node.index}`}
+            >
               {t('ledStripScreen.grid.cluster', {
                 count: (clusters.get(ledCellKey(node.x, node.y)) ?? []).length,
               })}
@@ -1098,33 +1288,39 @@ function WiringOrder({
           )}
           <IconButton
             icon="arrow-up"
-            accessibilityLabel={t('ledStripScreen.order.earlier', {number: node.number})}
+            accessibilityLabel={t('ledStripScreen.order.earlier', {
+              number: node.number,
+            })}
             onPress={() => onEdit(moveLedEarlier(draft, node.index))}
             disabled={!editable || position === 0}
             testID={`led-order-earlier-${node.index}`}
           />
           <IconButton
             icon="arrow-down"
-            accessibilityLabel={t('ledStripScreen.order.later', {number: node.number})}
+            accessibilityLabel={t('ledStripScreen.order.later', {
+              number: node.number,
+            })}
             onPress={() => onEdit(moveLedLater(draft, node.index))}
             disabled={!editable || position === nodes.length - 1}
             testID={`led-order-later-${node.index}`}
           />
           <IconButton
             icon="target"
-            accessibilityLabel={t('ledStripScreen.order.select', {number: node.number})}
+            accessibilityLabel={t('ledStripScreen.order.select', {
+              number: node.number,
+            })}
             onPress={() => onView(selectLed(draft, node.index))}
             disabled={!editable}
             testID={`led-order-select-${node.index}`}
           />
-        </View>
+        </WorkbenchBlock>
       ))}
       {nodes.length === 0 && (
         <Text style={styles.caption} testID="led-order-empty">
           {t('ledStripScreen.order.empty')}
         </Text>
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1158,7 +1354,7 @@ function PaletteEditor({
 
   return (
     <View testID="led-palette">
-      <View style={styles.swatchGrid}>
+      <WorkbenchBlock style={styles.swatchGrid} section="swatchGrid">
         {palette.map((color, index) => (
           <Swatch
             key={index}
@@ -1170,15 +1366,18 @@ function PaletteEditor({
             testID={`led-palette-slot-${index}`}
           />
         ))}
-      </View>
+      </WorkbenchBlock>
 
       <Text style={styles.groupTitle}>{say(ledPaletteSlotLabel(slot))}</Text>
       {(['hue', 'whiteness', 'value'] as const).map(field => (
-        <View key={field} style={styles.fieldRow}>
+        <WorkbenchBlock key={field} style={styles.fieldRow} section="fieldRow">
           <Stepper
             value={String(current[field])}
             onDecrement={() =>
-              onChange(slot, {...current, [field]: Math.max(0, current[field] - 1)})
+              onChange(slot, {
+                ...current,
+                [field]: Math.max(0, current[field] - 1),
+              })
             }
             onIncrement={() =>
               onChange(slot, {
@@ -1190,8 +1389,10 @@ function PaletteEditor({
             accessibilityLabel={say(ledPaletteFieldLabel(field))}
             testID={`led-palette-${field}`}
           />
-          <Text style={styles.fieldLabel}>{say(ledPaletteFieldLabel(field))}</Text>
-        </View>
+          <Text style={styles.fieldLabel}>
+            {say(ledPaletteFieldLabel(field))}
+          </Text>
+        </WorkbenchBlock>
       ))}
       {!editable && (
         <Text style={styles.caption} testID="led-palette-locked">
@@ -1233,7 +1434,7 @@ function ModeColors({
 
   return (
     <View testID="led-mode-colors">
-      <View style={styles.chipRow}>
+      <WorkbenchBlock style={styles.chipRow} section="chipRow">
         {LED_EDITABLE_MODE_INDEXES.map(index => (
           <Chip
             key={index}
@@ -1244,7 +1445,7 @@ function ModeColors({
             testID={`led-mode-${index}`}
           />
         ))}
-      </View>
+      </WorkbenchBlock>
 
       {/* Mode 5 is stored, transmitted and validated on write, and nothing
           in the firmware ever reads it. Presenting it like the four that
@@ -1264,7 +1465,11 @@ function ModeColors({
           value={draftModeColorValue(draft, mode, direction)}
           open={openRow === `m${mode}:${direction}`}
           onToggle={() =>
-            setOpenRow(openRow === `m${mode}:${direction}` ? undefined : `m${mode}:${direction}`)
+            setOpenRow(
+              openRow === `m${mode}:${direction}`
+                ? undefined
+                : `m${mode}:${direction}`,
+            )
           }
           onSelect={value => onChange(mode, direction, value)}
           disabled={!editable}
@@ -1273,14 +1478,16 @@ function ModeColors({
       ))}
 
       <Text style={styles.groupTitle}>{t('ledStripScreen.special.title')}</Text>
-      {Array.from({length: LED_SPECIAL_SLOT_COUNT}, (_unused, slot) => (
+      {Array.from({ length: LED_SPECIAL_SLOT_COUNT }, (_unused, slot) => (
         <ColorSlotRow
           key={slot}
           label={say(ledSpecialSlotLabel(slot))}
           palette={palette}
           value={draftModeColorValue(draft, LedModeIndex.SPECIAL, slot)}
           open={openRow === `s${slot}`}
-          onToggle={() => setOpenRow(openRow === `s${slot}` ? undefined : `s${slot}`)}
+          onToggle={() =>
+            setOpenRow(openRow === `s${slot}` ? undefined : `s${slot}`)
+          }
           onSelect={value => onChange(LedModeIndex.SPECIAL, slot, value)}
           disabled={!editable}
           testID={`led-special-${slot}`}
@@ -1289,11 +1496,15 @@ function ModeColors({
 
       {/* The aux tuple's third byte is a CHANNEL INDEX, not a colour. It
           gets a number field, not a swatch row. */}
-      <View style={styles.fieldRow}>
+      <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
         <Stepper
           value={String(auxChannel ?? 0)}
           onDecrement={() =>
-            onChange(LedModeIndex.AUX_CHANNEL, 0, Math.max(0, (auxChannel ?? 0) - 1))
+            onChange(
+              LedModeIndex.AUX_CHANNEL,
+              0,
+              Math.max(0, (auxChannel ?? 0) - 1),
+            )
           }
           onIncrement={() =>
             onChange(
@@ -1307,7 +1518,7 @@ function ModeColors({
           testID="led-aux-channel"
         />
         <Text style={styles.fieldLabel}>{say(ledAuxChannelLabel())}</Text>
-      </View>
+      </WorkbenchBlock>
     </View>
   );
 }
@@ -1316,10 +1527,13 @@ function ModeColors({
  * RUNTIME VALUES
  * ================================================================== */
 
-const RUNTIME_BOUNDS: Record<LedRuntimeFieldId, {readonly min: number; readonly max: number}> = {
-  brightness: {min: LED_BRIGHTNESS_MIN, max: LED_BRIGHTNESS_MAX},
-  rainbowDelta: {min: LED_RAINBOW_DELTA_MIN, max: LED_RAINBOW_DELTA_MAX},
-  rainbowFreq: {min: LED_RAINBOW_FREQ_MIN, max: LED_RAINBOW_FREQ_MAX},
+const RUNTIME_BOUNDS: Record<
+  LedRuntimeFieldId,
+  { readonly min: number; readonly max: number }
+> = {
+  brightness: { min: LED_BRIGHTNESS_MIN, max: LED_BRIGHTNESS_MAX },
+  rainbowDelta: { min: LED_RAINBOW_DELTA_MIN, max: LED_RAINBOW_DELTA_MAX },
+  rainbowFreq: { min: LED_RAINBOW_FREQ_MIN, max: LED_RAINBOW_FREQ_MAX },
 };
 
 function RuntimeValues({
@@ -1340,7 +1554,7 @@ function RuntimeValues({
       {LED_RUNTIME_FIELD_IDS.map(field => {
         const value = draftRuntimeValue(draft, field);
         const bounds = RUNTIME_BOUNDS[field];
-        const {min, max} = bounds;
+        const { min, max } = bounds;
         /* The BOARD's own value, not the draft's - an out-of-range notice
            is about what arrived, and must not disappear the moment the
            operator starts editing. */
@@ -1349,8 +1563,12 @@ function RuntimeValues({
           bounds,
         );
         return (
-          <View key={field} style={styles.stackRow}>
-            <View style={styles.fieldRow}>
+          <WorkbenchBlock
+            key={field}
+            style={styles.stackRow}
+            section="stackRow"
+          >
+            <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
               <Stepper
                 value={String(value)}
                 /* The bounds are the firmware's own setting table, not a
@@ -1358,26 +1576,37 @@ function RuntimeValues({
                    Stepping from OUTSIDE that range lands on the nearest
                    bound rather than on `value ± 1`, which would hand the
                    encoder a number it refuses. */
-                onDecrement={() => onChange(field, ledRuntimeStep(field, value, -1, bounds))}
-                onIncrement={() => onChange(field, ledRuntimeStep(field, value, 1, bounds))}
+                onDecrement={() =>
+                  onChange(field, ledRuntimeStep(field, value, -1, bounds))
+                }
+                onIncrement={() =>
+                  onChange(field, ledRuntimeStep(field, value, 1, bounds))
+                }
                 decrementDisabled={ledRuntimeStepInert(value, -1, bounds)}
                 incrementDisabled={ledRuntimeStepInert(value, 1, bounds)}
                 disabled={!editable}
                 accessibilityLabel={say(ledRuntimeFieldLabel(field))}
                 testID={`led-runtime-${field}`}
               />
-              <Text style={styles.fieldLabel}>{say(ledRuntimeFieldLabel(field))}</Text>
-            </View>
+              <Text style={styles.fieldLabel}>
+                {say(ledRuntimeFieldLabel(field))}
+              </Text>
+            </WorkbenchBlock>
             <Text style={styles.caption}>
-              {t('ledStripScreen.runtime.range', {min, max})}
+              {t('ledStripScreen.runtime.range', { min, max })}
             </Text>
             {observedNotice !== undefined && (
-              <Text style={styles.outOfRange} testID={`led-runtime-observed-${field}`}>
+              <Text
+                style={styles.outOfRange}
+                testID={`led-runtime-observed-${field}`}
+              >
                 {say(observedNotice)}
               </Text>
             )}
-            <Text style={styles.caption}>{say(ledRuntimeFieldHelp(field))}</Text>
-          </View>
+            <Text style={styles.caption}>
+              {say(ledRuntimeFieldHelp(field))}
+            </Text>
+          </WorkbenchBlock>
         );
       })}
       {/* A board genuinely reporting zero shows zero. The reference tab's
@@ -1398,7 +1627,12 @@ function LayerPriority({
   readonly t: (key: string, params?: Record<string, unknown>) => string;
 }): React.JSX.Element {
   return (
-    <View style={styles.card} testID="led-layer-priority">
+    <WorkbenchBlock
+      style={styles.card}
+      testID="led-layer-priority"
+      section="card"
+      panel
+    >
       <Text style={styles.cardTitle}>{t('ledStripScreen.layer.title')}</Text>
       <Text style={styles.caption}>{t('ledStripScreen.layer.help')}</Text>
       {LED_LAYER_DISPLAY_ORDER.map((layer, position) => (
@@ -1406,7 +1640,7 @@ function LayerPriority({
           {`${position + 1}. ${say(ledLayerLabel(layer))}`}
         </Text>
       ))}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1441,10 +1675,15 @@ function TechnicalDetails({
 }): React.JSX.Element {
   const chosen = selectedNodes(draft);
   const unknownSlots = ledUnknownSpecialSlotsDetail(
-    Array.from({length: LED_SPECIAL_SLOT_COUNT}, (_unused, slot) => slot),
+    Array.from({ length: LED_SPECIAL_SLOT_COUNT }, (_unused, slot) => slot),
   );
   return (
-    <View style={styles.card} testID="led-technical">
+    <WorkbenchBlock
+      style={styles.card}
+      testID="led-technical"
+      section="card"
+      panel
+    >
       <Button
         label={say(ledTechnicalTitle())}
         variant="ghost"
@@ -1454,10 +1693,17 @@ function TechnicalDetails({
         testID="led-technical-toggle"
       />
       {open && (
-        <View style={styles.stackRow} testID="led-technical-body">
+        <WorkbenchBlock
+          style={styles.stackRow}
+          testID="led-technical-body"
+          section="stackRow"
+        >
           {chosen.length === 1 && (
             <>
-              <Text style={styles.technicalLine} testID="led-technical-wire-index">
+              <Text
+                style={styles.technicalLine}
+                testID="led-technical-wire-index"
+              >
                 {say(ledWireIndexDetail(chosen[0].index))}
               </Text>
               <Text style={styles.technicalLine} testID="led-technical-symbol">
@@ -1479,7 +1725,10 @@ function TechnicalDetails({
           </Text>
           {snapshot.modeColors !== undefined && unknownSlots !== undefined && (
             <>
-              <Text style={styles.technicalLine} testID="led-technical-special-slots">
+              <Text
+                style={styles.technicalLine}
+                testID="led-technical-special-slots"
+              >
                 {say(unknownSlots)}
               </Text>
               <Text style={styles.technicalLine}>
@@ -1489,16 +1738,23 @@ function TechnicalDetails({
           )}
           {/* §42: mode 5 appears ONLY here, with the reason. */}
           {LED_INERT_MODE_INDEXES.map(mode => (
-            <View key={mode} style={styles.stackRow} testID={`led-technical-inert-${mode}`}>
-              <Text style={styles.technicalLine}>{say(ledInertModeDetail(mode))}</Text>
+            <WorkbenchBlock
+              key={mode}
+              style={styles.stackRow}
+              testID={`led-technical-inert-${mode}`}
+              section="stackRow"
+            >
+              <Text style={styles.technicalLine}>
+                {say(ledInertModeDetail(mode))}
+              </Text>
               <Text style={styles.technicalLine}>
                 {t('ledStripScreen.technical.inertMode')}
               </Text>
-            </View>
+            </WorkbenchBlock>
           ))}
-        </View>
+        </WorkbenchBlock>
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1512,12 +1768,17 @@ function Section({
   readonly testID: string;
 }): React.JSX.Element {
   return (
-    <View style={styles.section} testID={testID}>
+    <WorkbenchBlock
+      style={styles.section}
+      testID={testID}
+      section="section"
+      panel
+    >
       <Text style={styles.sectionTitle} accessibilityRole="header">
         {title}
       </Text>
       {children}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1569,14 +1830,17 @@ function Swatch({
       disabled={disabled}
       style={[
         styles.swatch,
-        {backgroundColor: ledColorToCss(color)},
+        { backgroundColor: ledColorToCss(color) },
         selected && styles.swatchSelected,
       ]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{selected, disabled}}
-      testID={testID}>
-      <Text style={[styles.swatchLabel, {color: ledSwatchInk(color)}]}>{label}</Text>
+      accessibilityState={{ selected, disabled }}
+      testID={testID}
+    >
+      <Text style={[styles.swatchLabel, { color: ledSwatchInk(color) }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -1611,8 +1875,8 @@ function ColorSlotRow({
 }): React.JSX.Element {
   const color = value === undefined ? undefined : palette?.[value];
   return (
-    <View style={styles.stackRow} testID={testID}>
-      <View style={styles.fieldRow}>
+    <WorkbenchBlock style={styles.stackRow} testID={testID} section="stackRow">
+      <WorkbenchBlock style={styles.fieldRow} section="fieldRow">
         {color === undefined ? (
           <Chip
             label={value === undefined ? '—' : String(value + 1)}
@@ -1633,7 +1897,7 @@ function ColorSlotRow({
           />
         )}
         <Text style={styles.fieldLabel}>{label}</Text>
-      </View>
+      </WorkbenchBlock>
       {open && (
         <ColorIndexPicker
           palette={palette}
@@ -1648,7 +1912,7 @@ function ColorSlotRow({
           testIDPrefix={`${testID}-picker`}
         />
       )}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1675,9 +1939,13 @@ function ColorIndexPicker({
 }): React.JSX.Element {
   const count = LED_COLOR_INDEX_MAX + 1;
   return (
-    <View style={styles.chipRow} testID={testIDPrefix}>
+    <WorkbenchBlock
+      style={styles.chipRow}
+      testID={testIDPrefix}
+      section="chipRow"
+    >
       {mixed && <Text style={styles.mixed}>{mixedLabel}</Text>}
-      {Array.from({length: count}, (_unused, index) => {
+      {Array.from({ length: count }, (_unused, index) => {
         const color = palette?.[index];
         const selected = value === index;
         /* On a board with no palette the INDEX is still true and the
@@ -1704,7 +1972,7 @@ function ColorIndexPicker({
           />
         );
       })}
-    </View>
+    </WorkbenchBlock>
   );
 }
 
@@ -1726,8 +1994,8 @@ function resourceOf(resource: string): LedSaveGroup {
  * ================================================================== */
 
 const styles = StyleSheet.create({
-  root: {flex: 1, backgroundColor: colors.background},
-  scroll: {flex: 1},
+  root: { flex: 1, backgroundColor: colors.background },
+  scroll: { flex: 1 },
   content: {
     alignSelf: 'center',
     width: '100%',
@@ -1735,17 +2003,25 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingBottom: spacing.xxl * 3,
   },
-  header: {gap: spacing.xs},
-  title: {...typography.title, color: colors.textPrimary},
+  header: { gap: spacing.xs },
+  title: { ...typography.title, color: colors.textPrimary },
   /* THE READING MEASURE, and it is not decorative here. Measured in
      Chromium before the workspace was allowed to fill the viewport: this
      subtitle already ran 1676px at 1920 and 2004px at 2560, because it
      was the one prose style in this file with no cap at all. Letting the
      workspace reach a 3440 monitor would have made it a 3196px line. */
-  subtitle: {...typography.body, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  status: {...typography.body, color: colors.textSecondary, maxWidth: PROSE_MEASURE},
-  section: {gap: spacing.md},
-  sectionTitle: {...typography.sectionTitle, color: colors.textPrimary},
+  subtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  status: {
+    ...typography.body,
+    color: colors.textSecondary,
+    maxWidth: PROSE_MEASURE,
+  },
+  section: { gap: spacing.md },
+  sectionTitle: { ...typography.sectionTitle, color: colors.textPrimary },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.md,
@@ -1754,27 +2030,35 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  cardTitle: {...typography.heading, color: colors.textPrimary},
-  groupTitle: {...typography.label, color: colors.textSecondary, marginTop: spacing.sm},
-  caption: {...typography.caption, color: colors.textMuted, maxWidth: PROSE_MEASURE},
-  noticeText: {...typography.body, color: colors.textPrimary},
-  workspace: {gap: spacing.md},
-  column: {gap: spacing.md},
+  cardTitle: { ...typography.heading, color: colors.textPrimary },
+  groupTitle: {
+    ...typography.label,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
+  },
+  caption: {
+    ...typography.caption,
+    color: colors.textMuted,
+    maxWidth: PROSE_MEASURE,
+  },
+  noticeText: { ...typography.body, color: colors.textPrimary },
+  workspace: { gap: spacing.md },
+  column: { gap: spacing.md },
   // The canvas owns its horizontal scrolling; it must release width to
   // the inspector instead of squeezing its controls off the tablet.
-  gridPane: {flexGrow: 0, flexShrink: 1, minWidth: 0},
-  inspectorPane: {flexGrow: 1, flexShrink: 0, flexBasis: 280, minWidth: 0},
-  actions: {gap: spacing.sm},
+  gridPane: { flexGrow: 0, flexShrink: 1, minWidth: 0 },
+  inspectorPane: { flexGrow: 1, flexShrink: 0, flexBasis: 280, minWidth: 0 },
+  actions: { gap: spacing.sm },
   fieldRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     flexWrap: 'wrap',
   },
-  stackRow: {gap: spacing.xs},
-  fieldLabel: {...typography.label, color: colors.textPrimary},
-  mixed: {...typography.caption, color: colors.warning},
-  outOfRange: {...typography.caption, color: colors.warning},
+  stackRow: { gap: spacing.xs },
+  fieldLabel: { ...typography.label, color: colors.textPrimary },
+  mixed: { ...typography.caption, color: colors.warning },
+  outOfRange: { ...typography.caption, color: colors.warning },
   badge: {
     ...typography.caption,
     color: colors.accentStrong,
@@ -1784,7 +2068,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     alignSelf: 'flex-start',
   },
-  technicalLine: {...typography.caption, color: colors.textMuted},
+  technicalLine: { ...typography.caption, color: colors.textMuted },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1797,8 +2081,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     flexWrap: 'wrap',
   },
-  orderNumber: {...typography.value, color: colors.textPrimary, minWidth: 28},
-  orderCoords: {...typography.caption, color: colors.textSecondary},
+  orderNumber: { ...typography.value, color: colors.textPrimary, minWidth: 28 },
+  orderCoords: { ...typography.caption, color: colors.textSecondary },
   /* THE PRIORITY LIST HAS TO READ AS ONE COLUMN.
      Without an explicit alignment each row picks its own paragraph
      direction from its first STRONG character, so "1. تحذير" aligned
@@ -1826,6 +2110,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  swatchSelected: {borderWidth: 3, borderColor: colors.accentStrong},
-  swatchLabel: {...typography.caption},
+  swatchSelected: { borderWidth: 3, borderColor: colors.accentStrong },
+  swatchLabel: { ...typography.caption },
 });

@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import type { TextStyle } from 'react-native';
 
 /** Self-hosted Lato on web and Android; system sans-serif on other native targets. */
-const LATO_WEB_STACK = "'Lato', 'Segoe UI', system-ui, sans-serif";
+const LATO_WEB_STACK = "Lato, Arial, system-ui, sans-serif";
 const MONO_WEB_STACK =
   "ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace";
 export const fonts = {

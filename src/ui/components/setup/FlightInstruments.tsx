@@ -516,15 +516,7 @@ function FlightInstruments({
 export default memo(FlightInstruments);
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginTop: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
-    backgroundColor: colors.backgroundRaised,
-  },
+  container:{width:'100%',padding:0,marginTop:0,backgroundColor:'transparent'},
   sidebarContainer: {
     width: 'auto',
     marginTop: 0,
@@ -561,13 +553,7 @@ const styles = StyleSheet.create({
   statusTextWaiting: { color: colors.textMuted },
   statusTextStale: { color: colors.warning },
   statusTextError: { color: colors.error },
-  instrumentsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
+  instrumentsRow:{flexDirection:'row',justifyContent:'flex-end',alignItems:'center',gap:12},
   instrumentsRowStacked: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -584,13 +570,7 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSoft,
     backgroundColor: colors.backgroundRaised,
   },
-  instrumentLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
+  instrumentLabel:{display:'none'},
   instrumentFace: {
     overflow: 'hidden',
     borderWidth: 2,

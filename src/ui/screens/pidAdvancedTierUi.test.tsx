@@ -127,7 +127,7 @@ async function save(renderer: ReactTestRenderer.ReactTestRenderer): Promise<void
 }
 /** Open the one advanced disclosure and one group inside it. */
 function openGroup(renderer: ReactTestRenderer.ReactTestRenderer, group: string): void {
-  press(renderer, 'pid-advanced-toggle');
+  press(renderer, 'pid-tab-expert');
   press(renderer, `pid-advanced-groups-${group}-toggle`);
 }
 /** A simplified PID block with the generator ON across all three axes. */
@@ -154,12 +154,13 @@ function simplifiedFilterOn(lpf1: number, lpf2: number): Uint8Array {
 }
 
 describe('P-E: the expert tier reaches the board', () => {
-  it('1. keeps the tier behind ONE disclosure, with every group folded', async () => {
+  it('1. keeps the expert workspace behind its tab, with every group folded', async () => {
     const h = harness();
     const renderer = await render(h.port);
     // Before opening: no group body anywhere on the page.
-    expect(exists(renderer, 'pid-advanced-groups')).toBe(false);
-    press(renderer, 'pid-advanced-toggle');
+    expect(renderer.root.findAllByProps({testID:'pid-tab-expert'}).some(n=>n.props.accessibilityState?.selected===false)).toBe(true);
+    expect(renderer.root.findAllByProps({testID:'pid-view-expert'}).some(n=>JSON.stringify(n.props.style).includes('none'))).toBe(true);
+    press(renderer, 'pid-tab-expert');
     expect(exists(renderer, 'pid-advanced-groups')).toBe(true);
     for (const group of ['D_MAX', 'TPA', 'GYRO_FILTERS', 'DTERM_FILTERS']) {
       expect(exists(renderer, `pid-advanced-groups-${group}-toggle`)).toBe(true);
@@ -234,7 +235,7 @@ describe('P-E: the expert tier reaches the board', () => {
   it('6. sends NOTHING when the tier is only opened and read', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     for (const group of ['D_MAX', 'FEEDFORWARD', 'TPA', 'ITERM', 'LIMITS', 'BATTERY', 'GYRO_FILTERS', 'DTERM_FILTERS']) {
       press(renderer, `pid-advanced-groups-${group}-toggle`);
     }
@@ -317,7 +318,7 @@ describe('P-E: the expert tier reaches the board', () => {
   it('12. states the SCOPE of the gyro group and the D-term group differently', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     const scopeOf = (group: string): string => {
       const node = renderer.root.findAllByProps({testID: `pid-advanced-groups-${group}-scope`})[0];
       return String(node.props.children);
@@ -375,7 +376,7 @@ describe('P-E: the expert tier reaches the board', () => {
   it('16. shows only the fields API 1.47 really carries, with no invented tail', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     expect(exists(renderer, 'pid-rpm-filter')).toBe(true);
     expect(exists(renderer, 'pid-rpm-filter-harmonics')).toBe(true);
     expect(exists(renderer, 'pid-rpm-filter-minHz')).toBe(true);
@@ -392,7 +393,7 @@ describe('P-E: the whole-profile operations', () => {
   it('17. keeps profile management folded until it is asked for', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     expect(exists(renderer, 'pid-profile-management')).toBe(true);
     expect(exists(renderer, 'pid-profile-management-body')).toBe(false);
     press(renderer, 'pid-profile-management-toggle');
@@ -403,7 +404,7 @@ describe('P-E: the whole-profile operations', () => {
   it('18. counts the profile name in BYTES and refuses one that will not fit', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     typeInto(renderer, 'pid-profile-management-name-input', 'RACEDAY9');
     expect(screenText(renderer)).toContain("8 / 8 byte");
@@ -420,7 +421,7 @@ describe('P-E: the whole-profile operations', () => {
   it('19. calls the ASCII restriction its OWN policy, not a firmware limit', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     typeInto(renderer, 'pid-profile-management-name-input', 'سباق');
     expect(exists(renderer, 'pid-profile-management-name-non-ascii')).toBe(true);
@@ -434,7 +435,7 @@ describe('P-E: the whole-profile operations', () => {
   it('20. renames the profile and reports the READBACK, not the acknowledgement', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     typeInto(renderer, 'pid-profile-management-name-input', 'RACE2');
     await pressAsync(renderer, 'pid-profile-management-name-save');
@@ -448,7 +449,7 @@ describe('P-E: the whole-profile operations', () => {
     // smaller buffer proves the readback is what decides.
     const h = harness({quirks: {profileNameCapacity: 4}});
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     typeInto(renderer, 'pid-profile-management-name-input', 'RACE2');
     await pressAsync(renderer, 'pid-profile-management-name-save');
@@ -461,7 +462,7 @@ describe('P-E: the whole-profile operations', () => {
   it('22. refuses a copy onto the ACTIVE profile and says whose rule that is', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     press(renderer, 'pid-profile-management-copy-source-1');
     press(renderer, `pid-profile-management-copy-destination-${h.board.activePidProfile()}`);
@@ -475,7 +476,7 @@ describe('P-E: the whole-profile operations', () => {
   it('23. refuses a copy whose source and destination are the same', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     press(renderer, 'pid-profile-management-copy-source-2');
     press(renderer, 'pid-profile-management-copy-destination-2');
@@ -488,7 +489,7 @@ describe('P-E: the whole-profile operations', () => {
   it('24. copies one inactive profile onto another and verifies it field by field', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     press(renderer, 'pid-profile-management-copy-source-1');
     press(renderer, 'pid-profile-management-copy-destination-2');
@@ -501,7 +502,7 @@ describe('P-E: the whole-profile operations', () => {
   it('25. confirms before a reset, and sends nothing if the confirmation is cancelled', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     press(renderer, 'pid-profile-management-reset-open');
     expect(exists(renderer, 'pid-profile-management-reset-confirm')).toBe(true);
@@ -514,7 +515,7 @@ describe('P-E: the whole-profile operations', () => {
   it('26. reports a reset as APPLIED, PARTIALLY VERIFIED and NOT PERSISTED', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     press(renderer, 'pid-profile-management-reset-open');
     await pressAsync(renderer, 'pid-profile-management-reset-run');
@@ -532,7 +533,7 @@ describe('P-E: the whole-profile operations', () => {
   it('27. reloads the profile NAME after a reset rather than showing the old one', async () => {
     const h = harness();
     const renderer = await render(h.port);
-    press(renderer, 'pid-advanced-toggle');
+    press(renderer, 'pid-tab-expert');
     press(renderer, 'pid-profile-management-toggle');
     typeInto(renderer, 'pid-profile-management-name-input', 'BEFORE');
     await pressAsync(renderer, 'pid-profile-management-name-save');

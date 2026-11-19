@@ -21,6 +21,7 @@ import {AppRegistry} from 'react-native';
 // the woff2 files and rewrites the urls for the GitHub Pages base path;
 // Metro never sees this file (index.js is the native entry).
 import './src/web/lato.css';
+import './src/web/fiercon-workbench.css';
 
 // Restores direction inheritance for react-native-web's `dir="auto"` text
 // nodes, which otherwise re-decide direction per sentence from the first
